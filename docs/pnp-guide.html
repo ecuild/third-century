@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>三世纪：罗马的黄昏 · 组件清单与 PnP 折装说明</title>
+<style>
+@page { size: A4; margin: 16mm 14mm 15mm 14mm; }
+* { box-sizing: border-box; }
+body {
+  font-family: "Noto Serif CJK SC","Songti SC","SimSun",serif;
+  color: #2b2118; margin: 0; font-size: 9.6pt; line-height: 1.62;
+}
+h1 {
+  font-size: 20pt; text-align: center; margin: 0 0 2mm;
+  letter-spacing: 1px;
+}
+.sub { text-align: center; color: #5b4f3a; font-size: 9pt; margin-bottom: 8mm; }
+h2 {
+  font-size: 12.5pt; margin: 7mm 0 3mm; padding: 1.6mm 3mm;
+  background: #9c7a1e; color: #fff; border-radius: 1.4mm;
+  page-break-after: avoid;
+}
+h3 { font-size: 10.4pt; margin: 4.5mm 0 2mm; color: #9c7a1e; page-break-after: avoid; }
+p { margin: 1.6mm 0; }
+table { width: 100%; border-collapse: collapse; margin: 2mm 0 4mm; }
+th, td { border: .5pt solid #c9a227; padding: 1.5mm 2mm; vertical-align: top; }
+th { background: #efe3c4; font-weight: 700; }
+td.c, th.c { text-align: center; }
+thead { display: table-header-group; }
+tr { page-break-inside: avoid; }
+code { background: #f0e8d2; padding: .3mm 1.2mm; border-radius: .8mm; font-size: 8.6pt; }
+.box {
+  border: .6pt solid #c9a227; background: #fbf6e6;
+  border-radius: 1.6mm; padding: 2.6mm 3.2mm; margin: 2.6mm 0;
+}
+.box.warn { border-color: #b5462f; background: #fbeeE9; }
+.box-t { font-weight: 700; color: #9c7a1e; margin-bottom: 1.2mm; font-size: 9.6pt; }
+.box.warn .box-t { color: #b5462f; }
+ul, ol { margin: 1.4mm 0; padding-left: 6mm; }
+li { margin: .8mm 0; }
+.note { font-size: 8.6pt; color: #5b4f3a; margin: 1.2mm 0; }
+.tag {
+  display: inline-block; font-size: 7.6pt; padding: .3mm 1.6mm;
+  border-radius: .8mm; background: #9c7a1e; color: #fff; margin-right: 1.4mm;
+}
+.tag.b { background: #2f6f9f; }
+.tag.g { background: #4e8a4f; }
+.two { display: flex; gap: 4mm; }
+.two > div { flex: 1; }
+.avoid { page-break-inside: avoid; }
+</style>
+</head>
+<body>
+
+<h1>组件清单与 PnP 折装说明</h1>
+<div class="sub">三世纪：罗马的黄昏 · 8 人局 · 打印与制作手册</div>
+
+<div class="box">
+  <div class="box-t">本文档用途</div>
+  <p>本页汇总<b>全部游戏组件</b>的数量、来源页与 PnP（Print &amp; Play）折装方法。组件口径与《规则书》第 2 章「配件清单」<b>完全一致</b>；如两者出现歧义，以规则书第 2 章为准。</p>
+</div>
+
+<h2>一、组件总表</h2>
+<table>
+  <thead>
+    <tr>
+      <th class="c" style="width:7mm">#</th>
+      <th style="width:30mm">组件</th>
+      <th class="c" style="width:20mm">数量</th>
+      <th>说明</th>
+      <th class="c" style="width:17mm">来源页</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="c">1</td>
+      <td>部队牌（按战线分堆）</td>
+      <td class="c">60 × 8 副<br>共 480 张</td>
+      <td>每条战线一副<b>独立牌堆</b>：6 色 × 数字 1–10 = 60 张。8 副牌以<b>卡背图案</b>互相区分，互不流通。玩家每人每条战线各持 7 张手牌（共 14，两线不可混用）。</td>
+      <td class="c"><code>01</code> 正面<br><code>02</code> 牌背</td>
+    </tr>
+    <tr>
+      <td class="c">2</td>
+      <td>旗幟标记</td>
+      <td class="c">9 × 8<br>共 72 面</td>
+      <td>每条战线 9 面，标识 9 个争夺格。<b>无无人旗</b>：开局即全部归属该线双方（小编号席 5 面 / 大编号席 4 面），每人物两条线共 9 面、全局 72 面。夺旗严格零和（+1 / −1）。</td>
+      <td class="c"><code>05</code></td>
+    </tr>
+    <tr>
+      <td class="c">3</td>
+      <td>起始战场标记</td>
+      <td class="c">1</td>
+      <td>决定每回合结算起点，每回合<b>逆时针迁移 1 格</b>。开局置于战线 ①。</td>
+      <td class="c"><code>05</code></td>
+    </tr>
+    <tr>
+      <td class="c">3b</td>
+      <td>摊开方向指示器</td>
+      <td class="c">1（双面）</td>
+      <td><b>顺时针 / 逆时针双面箭头</b>，标示本回合摊开推进方向。8 条战线方向统一，故<b>全场只需 1 枚</b>；每回合统一翻面即可。与起始标记配合：标记定「从哪开始」，本件定「往哪绕」。</td>
+      <td class="c"><code>05</code></td>
+    </tr>
+    <tr>
+      <td class="c">4</td>
+      <td>弃牌堆</td>
+      <td class="c">8</td>
+      <td>每条战线各自一个；该线牌堆耗尽时洗回续用。战术牌离场<b>不入</b>弃牌堆（见规则 11.4）。</td>
+      <td class="c">无需打印</td>
+    </tr>
+    <tr>
+      <td class="c">5</td>
+      <td>中心区域板</td>
+      <td class="c">1</td>
+      <td>6 个中央势力争夺区并排（元老院 / 禁卫军 / 宫廷近臣 / 财政使 / 意大利城市 / 北非粮仓），对应 6 花色；每区含 1 个战术牌槽 + 影响力标记格 + 领袖位。</td>
+      <td class="c"><code>04</code></td>
+    </tr>
+    <tr>
+      <td class="c">6</td>
+      <td>战术牌</td>
+      <td class="c">10 张库<br>开局 6 张</td>
+      <td>效果库共 10 张：士气 4（领袖 ×2 / 御林铁骑 / 戍边军团）、环境 2、计谋 4。开局在 6 色区各随机放 1 张，其余留在库内，任何战术牌离场后<b>放回其来源色区</b>循环使用。</td>
+      <td class="c"><code>03</code></td>
+    </tr>
+    <tr>
+      <td class="c">7</td>
+      <td>领袖模型</td>
+      <td class="c">8（每人 1）</td>
+      <td>每玩家 1 个，用于中心区域移动；在该色区可移至任意区，不在则移入该区。领袖计 2 点影响力。</td>
+      <td class="c"><code>05</code></td>
+    </tr>
+    <tr>
+      <td class="c">8</td>
+      <td>影响力标记</td>
+      <td class="c">无限量</td>
+      <td>按<b>玩家势力</b>配色（8 色，各配历史徽记），非中央 6 色。每枚 1 点，随意复印。</td>
+      <td class="c"><code>05</code></td>
+    </tr>
+    <tr>
+      <td class="c">9</td>
+      <td>计分记录纸</td>
+      <td class="c">1</td>
+      <td>记录每人各战线得分与中心区域影响力（可自制或用速查卡背面代替）。</td>
+      <td class="c">—</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="note">※ 战场垫<b>不属于</b>本游戏组件：战线直接在桌面展开，牌与旗幟摆放于桌面即可。</div>
+
+<h2>二、PnP 打印页清单</h2>
+<p>共 <b>6 张</b>打印页（SVG 矢量，可任意缩放；建议 200–250 g 卡纸或普通纸打印后过塑）。</p>
+<table>
+  <thead>
+    <tr>
+      <th class="c" style="width:8mm">页号</th>
+      <th style="width:36mm">文件名</th>
+      <th>内容</th>
+      <th class="c" style="width:26mm">建议打印份数</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td class="c"><code>01</code></td><td>troop_cards</td><td>兵牌正面整页：6 色 × 数字 1–10 = 60 张（8 套牌共用此正面，靠牌背区分）。</td><td class="c">8 份<br>（每份 60 张）</td></tr>
+    <tr><td class="c"><code>02</code></td><td>card_backs</td><td>8 势力牌背（卡劳修斯 / 克罗库斯 / 奥勒良 / 尼瓦 / 沙普尔一世 / 芝诺比娅 / 巴高达 / 波斯图穆斯），各配史实徽记与席号。</td><td class="c">按需<br>（见折装 2.2）</td></tr>
+    <tr><td class="c"><code>03</code></td><td>tactics_cards</td><td>战术牌 10 张全图：士气 4 / 环境 2 / 计谋 4。</td><td class="c">1 份</td></tr>
+    <tr><td class="c"><code>04</code></td><td>central_board</td><td>中心区域板：6 色区并排，含战术牌槽、影响力格、领袖位。</td><td class="c">1 份<br>（建议过塑）</td></tr>
+    <tr><td class="c"><code>05</code></td><td>tokens</td><td>标记页：8 势力影响力标记、8 领袖模型、起始战场标记、<b>72 面旗幟</b>，附历史身份速查。</td><td class="c">1 份</td></tr>
+    <tr><td class="c"><code>06</code></td><td>player_reference</td><td>玩家速查卡（每位 1 张，建议打印 8 份）。</td><td class="c">8 份</td></tr>
+  </tbody>
+</table>
+
+<h2>三、折装与制作</h2>
+
+<h3>3.1 通用裁切</h3>
+<div class="box">
+  <div class="box-t">裁切线约定</div>
+  <ul>
+    <li>SVG 中每张牌 / 每个 token 均带描边，<b>沿描边外侧裁切</b>即可，不必逐张量线。</li>
+    <li>牌与 token 建议打印后过塑（laminate）；旗幟与领袖模型可过塑后用双面胶粘于硬纸片，增加厚度便于拿取。</li>
+    <li>若打印机不支持无边距打印，缩放至 <b>90%</b> 再打印，可避免裁切时误伤相邻牌。</li>
+  </ul>
+</div>
+
+<h3>3.2 部队牌（最耗时，建议分工）</h3>
+<ol>
+  <li><b>裁正面</b>：<code>01</code> 印 8 份，每份裁出 60 张正面 → 共 480 张。</li>
+  <li><b>制牌背</b>：<code>02</code> 每页含 8 种牌背。为省纸可用以下任一方案：
+    <ul>
+      <li><b>方案 A（推荐，最省）</b>：8 张牌背各印 1 张作「样张」，过塑后作为<b>牌堆标识牌</b>插在牌堆最上方/侧边；牌张统一用素色卡纸制作，牌堆靠标识牌区分。</li>
+      <li><b>方案 B（最简）</b>：买 8 色卡纸各裁 60 张作牌背，色对应 8 势力，<b>零打印</b>。</li>
+      <li><b>方案 C（最正式）</b>：<code>02</code> 每种牌背印 60 张（480 张），与正面背胶合成，最耗时但手感最佳。</li>
+    </ul>
+  </li>
+  <li><b>合成</b>：正面与牌背背胶贴合（或双面打印后对压），边缘修齐。480 张建议分 8 摞按势力标好「①②…⑧」上架。</li>
+  <li><b>分装</b>：每副 60 张装一只牌盒 / 收纳袋，盒面贴对应势力牌背，<b>严禁混盒</b>（8 副牌互不流通）。</li>
+</ol>
+
+<h3>3.3 旗幟（72 面）</h3>
+<ol>
+  <li><code>05</code> 旗帜区按「线 1–8」每行 9 面裁下，共 72 面。</li>
+  <li>旗面印有数字 1–9，为<b>该线内的旗位号</b>（非战线号）；同一战线 9 面编号相同、不同战线编号重复，属正常。</li>
+  <li>过塑后可用细竹签 / 牙签作旗杆粘于背面，或直接平放于格位前方（平放更省事，规则允许）。</li>
+</ol>
+
+<h3>3.4 中心区域板</h3>
+<ol>
+  <li><code>04</code> 印 1 份，<b>过塑</b>（中心板是全场公共信息，磨损最直接）。</li>
+  <li>六个色区按左至右对应 6 花色；区域名与拉丁名一一对应，花色即兵牌的 6 种颜色。</li>
+  <li>若 A4 打印后色区偏小，可打印在 <b>A3</b> 或拼接两张 A4（沿色区间裁开、用胶带背面拼接）。</li>
+</ol>
+
+<h3>3.5 影响力标记（8 势力）</h3>
+<ol>
+  <li>标记按<b>玩家势力</b>配色，<b>不是</b>中央 6 色——两者务必区分：区域用中央 6 色，占位用玩家 8 色。</li>
+  <li>按行裁下即可，每行 12 枚；数量无限，按需多印。8 色混在一盒会让记分困难，建议<b>每位玩家一套</b>（同一势力色）分发。</li>
+</ol>
+
+<h3>3.6 领袖模型与起始标记</h3>
+<ul>
+  <li>8 个领袖模型：过塑后粘于厚卡纸片或一枚硬币 / 瓶盖上，<b>底面加厚</b>以便在中心板格位内稳定站立。</li>
+  <li>起始战场标记：过塑后可粘一枚磁扣，便于在桌面上频繁迁移（每回合逆时针推进）。</li>
+</ul>
+
+<h3>3.7 战术牌与速查卡</h3>
+<ul>
+  <li>战术牌 10 张：过塑即可，不需牌背（正面朝上放中心区牌槽）。</li>
+  <li>速查卡建议印 8 份（或打印 1 份过塑后传阅）；亦可作为计分记录纸使用。</li>
+</ul>
+
+<h2>四、开局摆放速查</h2>
+<ol>
+  <li>展开中心区域板置桌面中央，六色区朝外对齐玩家。</li>
+  <li>8 条战线沿环形座位摆开：战线 <code>i</code> 由第 <code>i</code> 席与第 <code>i+1</code> 席对战（<code>8↔1</code> 闭合）。每条战线摆 <b>9 个争夺格</b>。</li>
+  <li>每条战线取一副牌（60 张）作牌堆，置于该线一端，<b>8 副牌严格对应 8 条线</b>。</li>
+  <li><b>分配 72 面旗幟</b>：每条战线 9 面，按「<b>席号小者 5 面 / 席号大者 4 面</b>」归属该线双方（如战线①：1 席 5 面、2 席 4 面；战线⑧：8 席 5 面、1 席 4 面）。每人两条线共 9 面，<b>全局 72 面全部有主</b>。</li>
+  <li>每人从<b>自己两条战线</b>的牌堆各摸 <b>7 张</b>（共 14 张），<b>分两叠放</b>，不可混。</li>
+  <li>6 色区各随机放入 1 张战术牌（共 6 张入区，4 张留库）。</li>
+  <li>每人将领袖置于中心板任一色区；起始战场标记置于战线 ①。</li>
+</ol>
+
+<div class="box">
+  <div class="box-t">每回合出牌三步（选线 → 选战场 → 扣牌）</div>
+  <p>1) <b>选战线</b>：你镇守 2 条，各扣 1 张，选哪条由你定（<b>不受结算顺序限制</b>）；2) <b>选战场</b>：该线上一个<b>未决出</b>的旗幟格（已决出的格不可再投牌）；3) <b>扣牌</b>：从<b>该线手牌</b>选 1 张面朝下放入该格。暗扣同时进行，对手看不到你选了哪条——<b>「选线」即核心博弈</b>。</p>
+</div>
+
+<div class="box warn">
+  <div class="box-t">最容易踩的三个坑</div>
+  <ul>
+    <li><b>手牌混线</b>：两线手牌必须分开摆放并暗记，补牌/出牌都只动对应那一叠。</li>
+    <li><b>牌背混淆</b>：8 副牌一旦混副，双线对战的信息完整性即崩塌，建议分盒分色。</li>
+    <li><b>标记认错归属</b>：影响力标记看<b>颜色 + 徽记</b>（玩家势力），中心区域看<b>色区</b>（中央势力），两套色系不要对调。</li>
+  </ul>
+</div>
+
+</body>
+</html>

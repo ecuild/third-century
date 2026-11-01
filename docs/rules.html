@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>三世纪：罗马的黄昏 · 规则手册</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 16mm 16mm; }
+
+  :root{
+    --ink:#1b1a18;
+    --ink-2:#4a4741;
+    --ink-3:#7d7970;
+    --line:#d9d5cc;
+    --line-2:#ebe8e1;
+    --bg-soft:#f7f5f0;
+    --bg-head:#2f2c27;
+    --accent:#8a3324;
+    --accent-soft:#f4e9e4;
+    --blue:#2a4a6b;
+    --blue-soft:#e7eef5;
+    --green:#2c6b3f;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    font-family:"Microsoft YaHei","PingFang SC","Source Han Sans SC","Hiragino Sans GB",sans-serif;
+    font-size:10.2pt;
+    line-height:1.72;
+    color:var(--ink);
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+
+  .cover{
+    height:247mm;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    border-top:5px solid var(--bg-head);
+    padding-top:14mm;
+    page-break-after:always;
+  }
+  .cover-mark{ font-size:8.5pt; letter-spacing:.32em; color:var(--ink-3); text-transform:uppercase; }
+  .cover-title{ font-size:31pt; font-weight:700; line-height:1.24; letter-spacing:.02em; margin:0; }
+  .cover-sub{ font-size:12.5pt; color:var(--ink-2); font-weight:400; margin-top:5mm; line-height:1.7; }
+  .cover-en{ font-size:9pt; color:var(--ink-3); letter-spacing:.18em; margin-top:3mm; }
+  .cover-badges{ display:flex; flex-wrap:wrap; gap:3mm; margin-top:9mm; }
+  .badge{
+    border:.5pt solid var(--line);
+    border-radius:2mm;
+    padding:1.6mm 3.4mm;
+    font-size:8.6pt;
+    color:var(--ink-2);
+    background:var(--bg-soft);
+  }
+  .cover-foot{
+    border-top:.5pt solid var(--line);
+    padding-top:5mm;
+    display:flex;
+    justify-content:space-between;
+    font-size:8.4pt;
+    color:var(--ink-3);
+  }
+
+  h1{
+    font-size:15pt; font-weight:700;
+    margin:0 0 1mm 0;
+    padding-bottom:2.4mm;
+    border-bottom:1.2pt solid var(--bg-head);
+  }
+  h1 .h1-no{
+    display:inline-block;
+    font-size:9pt; font-weight:700;
+    color:#fff; background:var(--bg-head);
+    border-radius:1.4mm;
+    padding:.5mm 2.2mm;
+    margin-right:3mm;
+    vertical-align:1.2mm;
+  }
+  h2{
+    font-size:11.4pt; font-weight:700;
+    margin:7mm 0 2.4mm 0;
+    padding-left:2.6mm;
+    border-left:2.6pt solid var(--accent);
+  }
+  h3{ font-size:10.2pt; font-weight:700; margin:4.6mm 0 1.6mm 0; color:var(--ink); }
+  h4{ font-size:9.6pt; font-weight:700; margin:3.6mm 0 1.2mm 0; color:var(--ink-2); }
+
+  p{ margin:0 0 2.4mm 0; }
+  ul,ol{ margin:0 0 2.6mm 0; padding-left:6.2mm; }
+  li{ margin-bottom:1.1mm; }
+  li>ul,li>ol{ margin-top:1.1mm; }
+  strong{ font-weight:700; }
+  em{ font-style:normal; font-weight:700; color:var(--accent); }
+
+  .sec{ page-break-before:always; }
+  .sec.first{ page-break-before:avoid; }
+
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:9.1pt;
+    margin:2.4mm 0 4mm 0;
+  }
+  th,td{
+    border:.5pt solid var(--line);
+    padding:1.9mm 2.4mm;
+    text-align:left;
+    vertical-align:top;
+    line-height:1.55;
+  }
+  thead th{
+    background:var(--bg-head);
+    color:#fff;
+    font-weight:700;
+    font-size:8.9pt;
+    border-color:var(--bg-head);
+  }
+  tbody tr:nth-child(even){ background:#fbfaf7; }
+  td.c,th.c{ text-align:center; }
+  table.tight th,table.tight td{ padding:1.4mm 2mm; font-size:8.7pt; }
+
+  .box{
+    border:.5pt solid var(--line);
+    border-left:2.6pt solid var(--blue);
+    background:var(--blue-soft);
+    border-radius:1.6mm;
+    padding:2.8mm 3.4mm;
+    margin:3mm 0;
+    font-size:9.3pt;
+  }
+  .box.warn{ border-left-color:var(--accent); background:var(--accent-soft); }
+  .box.green{ border-left-color:var(--green); background:#e9f2ec; }
+  .box .box-t{ font-weight:700; margin-bottom:1.2mm; font-size:9.4pt; }
+  .box p:last-child,.box ul:last-child,.box ol:last-child{ margin-bottom:0; }
+
+  .note{
+    font-size:8.6pt; color:var(--ink-3);
+    border-top:.5pt dashed var(--line);
+    border-bottom:.5pt dashed var(--line);
+    padding:1.8mm 0; margin:3mm 0;
+  }
+
+  .tag{
+    display:inline-block;
+    font-size:7.6pt; font-weight:700;
+    border-radius:1mm; padding:.3mm 1.6mm;
+    vertical-align:.6mm;
+    letter-spacing:.04em;
+  }
+  .tag-fix{ background:#dfe9df; color:#2c4a2c; border:.5pt solid #b9cdb9; }
+  .tag-def{ background:#fdf3d9; color:#6b4c12; border:.5pt solid #e6d3a0; }
+  .tag-todo{ background:#fbe4e0; color:#8a3324; border:.5pt solid #e7c4bb; }
+
+  .kbd{
+    display:inline-block;
+    border:.5pt solid var(--line);
+    border-bottom-width:1.2pt;
+    border-radius:1.2mm;
+    background:#fff;
+    padding:.2mm 1.6mm;
+    font-size:8.8pt; font-weight:700;
+  }
+
+  figure{ margin:4mm 0 5mm 0; text-align:center; page-break-inside:avoid; }
+  figure svg{ max-width:100%; height:auto; }
+  figcaption{ font-size:8.5pt; color:var(--ink-3); margin-top:2mm; }
+
+  .hand-grid{ display:flex; gap:2.4mm; margin:3mm 0 4mm 0; }
+  .hand{
+    flex:1;
+    border:.5pt solid var(--line);
+    border-radius:1.8mm;
+    background:#fff;
+    padding:2.4mm 1.6mm;
+    text-align:center;
+  }
+  .hand .t{ font-size:9.4pt; font-weight:700; margin-bottom:1.2mm; }
+  .hand .c{ font-family:Georgia,"Times New Roman",serif; font-size:13pt; font-weight:700; letter-spacing:.06em; }
+  .hand .r{ font-size:7.8pt; color:var(--ink-3); margin-top:1.2mm; }
+  .hand.p1{ border-color:#c9a227; }
+  .hand.p2{ border-color:#9aa5b1; }
+  .hand.p3{ border-color:#b98a5e; }
+  .hand.p4{ border-color:#7ba05b; }
+  .hand.p5{ border-color:#b0aca4; }
+
+  .toc{ font-size:9.6pt; }
+  .toc td{ border:none; padding:1.3mm 0; }
+  .toc td:first-child{ width:12mm; color:var(--ink-3); font-weight:700; }
+  .toc td:last-child{ text-align:right; color:var(--ink-3); }
+
+  .rev{ border:.5pt solid var(--accent); border-radius:2mm; background:var(--accent-soft); padding:3mm 3.4mm; margin:3mm 0 4mm; }
+  .rev .rt{ font-weight:700; font-size:9.6pt; margin-bottom:1.4mm; color:var(--accent); }
+  .rev ul{ margin-bottom:0; }
+
+  .changelog td{ font-size:8.6pt; }
+</style>
+</head>
+<body>
+
+<!-- ============ 封面 ============ -->
+<div class="cover">
+  <div>
+    <div class="cover-mark">THE THIRD CENTURY &nbsp;·&nbsp; Rulebook</div>
+    <h1 class="cover-title">三世纪<br>罗马的黄昏</h1>
+    <div class="cover-sub">
+      八雄割据的多人战线对战桌游<br>
+      重构于三世纪危机的历史现场
+    </div>
+    <div class="cover-en">8 WARLORDS &nbsp;/&nbsp; 8 RING BATTLEFRONTS &nbsp;/&nbsp; 6 CENTRAL POWERS</div>
+    <div class="cover-badges">
+      <span class="badge">2 – 8 人</span>
+      <span class="badge">战场数 = 人数 · 闭环双线</span>
+      <span class="badge">每战场 9 面旗幟</span>
+      <span class="badge">每战场独立牌堆 · 卡背区分</span>
+      <span class="badge">起始标记 钉 1-2 席 · 逆时针</span>
+      <span class="badge">同时暗扣 · 按序摊开</span>
+      <span class="badge">中央六势力争夺</span>
+      <span class="badge">积分制 · 无即胜条件</span>
+    </div>
+  </div>
+  <div class="cover-foot">
+    <div>多人割据 · 多战线阵型对战 · 桌面规则书</div>
+  </div>
+</div>
+
+<!-- ============ 目录 ============ -->
+<h1><span class="h1-no">目录</span>本手册结构</h1>
+
+<table class="toc">
+  <tr><td>序</td><td>背景与设定：三世纪的黄昏</td><td>3</td></tr>
+  <tr><td>1</td><td>游戏目标与胜利条件</td><td>4</td></tr>
+  <tr><td>2</td><td>配件清单</td><td>5</td></tr>
+  <tr><td>3</td><td>人数、战场数与座位安排</td><td>6</td></tr>
+  <tr><td>4</td><td>起始战场标记</td><td>7</td></tr>
+  <tr><td>5</td><td>牌型、主导花色与强度</td><td>9</td></tr>
+  <tr><td>6</td><td>回合结构与行动顺序</td><td>11</td></tr>
+  <tr><td>7</td><td>暗扣出牌与补牌</td><td>12</td></tr>
+  <tr><td>8</td><td>中心区域与影响力争夺</td><td>13</td></tr>
+  <tr><td>9</td><td>夺旗判定</td><td>16</td></tr>
+  <tr><td>10</td><td>计分与终局</td><td>17</td></tr>
+  <tr><td>11</td><td>战术牌（效果与打出规则）</td><td>18</td></tr>
+  </table>
+
+
+
+
+
+
+
+<!-- ============ 序 ============ -->
+<div class="sec">
+<h1><span class="h1-no">序</span>背景与设定：三世纪的黄昏</h1>
+
+<h2>序.1 历史背景</h2>
+<p>公元 3 世纪，罗马帝国陷入史称「三世纪危机」的连锁崩解：皇权频繁更迭、行省割据、外敌环伺、经济崩溃。本作以三世纪危机为舞台，将你投身为你并非抽象玩家，而是<strong>八位趁乱崛起的割据势力代表</strong>，环绕一张圆桌（即帝国版图）彼此征伐；桌心则是<strong>六股仍盘踞帝国核心的本土势力（NPC）</strong>，它们不占你的座次，却左右每一场较量的底色。</p>
+
+<h2>序.2 玩家扮演 · 八雄座次</h2>
+<p>8 位玩家依下表就座（环形）。除特别说明外，<strong>座次即玩家编号 P1–P8</strong>；顺时针依次为 P2→P3→P4→P5→P6→P7→P8→P1，第 8 席之后回到第 1 席，形成闭环。</p>
+<table>
+  <thead><tr><th class="c" style="width:13mm">座次</th><th style="width:32mm">势力</th><th style="width:34mm">扮演人物</th><th style="width:32mm">称号</th><th>身份</th></tr></thead>
+  <tbody>
+    <tr><td class="c">第1席</td><td>不列颠分离政权</td><td>卡劳修斯</td><td>不列颠的奥古斯都 / 海盗王</td><td>罗马海军将领，自立为不列颠皇帝</td></tr>
+    <tr><td class="c">第2席</td><td>阿勒曼尼/法兰克诸部</td><td>克罗库斯</td><td>阿勒曼尼人的国王 / 神庙毁灭者</td><td>莱茵河上游日耳曼部落联盟首领</td></tr>
+    <tr><td class="c">第3席</td><td>伊利里亚/多瑙河军团</td><td>奥勒良</td><td>世界光复者</td><td>伊利里亚军事集团出身的皇帝，帝国重新统一者</td></tr>
+    <tr><td class="c">第4席</td><td>哥特诸部</td><td>尼瓦</td><td>刀 / 皇帝杀手</td><td>哥特人首领，阵斩罗马皇帝德基乌斯</td></tr>
+    <tr><td class="c">第5席</td><td>萨珊波斯</td><td>沙普尔一世</td><td>伊朗人与非伊朗人的王中之王 / 大帝</td><td>萨珊波斯君主，俘虏罗马皇帝瓦勒良</td></tr>
+    <tr><td class="c">第6席</td><td>帕米拉帝国</td><td>芝诺比娅</td><td>奥古斯塔 / 东方女王</td><td>帕米拉统治者，自诩克利奥帕特拉继承人</td></tr>
+    <tr><td class="c">第7席</td><td>巴高达起义</td><td>埃里安努斯与阿曼杜斯</td><td>巴高达 / 自称皇帝</td><td>高卢底层起义领袖，宣布高卢脱离罗马</td></tr>
+    <tr style="background:var(--accent-soft)"><td class="c">第8席</td><td>高卢帝国</td><td>波斯图穆斯</td><td>奥古斯都 / 高卢帝国建立者</td><td>莱茵河军团统帅，西部独立政权创立者</td></tr>
+  </tbody>
+</table>
+<div class="note">本作采用<strong>全员双线闭环</strong>：8 席坐满一圈，相邻两席之间即一条战线，共 <strong>8 条战线</strong>，<strong>每位玩家恰好镇守 2 条战线</strong>（其左、右各一）。第 1 席（卡劳修斯）与第 8 席（波斯图穆斯）经战线 ①(1-2) 与 ⑧(8-1) 首尾相连。</div>
+
+<h2>序.3 环型座次示意</h2>
+<figure>
+<svg viewBox="0 0 500 340" xmlns="http://www.w3.org/2000/svg" style="max-width:160mm">
+  <g font-family="sans-serif">
+    <circle cx="250" cy="165" r="118" fill="none" stroke="#b4b2a9" stroke-width="0.6" stroke-dasharray="3 3"/>
+    <line x1="167" y1="82" x2="250" y2="47" stroke="#8a3324" stroke-width="2"/>
+    <line x1="132" y1="165" x2="167" y2="82" stroke="#8a3324" stroke-width="2"/>
+    <line x1="167" y1="248" x2="132" y2="165" stroke="#8a3324" stroke-width="2"/>
+    <line x1="250" y1="283" x2="167" y2="248" stroke="#8a3324" stroke-width="2"/>
+    <line x1="333" y1="248" x2="250" y2="283" stroke="#8a3324" stroke-width="2"/>
+    <line x1="368" y1="165" x2="333" y2="248" stroke="#8a3324" stroke-width="2"/>
+    <line x1="333" y1="82" x2="368" y2="165" stroke="#8a3324" stroke-width="2"/>
+    <line x1="250" y1="47" x2="333" y2="82" stroke="#8a3324" stroke-width="2"/>
+    <text x="200" y="58" text-anchor="middle" font-size="8" fill="#8a3324" font-weight="700">①</text>
+    <text x="140" y="118" text-anchor="middle" font-size="8" fill="#8a3324" font-weight="700">②</text>
+    <text x="140" y="212" text-anchor="middle" font-size="8" fill="#8a3324" font-weight="700">③</text>
+    <text x="200" y="272" text-anchor="middle" font-size="8" fill="#8a3324" font-weight="700">④</text>
+    <text x="300" y="272" text-anchor="middle" font-size="8" fill="#8a3324" font-weight="700">⑤</text>
+    <text x="360" y="212" text-anchor="middle" font-size="8" fill="#8a3324" font-weight="700">⑥</text>
+    <text x="360" y="118" text-anchor="middle" font-size="8" fill="#8a3324" font-weight="700">⑦</text>
+    <text x="291" y="64" text-anchor="middle" font-size="8" fill="#8a3324" font-weight="700">⑧</text>
+    <g font-size="9" font-weight="700" fill="#2c2c2a">
+      <circle cx="250" cy="47" r="15" fill="#fbfaf7" stroke="#888780" stroke-width="0.7"/><text x="250" y="51" text-anchor="middle">2</text>
+      <circle cx="333" cy="82" r="15" fill="#fbfaf7" stroke="#888780" stroke-width="0.7"/><text x="333" y="86" text-anchor="middle">3</text>
+      <circle cx="368" cy="165" r="15" fill="#fbfaf7" stroke="#888780" stroke-width="0.7"/><text x="368" y="169" text-anchor="middle">4</text>
+      <circle cx="333" cy="248" r="15" fill="#fbfaf7" stroke="#888780" stroke-width="0.7"/><text x="333" y="252" text-anchor="middle">5</text>
+      <circle cx="250" cy="283" r="15" fill="#fbfaf7" stroke="#888780" stroke-width="0.7"/><text x="250" y="287" text-anchor="middle">6</text>
+      <circle cx="167" cy="248" r="15" fill="#fbfaf7" stroke="#888780" stroke-width="0.7"/><text x="167" y="252" text-anchor="middle">7</text>
+      <circle cx="132" cy="165" r="15" fill="#fbfaf7" stroke="#888780" stroke-width="0.7"/><text x="132" y="169" text-anchor="middle">8</text>
+      <circle cx="167" cy="82" r="15" fill="#fbfaf7" stroke="#888780" stroke-width="0.7"/><text x="167" y="86" text-anchor="middle">1</text>
+    </g>
+    <g font-size="7.2" fill="#4a4741">
+      <text x="250" y="22" text-anchor="middle">克罗库斯</text>
+      <text x="351" y="66" text-anchor="middle">奥勒良</text>
+      <text x="392" y="169" text-anchor="middle">尼瓦</text>
+      <text x="351" y="266" text-anchor="middle">沙普尔一世</text>
+      <text x="250" y="308" text-anchor="middle">芝诺比娅</text>
+      <text x="149" y="266" text-anchor="middle">巴高达</text>
+      <text x="108" y="169" text-anchor="middle">波斯图穆斯</text>
+      <text x="149" y="66" text-anchor="middle">卡劳修斯</text>
+    </g>
+    <circle cx="209" cy="64" r="8" fill="#2f2c27"/>
+    <text x="209" y="67" text-anchor="middle" font-size="7.5" font-weight="700" fill="#fff">起</text>
+    <text x="209" y="85" text-anchor="middle" font-size="6.6" fill="#2f2c27">标记起点</text>
+  </g>
+</svg>
+<figcaption>八雄环型座次（闭环）：8 席首尾相连构成 8 条战线 ①–⑧，每人恰好镇守左右 2 条；起始标记钉于第 1–2 席之间的战线（①），每回合逆时针绕环推进</figcaption>
+</figure>
+
+<h2>序.4 中央六势力（NPC）</h2>
+<p>桌面中央的 6 个争夺区，不再是抽象颜色，而是<strong>六股仍掌控帝国核心的本土势力</strong>。它们<strong>不占玩家座次</strong>，作为中立 NPC 被所有玩家争夺。每个区域对应一种<strong>卡牌花色（颜色）</strong>，打出的牌依其花色在对应区域累积影响力（详见第 8 章）。</p>
+<table>
+  <thead><tr><th class="c" style="width:13mm">区域</th><th style="width:32mm">中央势力（NPC）</th><th class="c" style="width:22mm">对应花色</th><th>定位</th></tr></thead>
+  <tbody>
+    <tr><td class="c">①</td><td>元老院</td><td class="c">紫</td><td>帝国法理与元老权威，名义上的最高认可。</td></tr>
+    <tr><td class="c">②</td><td>禁卫军</td><td class="c">红</td><td>帝都卫戍，能废立皇帝的实际枪杆。</td></tr>
+    <tr><td class="c">③</td><td>宫廷近臣</td><td class="c">蓝</td><td>皇帝身边的内廷势力，密布耳目。</td></tr>
+    <tr><td class="c">④</td><td>财政使</td><td class="c">橙</td><td>掌管帝国财库与税赋，供血战争。</td></tr>
+    <tr><td class="c">⑤</td><td>意大利城市</td><td class="c">绿</td><td>帝国腹地城邦，人力与作坊所在。</td></tr>
+    <tr><td class="c">⑥</td><td>北非粮仓</td><td class="c">黄</td><td>埃及与北非行省，罗马的粮仓命脉。</td></tr>
+  </tbody>
+</table>
+<div class="note">花色与势力的对应为<strong>预设映射</strong>，你可自由重新分配（如将某势力改为其他颜色）。「对应花色」即第 8 章「颜色区」所依之色。</div>
+</div>
+
+
+
+<!-- ============ 1 ============ -->
+<div class="sec">
+<h1><span class="h1-no">1</span>游戏目标与胜利条件</h1>
+
+<h2>1.1 核心体验</h2>
+<p>本作是一场多人多线阵型对决：「<strong>多人多线 + 同时暗扣 + 中心影响力争夺</strong>」。玩家围坐成环，环上分布若干条彼此独立的对称战线，每条战线并行进行一场阵型对抗；同时桌面中央有 6 个颜色争夺区，玩家通过打出牌的颜色分配影响力，争夺战术牌并决定全局<strong>主导花色</strong>。</p>
+
+<h2>1.2 胜利条件</h2>
+<div class="box warn">
+  <div class="box-t">胜利条件</div>
+  <p>本作不设即胜条件。整局进行到终局条件满足为止，结束后比较<strong>总分</strong>，总分最高者获胜。</p>
+</div>
+
+<h3>积分规则 </h3>
+<table>
+  <thead><tr><th style="width:40mm">结果</th><th class="c" style="width:26mm">得分</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><strong>战胜对手</strong>（夺得一面旗幟）</td><td class="c"><strong style="color:#2c6b3f">+1</strong></td><td>每在一面旗幟上压过对手，计 1 分。</td></tr>
+    <tr><td><strong>战败于对手</strong>（旗幟被夺走）</td><td class="c"><strong style="color:#8a3324">−1</strong></td><td>旗幟被对手夺走，你失去 1 分。</td></tr>
+    <tr><td>未被夺走 / 无人宣告</td><td class="c">0</td><td>终局时仍未被对手夺走的旗幟，仍属原主，双方均不得分。</td></tr>
+  </tbody>
+</table>
+
+<div class="note">每面旗幟<strong>始终有归属</strong>（无无人旗，见 3.5），故夺旗一律<strong>严格零和</strong>：夺旗者 +1、原占据者必 −1，双方分数反向变动 1 分，全局总分恒为 0。出现负分说明该玩家某战线处于劣势，属正常。</div>
+
+<h2>1.3 双线玩家的计分</h2>
+<p>本作<strong>每位玩家同时镇守两条战线</strong>。该玩家<strong>不设独立身份、不加任何补偿</strong>，两战场得分<strong>合并计入同一总分</strong>，与其他玩家直接比较。</p>
+</div>
+
+<!-- ============ 2 ============ -->
+<div class="sec">
+<h1><span class="h1-no">2</span>配件清单</h1>
+
+<h2>2.1 必备配件</h2>
+<table>
+  <thead><tr><th style="width:8mm" class="c">#</th><th style="width:34mm">配件</th><th class="c" style="width:22mm">数量</th><th>说明与备注</th></tr></thead>
+  <tbody>
+    <tr><td class="c">1</td><td>部队牌（按战场分堆）</td><td class="c">60 × 8 副</td><td>每条战线一副<strong>独立牌堆</strong>，6 色 × 数字 1–10 共 60 张；<strong>8 副牌以卡背图案互相区分</strong>，互不流通。标准 8 人局共 480 张。每人每条战线<strong>各持 7 张手牌（共 14 张，两线不可混用）</strong>。</td></tr>
+    <tr><td class="c">2</td><td>旗幟标记</td><td class="c">9 × 8</td><td>每条战线 9 面，标识争夺格，共 72 面。</td></tr>
+    <tr><td class="c">3</td><td>起始战场标记</td><td class="c">1</td><td>决定本轮结算起点，每回合逆时针迁移。</td></tr>
+    <tr><td class="c">4</td><td>弃牌堆</td><td class="c">8</td><td>每条战线各自一个，牌堆耗尽时洗回使用。</td></tr>
+    <tr><td class="c">5</td><td>中心区域板</td><td class="c">1</td><td>含 6 个中央势力争夺区（元老院 / 禁卫军 / 宫廷近臣 / 财政使 / 意大利城市 / 北非粮仓），分别对应 6 花色，每区可放 1 张战术牌（见序章 4 / 第 8 章）。</td></tr>
+    <tr><td class="c">6</td><td>战术牌</td><td class="c">6（自 10 张库）</td><td>开局各抽 1 张随机战术牌，置于 6 色区；效果库共 10 张（见第 11 章）。</td></tr>
+    <tr><td class="c">7</td><td>领袖模型</td><td class="c">每人 1</td><td>每个玩家 1 个，用于中心区域移动；开局时由玩家自选放置到任意 6 色区（见 8.0）。</td></tr>
+    <tr><td class="c">8</td><td>影响力标记</td><td class="c">无限量</td><td>每位玩家若干，按颜色区分归属，无限供应。</td></tr>
+    <tr><td class="c">9</td><td>计分记录纸</td><td class="c">1</td><td>记录每人各战线得分与中心区域影响力。</td></tr>
+  </tbody>
+</table>
+
+<h2>2.2 部队牌构成</h2>
+<p><strong>6 种颜色，每色数字 1–10 各一张</strong>，共 60 张。颜色即后文「花色」，是主导花色机制的基础。</p>
+<div class="two-col">
+  <div>
+    <h3>颜色（6 种 = 6 花色）</h3>
+    <p>仅用于判定牌型与主导花色，<strong>颜色本身无强弱之分</strong>。建议采用易于区分的 6 色系。</p>
+    <h3>数字（1 – 10）</h3>
+    <p>用于「同牌型、同主导花色张数」下的点数比较。单张无点数价值。</p>
+  </div>
+  <div>
+    <h3>关键设定</h3>
+    <ul>
+      <li>每色 1–10 恰好各一张，故同色连续三张必为同花顺。</li>
+      <li>8 副牌堆之间<strong>互不流通</strong>，也不互相知晓内容；<strong>每副牌以独特卡背图案区分</strong>，玩家一眼可辨某张牌属于哪条战线。</li>
+      <li>「牌的颜色」是中心区域影响力分配的凭据（见第 8 章）；本作 6 色分别对应 6 个中央势力（元老院/禁卫军/宫廷近臣/财政使/意大利城市/北非粮仓，见序章 4）。</li>
+    </ul>
+  </div>
+</div>
+</div>
+
+<!-- ============ 3 ============ -->
+<div class="sec">
+<h1><span class="h1-no">3</span>人数、战场数与座位安排</h1>
+
+<h2>3.1 核心公式</h2>
+<div class="box warn">
+  <div class="box-t">战场数 = 人数（闭环双线）</div>
+  <p>8 位玩家坐成一圈，相邻两席之间即一条战线，共 <strong>8 条战线</strong>，<strong>每人恰好镇守 2 条</strong>（左、右各一）。此即方案 B：完整闭环，无空档、无单线玩家。</p>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th class="c" style="width:18mm">人数</th>
+      <th class="c" style="width:18mm">战场数</th>
+      <th class="c" style="width:26mm">每人镇守</th>
+      <th class="c" style="width:24mm">旗幟总数</th>
+      <th>说明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td class="c">2</td><td class="c">2</td><td class="c">各 2 条</td><td class="c">18</td><td>最小闭环：2 人各打 2 条（互相 2 线对决）。</td></tr>
+    <tr><td class="c">3</td><td class="c">3</td><td class="c">各 2 条</td><td class="c">27</td><td>闭环 3 战线，每人左右各 1 条。</td></tr>
+    <tr><td class="c">4</td><td class="c">4</td><td class="c">各 2 条</td><td class="c">36</td><td>闭环 4 战线。</td></tr>
+    <tr><td class="c">5</td><td class="c">5</td><td class="c">各 2 条</td><td class="c">45</td><td>闭环 5 战线。</td></tr>
+    <tr><td class="c">6</td><td class="c">6</td><td class="c">各 2 条</td><td class="c">54</td><td>闭环 6 战线。</td></tr>
+    <tr><td class="c">7</td><td class="c">7</td><td class="c">各 2 条</td><td class="c">63</td><td>闭环 7 战线。</td></tr>
+    <tr style="background:var(--accent-soft)"><td class="c"><strong>8</strong></td><td class="c"><strong>8</strong></td><td class="c"><strong>各 2 条</strong></td><td class="c"><strong>72</strong></td><td>标准局：8 席闭环，8 条战线，本作历史设定即此。</td></tr>
+  </tbody>
+</table>
+
+
+
+<h2>3.2 环型座次与战线布局</h2>
+<p>8 位玩家依<strong>序章</strong>所示就座成环。8 条战线落在环上 8 条「座次间连线」上，<strong>相邻两席之间均有一条战线</strong>，第 8 席（波斯图穆斯）与第 1 席（卡劳修斯）之间的战线 ⑧ 闭合整圈，<strong>无空档</strong>。起始标记钉在第 1 席—第 2 席的战线 ①（见 4.3）。</p>
+<p>由于是<strong>完整闭环</strong>，<strong>每位玩家恰好镇守左右 2 条战线</strong>，左右各一，无单线玩家、无特例。</p>
+<figure>
+<svg viewBox="0 0 500 235" xmlns="http://www.w3.org/2000/svg" style="max-width:155mm">
+  <g font-family="sans-serif">
+    <circle cx="250" cy="115" r="92" fill="none" stroke="#b4b2a9" stroke-width="0.6" stroke-dasharray="3 3"/>
+    <line x1="188" y1="53" x2="250" y2="27" stroke="#8a3324" stroke-width="2"/>
+    <line x1="162" y1="115" x2="188" y2="53" stroke="#8a3324" stroke-width="2"/>
+    <line x1="188" y1="177" x2="162" y2="115" stroke="#8a3324" stroke-width="2"/>
+    <line x1="250" y1="203" x2="188" y2="177" stroke="#8a3324" stroke-width="2"/>
+    <line x1="312" y1="177" x2="250" y2="203" stroke="#8a3324" stroke-width="2"/>
+    <line x1="338" y1="115" x2="312" y2="177" stroke="#8a3324" stroke-width="2"/>
+    <line x1="312" y1="53" x2="338" y2="115" stroke="#8a3324" stroke-width="2"/>
+    <line x1="250" y1="27" x2="312" y2="53" stroke="#8a3324" stroke-width="2"/>
+    <text x="214" y="36" text-anchor="middle" font-size="8" fill="#8a3324" font-weight="700">①</text>
+    <text x="172" y="80" text-anchor="middle" font-size="8" fill="#8a3324" font-weight="700">②</text>
+    <text x="172" y="150" text-anchor="middle" font-size="8" fill="#8a3324" font-weight="700">③</text>
+    <text x="214" y="194" text-anchor="middle" font-size="8" fill="#8a3324" font-weight="700">④</text>
+    <text x="286" y="194" text-anchor="middle" font-size="8" fill="#8a3324" font-weight="700">⑤</text>
+    <text x="328" y="150" text-anchor="middle" font-size="8" fill="#8a3324" font-weight="700">⑥</text>
+    <text x="328" y="80" text-anchor="middle" font-size="8" fill="#8a3324" font-weight="700">⑦</text>
+    <text x="281" y="36" text-anchor="middle" font-size="8" fill="#8a3324" font-weight="700">⑧</text>
+    <g font-size="8.5" font-weight="700" fill="#2c2c2a">
+      <circle cx="250" cy="27" r="13" fill="#fbfaf7" stroke="#888780" stroke-width="0.7"/><text x="250" y="31" text-anchor="middle">2</text>
+      <circle cx="312" cy="53" r="13" fill="#fbfaf7" stroke="#888780" stroke-width="0.7"/><text x="312" y="57" text-anchor="middle">3</text>
+      <circle cx="338" cy="115" r="13" fill="#fbfaf7" stroke="#888780" stroke-width="0.7"/><text x="338" y="119" text-anchor="middle">4</text>
+      <circle cx="312" cy="177" r="13" fill="#fbfaf7" stroke="#888780" stroke-width="0.7"/><text x="312" y="181" text-anchor="middle">5</text>
+      <circle cx="250" cy="203" r="13" fill="#fbfaf7" stroke="#888780" stroke-width="0.7"/><text x="250" y="207" text-anchor="middle">6</text>
+      <circle cx="188" cy="177" r="13" fill="#fbfaf7" stroke="#888780" stroke-width="0.7"/><text x="188" y="181" text-anchor="middle">7</text>
+      <circle cx="162" cy="115" r="13" fill="#fbfaf7" stroke="#888780" stroke-width="0.7"/><text x="162" y="119" text-anchor="middle">8</text>
+      <circle cx="188" cy="53" r="13" fill="#fbfaf7" stroke="#888780" stroke-width="0.7"/><text x="188" y="57" text-anchor="middle">1</text>
+    </g>
+    <circle cx="219" cy="40" r="7.5" fill="#2f2c27"/>
+    <text x="219" y="43" text-anchor="middle" font-size="7" font-weight="700" fill="#fff">起</text>
+    <text x="250" y="226" text-anchor="middle" font-size="8" fill="#2a4a6b" font-weight="700">↺ 标记每回合逆时针推进一格</text>
+  </g>
+</svg>
+<figcaption>8 人局（闭环）：8 条战线落于环上 8 条连线（①–⑧），2–3 席之间为闭合的战线 ⑧；每位玩家镇守左右各 1 条，标记起于 ① 并沿环逆时针推进</figcaption>
+</figure>
+
+<h2>3.3 战线分配规则</h2>
+<p>以第 1 席为锚，沿环依次布置 8 条战线，每线夹相邻两席：</p>
+<table class="tight">
+  <thead><tr><th class="c" style="width:14mm">战线</th><th class="c" style="width:30mm">对阵席次</th><th class="c" style="width:26mm">涉及玩家</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td class="c">①</td><td class="c">1 – 2</td><td class="c">卡劳修斯 ↔ 克罗库斯</td><td>起始标记钉于此（4.3）。</td></tr>
+    <tr><td class="c">②</td><td class="c">2 – 3</td><td class="c">克罗库斯 ↔ 奥勒良</td><td>—</td></tr>
+    <tr><td class="c">③</td><td class="c">3 – 4</td><td class="c">奥勒良 ↔ 尼瓦</td><td>—</td></tr>
+    <tr><td class="c">④</td><td class="c">4 – 5</td><td class="c">尼瓦 ↔ 沙普尔一世</td><td>—</td></tr>
+    <tr><td class="c">⑤</td><td class="c">5 – 6</td><td class="c">沙普尔一世 ↔ 芝诺比娅</td><td>—</td></tr>
+    <tr><td class="c">⑥</td><td class="c">6 – 7</td><td class="c">芝诺比娅 ↔ 巴高达</td><td>—</td></tr>
+    <tr><td class="c">⑦</td><td class="c">7 – 8</td><td class="c">巴高达 ↔ 波斯图穆斯</td><td>—</td></tr>
+    <tr style="background:var(--accent-soft)"><td class="c">⑧</td><td class="c">8 – 1</td><td class="c">波斯图穆斯 ↔ 卡劳修斯</td><td>闭合整圈，使首尾相连。</td></tr>
+  </tbody>
+</table>
+<p>每位玩家恰好出现在 2 条战线（如第 1 席 卡劳修斯 战 ① 与 ⑧；第 8 席 波斯图穆斯 战 ⑦ 与 ⑧）。<strong>8 条战线彼此独立、并行结算</strong>。</p>
+
+<h2>3.4 全员双线的无特权原则</h2>
+<p>由于<strong>每位玩家都镇守 2 条战线</strong>，「双线」不再是特权或负担，而是对称常态。以下原则对所有人一致：</p>
+<ul>
+  <li>不额外多发手牌：<strong>每条战线 7 张，双线共 14 张</strong>；两线手牌<strong>彼此独立、不可混用</strong>。</li>
+  <li>不额外获得行动次数（每回合在其两条战线各暗扣 1 张）。</li>
+  <li>不获得分数加成或减成；两条战线得分合并为个人总分。</li>
+  <li>中心区域领袖/影响力标记规则与他人完全一致。</li>
+</ul>
+
+<h2>3.5 旗幟的初始归属（无无人旗）</h2>
+<p>每条战线 9 面旗幟<strong>在开局时即全部归属该线两位玩家</strong>，<strong>不存在无人旗幟</strong>。分配方式：对每条战线，<strong>席号较小者取 5 面、席号较大者取 4 面</strong>（战线⑧「8 – 1」视为席 1 较大，故席 8 取 5 面、席 1 取 4 面）。逐线分配后，每名玩家在其两条战线上共得 <strong>9 面</strong>旗，全局 8 名玩家 <strong>共 72 面，全部有主</strong>。</p>
+<table class="tight">
+  <thead><tr><th class="c" style="width:16mm">战线</th><th class="c" style="width:34mm">对阵席次</th><th class="c" style="width:26mm">5 面（席号小）</th><th class="c" style="width:26mm">4 面（席号大）</th><th class="c" style="width:12mm">合计</th></tr></thead>
+  <tbody>
+    <tr><td class="c">①</td><td class="c">1 – 2</td><td class="c">1 卡劳修斯</td><td class="c">2 克罗库斯</td><td class="c">9</td></tr>
+    <tr><td class="c">②</td><td class="c">2 – 3</td><td class="c">2 克罗库斯</td><td class="c">3 奥勒良</td><td class="c">9</td></tr>
+    <tr><td class="c">③</td><td class="c">3 – 4</td><td class="c">3 奥勒良</td><td class="c">4 尼瓦</td><td class="c">9</td></tr>
+    <tr><td class="c">④</td><td class="c">4 – 5</td><td class="c">4 尼瓦</td><td class="c">5 沙普尔一世</td><td class="c">9</td></tr>
+    <tr><td class="c">⑤</td><td class="c">5 – 6</td><td class="c">5 沙普尔一世</td><td class="c">6 芝诺比娅</td><td class="c">9</td></tr>
+    <tr><td class="c">⑥</td><td class="c">6 – 7</td><td class="c">6 芝诺比娅</td><td class="c">7 巴高达</td><td class="c">9</td></tr>
+    <tr><td class="c">⑦</td><td class="c">7 – 8</td><td class="c">7 巴高达</td><td class="c">8 波斯图穆斯</td><td class="c">9</td></tr>
+    <tr style="background:var(--accent-soft)"><td class="c">⑧</td><td class="c">8 – 1</td><td class="c">8 波斯图穆斯</td><td class="c">1 卡劳修斯</td><td class="c">9</td></tr>
+  </tbody>
+</table>
+<div class="box">
+  <div class="box-t">对称性验算</div>
+  <p>每人两条战线各取「一线 5 面 + 一线 4 面」= <strong>9 面</strong>，8 人 × 9 = 72 面整。每条战线内部 5/4 略有不均，但<strong>跨线恰好抵消、全局绝对对称</strong>，不影响先后手公平（先后手由 6.3 独立轮转）。</p>
+</div>
+</div>
+
+<!-- ============ 4 ============ -->
+<div class="sec">
+<h1><span class="h1-no">4</span>起始战场标记</h1>
+
+<div class="box warn">
+  <div class="box-t">本作核心机制之一 </div>
+  <p>场上有一枚<strong>起始战场标记</strong>。每回合结算结束后，标记沿<strong>逆时针方向推进一条战线</strong>。标记所在战线即下一回合的<strong>结算起点</strong>。</p>
+</div>
+
+<h2>4.1 标记的作用</h2>
+<ol>
+  <li><strong>结算起点</strong>：本回合从标记所在战线开始，按序摊开结算所有战线。</li>
+  <li><strong>行动顺序基准</strong>：标记所在战线的玩家之一先手暗扣（见 6.2）。</li>
+  <li><strong>公平轮转</strong>：随标记逐回合逆时针推进，<strong>摊开起点</strong>在所有人之间循环。</li>
+  <li><strong>领袖放置轮转基准</strong>：打空手牌时，领袖按「战场标记顺时针」次序轮流放置（见 8.3）。</li>
+</ol>
+
+<figure>
+<svg viewBox="0 0 500 215" xmlns="http://www.w3.org/2000/svg" style="max-width:162mm">
+  <g font-family="sans-serif">
+    <text x="250" y="14" text-anchor="middle" font-size="9" font-weight="700" fill="#2c2c2a">第 1 回合 · 标记在 战线 ①</text>
+    <g>
+      <rect x="8" y="28" width="54" height="26" rx="4" fill="#8a3324" stroke="#5c2318" stroke-width="0.6"/>
+      <text x="35" y="45" text-anchor="middle" font-size="8.5" fill="#fff">战线 ①</text>
+      <rect x="62" y="28" width="54" height="26" rx="4" fill="#f1efe8" stroke="#b4b2a9" stroke-width="0.6"/>
+      <text x="89" y="45" text-anchor="middle" font-size="8.5" fill="#5f5e5a">战线 ②</text>
+      <rect x="116" y="28" width="54" height="26" rx="4" fill="#f1efe8" stroke="#b4b2a9" stroke-width="0.6"/>
+      <text x="143" y="45" text-anchor="middle" font-size="8.5" fill="#5f5e5a">战线 ③</text>
+      <rect x="170" y="28" width="54" height="26" rx="4" fill="#f1efe8" stroke="#b4b2a9" stroke-width="0.6"/>
+      <text x="197" y="45" text-anchor="middle" font-size="8.5" fill="#5f5e5a">战线 ④</text>
+      <rect x="224" y="28" width="54" height="26" rx="4" fill="#f1efe8" stroke="#b4b2a9" stroke-width="0.6"/>
+      <text x="251" y="45" text-anchor="middle" font-size="8.5" fill="#5f5e5a">战线 ⑤</text>
+      <rect x="278" y="28" width="54" height="26" rx="4" fill="#f1efe8" stroke="#b4b2a9" stroke-width="0.6"/>
+      <text x="305" y="45" text-anchor="middle" font-size="8.5" fill="#5f5e5a">战线 ⑥</text>
+      <rect x="332" y="28" width="54" height="26" rx="4" fill="#f1efe8" stroke="#b4b2a9" stroke-width="0.6"/>
+      <text x="359" y="45" text-anchor="middle" font-size="8.5" fill="#5f5e5a">战线 ⑦</text>
+      <rect x="386" y="28" width="54" height="26" rx="4" fill="#f1efe8" stroke="#b4b2a9" stroke-width="0.6"/>
+      <text x="413" y="45" text-anchor="middle" font-size="8.5" fill="#5f5e5a">战线 ⑧</text>
+    </g>
+    <text x="250" y="90" text-anchor="middle" font-size="8" fill="#8a3324">结算顺序：从 战线 ① 起，沿环推进 → ② → ③ → ④ → ⑤ → ⑥ → ⑦ → ⑧</text>
+
+    <text x="250" y="116" text-anchor="middle" font-size="9" font-weight="700" fill="#2c2c2a">第 2 回合 · 标记逆时针移到 战线 ⑧</text>
+    <g>
+      <rect x="8" y="128" width="54" height="26" rx="4" fill="#f1efe8" stroke="#b4b2a9" stroke-width="0.6"/>
+      <text x="35" y="145" text-anchor="middle" font-size="8.5" fill="#5f5e5a">战线 ①</text>
+      <rect x="62" y="128" width="54" height="26" rx="4" fill="#f1efe8" stroke="#b4b2a9" stroke-width="0.6"/>
+      <text x="89" y="145" text-anchor="middle" font-size="8.5" fill="#5f5e5a">战线 ②</text>
+      <rect x="116" y="128" width="54" height="26" rx="4" fill="#f1efe8" stroke="#b4b2a9" stroke-width="0.6"/>
+      <text x="143" y="145" text-anchor="middle" font-size="8.5" fill="#5f5e5a">战线 ③</text>
+      <rect x="170" y="128" width="54" height="26" rx="4" fill="#f1efe8" stroke="#b4b2a9" stroke-width="0.6"/>
+      <text x="197" y="145" text-anchor="middle" font-size="8.5" fill="#5f5e5a">战线 ④</text>
+      <rect x="224" y="128" width="54" height="26" rx="4" fill="#f1efe8" stroke="#b4b2a9" stroke-width="0.6"/>
+      <text x="251" y="145" text-anchor="middle" font-size="8.5" fill="#5f5e5a">战线 ⑤</text>
+      <rect x="278" y="128" width="54" height="26" rx="4" fill="#f1efe8" stroke="#b4b2a9" stroke-width="0.6"/>
+      <text x="305" y="145" text-anchor="middle" font-size="8.5" fill="#5f5e5a">战线 ⑥</text>
+      <rect x="332" y="128" width="54" height="26" rx="4" fill="#f1efe8" stroke="#b4b2a9" stroke-width="0.6"/>
+      <text x="359" y="145" text-anchor="middle" font-size="8.5" fill="#5f5e5a">战线 ⑦</text>
+      <rect x="386" y="128" width="54" height="26" rx="4" fill="#8a3324" stroke="#5c2318" stroke-width="0.6"/>
+      <text x="413" y="145" text-anchor="middle" font-size="8.5" fill="#fff">战线 ⑧</text>
+    </g>
+    <text x="250" y="184" text-anchor="middle" font-size="8" fill="#8a3324">结算起点：标记所在战线（本例为 战线 ⑧）</text>
+    <text x="250" y="204" text-anchor="middle" font-size="8" fill="#7d7970">起点每回合逆时针迁移一格（8 回合绕环一周）；推进方向由方向指示器决定</text>
+  </g>
+</svg>
+<figcaption>起始战场标记每回合逆时针迁移一格，结算起点随之改变（标准 8 战线闭环）</figcaption>
+</figure>
+
+<h2>4.2 迁移方向与周期</h2>
+<p>标记<strong>逆时针</strong>迁移，周期等于战场数（即人数）。</p>
+<table class="tight">
+  <thead><tr><th class="c" style="width:22mm">人数</th><th class="c" style="width:22mm">战场数</th><th class="c" style="width:30mm">迁移周期</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td class="c">8</td><td class="c">8</td><td class="c">8 回合</td><td>标准局：8 回合内每条战线都当过一次起点，恰好绕环一周。</td></tr>
+    <tr><td class="c">5</td><td class="c">5</td><td class="c">5 回合</td><td>—</td></tr>
+    <tr><td class="c">3</td><td class="c">3</td><td class="c">3 回合</td><td>—</td></tr>
+  </tbody>
+</table>
+
+<div class="box">
+  <div class="box-t">先后手轮转 </div>
+  <p>战场数 = 人数，标记逆时针轮转一周（8 回合）绕环一周；而摊开<strong>先后次序由方向指示器每回合翻面</strong>决定，故每条战线的两人<strong>每回合轮换一次先后</strong>，8 人长期绝对公平。判定见 6.3，推进方向见 6.2。</p>
+</div>
+
+<h2>4.3 标记的初始放置</h2>
+<p>第一回合前，标记<strong>固定放置于第 1 席与第 2 席之间的战线（战线 ①）</strong>。首回合从该剧线开始结算，之后每回合逆时针推进一格（见 4.2）。<strong>不再随机</strong>。</p>
+</div>
+
+<!-- ============ 5 ============ -->
+<div class="sec">
+<h1><span class="h1-no">5</span>牌型、主导花色与强度</h1>
+
+<h2>5.1 阵型强度表</h2>
+<table>
+  <thead><tr><th class="c" style="width:14mm">等级</th><th style="width:26mm">阵型</th><th style="width:44mm">条件</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td class="c"><span class="kbd">1</span></td><td><strong>同花顺</strong></td><td>同色 + 数字连续</td><td>最强。例：♠7 ♠8 ♠9</td></tr>
+    <tr><td class="c"><span class="kbd">2</span></td><td><strong>方阵</strong><br><span style="font-size:8pt;color:#7d7970">三条</span></td><td>数字相同</td><td>次强。例：♥4 ♥4 ♥4</td></tr>
+    <tr><td class="c"><span class="kbd">3</span></td><td><strong>同花</strong><br><span style="font-size:8pt;color:#7d7970">同色不同数</span></td><td>同色 + 数字不连续</td><td>第三强。例：♠3 ♠5 ♠9</td></tr>
+    <tr><td class="c"><span class="kbd">4</span></td><td><strong>顺子</strong><br><span style="font-size:8pt;color:#7d7970">先锋</span></td><td>数字连续 + 异色</td><td>第四强。例：♠3 ♥5 ♦6</td></tr>
+    <tr><td class="c"><span class="kbd">5</span></td><td><strong>杂军</strong></td><td>以上都不满足</td><td>最弱。例：♠3 ♥5 ♦9</td></tr>
+  </tbody>
+</table>
+
+<div class="two-col" style="margin-top:4mm">
+  <div>
+    <h3>牌型示例</h3>
+    <div class="hand-grid">
+      <div class="hand p1"><div class="t">同花顺</div><div class="c">♠ 7 8 9</div><div class="r">等级 1</div></div>
+      <div class="hand p2"><div class="t">方阵</div><div class="c">♥ 4 4 4</div><div class="r">等级 2</div></div>
+    </div>
+    <div class="hand-grid">
+      <div class="hand p3"><div class="t">同花</div><div class="c">♠ 3 5 9</div><div class="r">等级 3</div></div>
+      <div class="hand p4"><div class="t">顺子</div><div class="c">♠3 ♥5 ♦6</div><div class="r">等级 4</div></div>
+    </div>
+    <div class="hand-grid">
+      <div class="hand p5" style="grid-column:span 2"><div class="t">杂军</div><div class="c">♠ 3 ♥ 5 ♦ 9</div><div class="r">等级 5</div></div>
+    </div>
+  </div>
+  <div>
+    <h3>平局判定（牌型内） </h3>
+    <ol style="font-size:9.2pt">
+      <li>比<strong>阵型等级</strong>，高者胜。</li>
+      <li>等级同，比<strong>三张点数和</strong>，和大者胜。</li>
+      <li>等级与点数和<strong>皆同</strong>，<strong>后结算方判负</strong>（按 6.2 摊开顺序，后摊开结算的一方判负）。</li>
+    </ol>
+    <div class="box" style="margin-top:3mm">
+      <div class="box-t">第 3 条的含义</div>
+      <p>平手时<strong>后结算方吃亏</strong>。先手方必须主动出牌，不能消极等待——因为每条战线的先手权<strong>每回合轮转</strong>（见 6.3），本回合的先手正是下回合的后手。</p>
+    </div>
+  </div>
+</div>
+
+<h2>5.2 主导花色作为第二优先级</h2>
+<div class="box warn">
+  <div class="box-t">牌型强弱的完整比较顺序</div>
+  <p>两个阵型的强弱，按如下<strong>三级优先度</strong>逐层比较，第一级分出即止：</p>
+  <p style="text-align:center; font-weight:700; font-size:10.5pt; background:var(--bg-soft); border:.5pt solid var(--line); border-radius:1.6mm; padding:2.4mm; margin:2mm 0">
+    ① 牌型等级 &nbsp;&gt;&nbsp; ② 该阵型中<strong>主导花色</strong>张数 &nbsp;&gt;&nbsp; ③ 点数和（大小）
+  </p>
+</div>
+<ul>
+  <li><strong>第 1 级 牌型等级</strong>：等级高者胜（等级高者胜）。</li>
+  <li><strong>第 2 级 主导花色张数</strong>：牌型相同时，三张牌中含<strong>当回合主导花色</strong>越多者胜。例：同花顺 ♠7♠8♠9 对 同花顺 ♥7♥8♥9，若本回合主导花色为 ♠，则前者胜。</li>
+  <li><strong>第 3 级 点数和</strong>：前两级皆平时，比三张点数之和（比三张点数之和）。</li>
+</ul>
+<div class="note">
+  <strong>主导花色是什么 / 何时确定：</strong>主导花色 = 每回合结束结算出的「中心区域总影响力最高的颜色」（见第 8 章）。它在<strong>每个回合末刷新</strong>，因此同一局内不同回合的主导花色可能变化，牌型比较随之变化。
+</div>
+
+<div class="box green">
+  <div class="box-t">兵贵神速原则 </div>
+  <p><strong>在某一回合内已经提前分出胜负的旗幟（已夺旗确定的格子），其结果被锁定</strong>，不受后续回合主导花色变化的影响。主导花色只对<strong>尚未分出胜负</strong>的旗幟比较生效。</p>
+  <p>推论：<strong>谁先把旗幟夺下来，谁就免除了后续主导花色波动的风险</strong>。这鼓励主动、快速地压制对手，即「兵贵神速」。</p>
+</div>
+</div>
+
+<!-- ============ 6 ============ -->
+<div class="sec">
+<h1><span class="h1-no">6</span>回合结构与行动顺序</h1>
+
+<h2>6.1 一个回合的构成</h2>
+
+
+<figure>
+<svg viewBox="0 0 500 175" xmlns="http://www.w3.org/2000/svg" style="max-width:162mm">
+  <g font-family="sans-serif">
+    <rect x="10" y="20" width="116" height="30" rx="4" fill="#8a3324" stroke="#5c2318" stroke-width="0.6"/>
+    <text x="68" y="33" text-anchor="middle" font-size="8.5" fill="#fff" font-weight="700">① 同时暗扣</text>
+    <text x="68" y="44" text-anchor="middle" font-size="7.5" fill="#f4dcd4">各玩家扣 1 张到本战线</text>
+
+    <rect x="138" y="20" width="124" height="30" rx="4" fill="#f1efe8" stroke="#b4b2a9" stroke-width="0.6"/>
+    <text x="200" y="33" text-anchor="middle" font-size="8.5" fill="#2c2c2a" font-weight="700">② 按标记顺序摊开</text>
+    <text x="200" y="44" text-anchor="middle" font-size="7.5" fill="#5f5e5a">从标记剧线起逐场结算</text>
+
+    <rect x="274" y="20" width="100" height="30" rx="4" fill="#f1efe8" stroke="#b4b2a9" stroke-width="0.6"/>
+    <text x="324" y="33" text-anchor="middle" font-size="8.5" fill="#2c2c2a" font-weight="700">③ 中心结算</text>
+    <text x="324" y="44" text-anchor="middle" font-size="7.5" fill="#5f5e5a">影响力 / 主导花色</text>
+
+    <rect x="386" y="20" width="104" height="30" rx="4" fill="#f1efe8" stroke="#b4b2a9" stroke-width="0.6"/>
+    <text x="438" y="33" text-anchor="middle" font-size="8.5" fill="#2c2c2a" font-weight="700">④ 标记逆时针</text>
+    <text x="438" y="44" text-anchor="middle" font-size="7.5" fill="#5f5e5a">迁移一格</text>
+
+    <path d="M126 35 L136 35" fill="none" stroke="#7d7970" stroke-width="0.9" marker-end="url(#b1)"/>
+    <path d="M262 35 L272 35" fill="none" stroke="#7d7970" stroke-width="0.9" marker-end="url(#b1)"/>
+    <path d="M374 35 L384 35" fill="none" stroke="#7d7970" stroke-width="0.9" marker-end="url(#b1)"/>
+    <defs><marker id="b1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#7d7970" stroke-width="1.4"/></marker></defs>
+
+    <rect x="138" y="74" width="124" height="30" rx="4" fill="#e7eef5" stroke="#2a4a6b" stroke-width="0.6"/>
+    <text x="200" y="87" text-anchor="middle" font-size="8.5" fill="#1d3550" font-weight="700">⑤ 检查终局</text>
+    <text x="200" y="98" text-anchor="middle" font-size="7.5" fill="#2a4a6b">未达成则回到 ①</text>
+
+    <path d="M438 56 L438 89 L266 89" fill="none" stroke="#7d7970" stroke-width="0.9" stroke-dasharray="3 2" marker-end="url(#b1)"/>
+    <path d="M138 89 L30 89 L30 54 L10 54" fill="none" stroke="#7d7970" stroke-width="0.9" stroke-dasharray="3 2" marker-end="url(#b1)"/>
+    <text x="250" y="128" text-anchor="middle" font-size="8" fill="#7d7970">未达成终局：标记逆时针推进，进入下一回合 ①</text>
+
+    <text x="10" y="160" font-size="7.8" fill="#7d7970">暗扣：玩家各自把牌正面朝下放到本战线的「指定位置」（暗扣槽），全桌同时完成。</text>
+    <text x="10" y="172" font-size="7.8" fill="#7d7970">摊开：按战场标记当前指向，沿环顺序逐个战线亮牌并结算（含中心区域行动与夺旗判定）。</text>
+  </g>
+</svg>
+<figcaption>单回合流程：同时暗扣 → 按标记顺序摊开结算 → 中心区域结算 → 标记逆时针迁移</figcaption>
+</figure>
+
+<h2>6.2 暗扣与摊开顺序</h2>
+<ol>
+  <li><strong>暗扣阶段（同时）</strong>：从标记所属战线的先手玩家起，各玩家同时暗扣 1 张牌。先手判定见 6.3。</li>
+  <li><strong>摊开阶段（按序）</strong>：以标记所在战线为起点，沿环的<strong>顺时针方向</strong>逐个战线摊开亮牌并结算。 </li>
+  <li>每个战线摊开时：
+    <ul>
+      <li>亮出该战线双方暗扣的两张牌；</li>
+      <li>打牌方<strong>各自执行一次中心区域行动</strong>（见 8.2）；</li>
+      <li>按 5.2 的三级优先度比较牌型，可能触发夺旗（见第 9 章）。</li>
+    </ul>
+  </li>
+  <li>每名玩家（皆双线）在其两条战线各暗扣 1 张，分别随各自战线被摊开时结算。</li>
+</ol>
+
+<div class="box">
+  <div class="box-t">结算推进方向 vs 标记迁移方向 </div>
+  <p>二者独立：<strong>标记每回合逆时针迁移</strong>（改变下一回合起点）；而<strong>本回合内摊开推进</strong>沿环顺时针（从起点绕回一圈）。</p>
+</div>
+
+<h2>6.3 先手方判定（看方向指示器）</h2>
+<div class="box">
+  <div class="box-t">一句话规则</div>
+  <p><strong>每条战线就两个人。方向指示器指向谁，谁就是该战线的先手方；下一回合方向翻面，两人次序轮换。</strong></p>
+</div>
+<p>摊开时按指示器方向推进，某条战线上<strong>方向上游的玩家先结算、下游的玩家后结算</strong>。由于方向每回合统一翻面，同一条战线的两人<strong>先后次序每回合轮换</strong>，长期绝对公平。</p>
+<ul>
+  <li><strong>摊开方向顺时针</strong>时：战线 <code>i</code>（连接席 <code>i</code> 与 <code>i+1</code>）上，<strong>席 <code>i+1</code> 先结算</strong>，席 <code>i</code> 后结算。</li>
+  <li><strong>摊开方向逆时针</strong>时：同一条战线上两人次序<strong>互换</strong>，席 <code>i</code> 先结算。</li>
+</ul>
+<div class="box">
+  <div class="box-t">为何这样最简洁</div>
+  <p>先手不再需要按席号去<strong>算</strong>，而是<strong>看</strong>方向指示器即可——因为方向每回合统一翻面，每条战线的两人自动轮流先后，8 人长期无偏差。</p>
+</div>
+
+<h2>6.3b 摊开方向指示器（顺逆时针）</h2>
+<p>全场配 <strong>1 枚方向指示器</strong>（双面箭头：<strong>顺时针 / 逆时针</strong>），每回合开始时置于战场中央并<strong>翻面</strong>。它同时决定两件事：<strong>摊开推进方向</strong>与<strong>每条战线的先手方</strong>（见 6.3）。</p>
+<ul>
+  <li><strong>每回合统一转换</strong>：本回合为「顺时针」面则下回合翻至「逆时针」面，<b>此后每回合交替翻面</b>，8 人次序持续轮转。</li>
+  <li>与<strong>起始战场标记</strong>配合：标记决定<strong>从哪条线开始</strong>（起点），本指示器决定<strong>往哪绕、谁先结算</strong>（方向）。两者合起来完整确定摊开次序。</li>
+  <li>若某局改用逆时针摊开，只需改变首回合的初始面，其后照常每回合翻面，无需改动其他组件。</li>
+</ul>
+<div class="box warn">
+  <div class="box-t">每回合开始前必做两件事</div>
+  <p>① <strong>方向指示器翻面</strong>（决定先手与推进方向）；② <strong>起始战场标记逆时针迁移 1 条战线</strong>（决定起点）。这是本作每回合的两个固定动作，不可省略。</p>
+</div>
+
+<h2>6.4 双线玩家的行动顺序</h2>
+<ol>
+  <li>严格按<strong>摊开推进顺序</strong>：战线轮到谁，就在该战线行动，不插队。</li>
+  <li>两条战线中若一条先轮到、另一条后轮到，按各自先手 / 后手身份行动。</li>
+  <li>两条战线行动之间可插入其他战线结算。</li>
+  <li>补牌从正在行动的那条战线牌堆抽取。</li>
+</ol>
+</div>
+
+<!-- ============ 7 ============ -->
+<div class="sec">
+<h1><span class="h1-no">7</span>暗扣出牌与补牌</h1>
+
+<h2>7.1 双线手牌（互不通用）</h2>
+<div class="box">
+  <div class="box-t">每人两套手牌</div>
+  <p>每名玩家镇守 2 条战线，<strong>每条战线各持 7 张手牌，共 14 张</strong>。两套手牌<strong>物理分开、彼此不可混用</strong>：某条战线的手牌只能打出到该战线，不能挪到另一条战线。</p>
+</div>
+<ul>
+  <li><strong>牌堆归属</strong>：每条战线一副独立牌堆（60 张），只服务于该战线；补牌只从本战线牌堆抽取。</li>
+  <li><strong>不跨线</strong>：A 线手牌与 B 线手牌无任何互通手段（除非战术牌效果明确写明移动到某战线）。</li>
+  <li>起始发牌：两条战线各发 7 张，共 14 张。</li>
+</ul>
+
+<h2>7.2 暗扣动作（选线 → 选格 → 扣牌）</h2>
+<p>暗扣阶段，每名玩家在<strong>自己镇守的 2 条战线</strong>上<strong>各扣 1 张</strong>，共 2 张。每条战线的动作分三步：</p>
+<ol>
+  <li><strong>选战线</strong>：由你自己决定本回合这张牌打<strong>哪一条</strong>战线——你镇守的 2 条<strong>都可以选</strong>（见 3.3 战线分配表）。<strong>不受结算顺序限制</strong>：战场标记只决定摊开顺序，<strong>不限制你选哪条线</strong>。</li>
+  <li><strong>选战场（格位）</strong>：在该战线上选择<strong>一个尚未分出胜负的旗幟格</strong>作为目标（<strong>已决出的格不可再投入新牌</strong>），把你的牌扣进这一格的「暗扣槽」。</li>
+  <li><strong>扣牌</strong>：从<strong>该战线的手牌</strong>中选 1 张，<strong>正面朝下</strong>放入。</li>
+</ol>
+<ul>
+  <li><strong>两线之间不可混用</strong>：本回合在某线扣的牌，只能取自该线手牌；打出后也只能补进该线手牌（见 7.1 / 7.3）。</li>
+  <li>暗扣完成后<strong>全桌同时揭示</strong>，不再有「我后出」的隐藏信息。</li>
+  <li>暗扣的牌<strong>必须</strong>来自本战线手牌，不能取自另一条战线的手牌，也不能是已结算在旗幟上的牌。</li>
+  <li>该战线手牌为 0 时无法在该线暗扣，触发领袖放置（见 8.3）；此时<strong>另一条线仍照常暗扣</strong>。</li>
+</ul>
+<div class="box">
+  <div class="box-t">示例</div>
+  <p>你是第 1 席（镇守战线 ① 与 ⑧）。本回合你可以在①扣一张、⑧扣一张。<strong>选①还是⑧由你决定</strong>——例如①你已有把握夺旗、⑧对手牌堆快空了想截断他，就优先①。<strong>暗扣同时进行</strong>，所以对手看不到你选了哪条线，这正是「选线」的价值所在。</p>
+</div>
+
+<h2>7.3 补牌</h2>
+<ul>
+  <li>摊开结算后，打牌方<strong>从该战线牌堆补 1 张</strong>到<strong>该战线的手牌</strong>。</li>
+  <li>牌堆为空时，将该战线弃牌堆<strong>洗回</strong>形成新牌堆再补。</li>
+  <li>每条战线手牌上限 <strong>7 张</strong>；两条战线各自独立计算（合计 14 张）。</li>
+</ul>
+
+
+
+<h2>7.4 战术牌作为替代行动</h2>
+<p>轮到自己行动时，<strong>也可用一张战术牌代替部队牌暗扣</strong>（战术牌来源见第 11 章）。 战术牌不补牌。</p>
+<div class="box">
+  <div class="box-t">战术牌数量限制 </div>
+  <p><strong>若你已打出的战术牌多于对手，则不能再打战术牌</strong>，须等对手至少打 1 张后才能再打。本作该限制<strong>按战线独立计算</strong>。</p>
+</div>
+</div>
+
+<!-- ============ 8 ============ -->
+<div class="sec">
+<h1><span class="h1-no">8</span>中心区域与影响力争夺</h1>
+
+<p>桌面中央有一块<strong>中心区域板</strong>，含 <strong>6 个中央势力争夺区</strong>（对应 6 花色，分别为元老院 / 禁卫军 / 宫廷近臣 / 财政使 / 意大利城市 / 北非粮仓；映射见序章 4）。开局各区域随机抽 1 张战术牌放在其上。玩家通过打出的牌的颜色、以及领袖的移动，在势力区累积影响力，争夺战术牌、并决定全局主导花色。</p>
+
+<h2>8.0 开局领袖布置</h2>
+<p>开局发牌后、第一回合暗扣前，每位玩家将<strong>自己的领袖</strong>放置到<strong>任意一个 6 色区域</strong>。放置次序沿用 8.3 的轮转基准：按<strong>战场标记顺时针</strong>轮流（起始标记钉于战线①，以该线玩家为锚沿环顺时针推进）；多名玩家依次安置，落区互不排斥。</p>
+<ul>
+  <li>领袖落区后即按 8.4 计点：所在区为持有者提供 <strong>2 点</strong>影响力。</li>
+  <li>开局布置阶段<strong>不触发</strong> 8.5 战术牌夺取判定（即使某区影响力已达门槛）。</li>
+  <li>第一回合开始后，领袖的移动只经由 8.2 行动②进行。</li>
+</ul>
+
+<h2>8.1 中心区域布局</h2>
+<figure>
+<svg viewBox="0 0 500 200" xmlns="http://www.w3.org/2000/svg" style="max-width:165mm">
+  <g font-family="sans-serif">
+    <text x="250" y="14" text-anchor="middle" font-size="9" font-weight="700" fill="#2c2c2a">中心区域：六势力争夺区（并排布局）+ 战术牌</text>
+    <!-- 领袖当前所在区标记（示例：①元老院） -->
+    <circle cx="48" cy="27" r="9" fill="#2f2c27"/>
+    <text x="48" y="30" text-anchor="middle" font-size="8" font-weight="700" fill="#fff">领</text>
+    <g font-size="7.5">
+      <!-- ① 元老院 紫 -->
+      <rect x="10" y="42" width="76" height="138" rx="4" fill="#fbfaf7" stroke="#b4b2a9" stroke-width="0.7"/>
+      <rect x="10" y="42" width="76" height="14" rx="4" fill="#8e6fb0"/>
+      <text x="48" y="52" text-anchor="middle" font-size="7.5" font-weight="700" fill="#fff">元老院</text>
+      <text x="48" y="74" text-anchor="middle" font-size="6.5" fill="#5a3d77">紫</text>
+      <rect x="20" y="82" width="56" height="30" rx="3" fill="#f3eef7" stroke="#8e6fb0" stroke-width="0.5" stroke-dasharray="2 2"/>
+      <text x="48" y="100" text-anchor="middle" font-size="6.5" fill="#8e6fb0">战术①</text>
+      <text x="48" y="130" text-anchor="middle" font-size="6.2" fill="#7d7970">标记 ×1</text>
+      <text x="48" y="142" text-anchor="middle" font-size="6.2" fill="#7d7970">领袖 ×2</text>
+      <!-- ② 禁卫军 红 -->
+      <rect x="90" y="42" width="76" height="138" rx="4" fill="#fbfaf7" stroke="#b4b2a9" stroke-width="0.7"/>
+      <rect x="90" y="42" width="76" height="14" rx="4" fill="#c0392b"/>
+      <text x="128" y="52" text-anchor="middle" font-size="7.5" font-weight="700" fill="#fff">禁卫军</text>
+      <text x="128" y="74" text-anchor="middle" font-size="6.5" fill="#8e2b21">红</text>
+      <rect x="100" y="82" width="56" height="30" rx="3" fill="#f9e6e4" stroke="#c0392b" stroke-width="0.5" stroke-dasharray="2 2"/>
+      <text x="128" y="100" text-anchor="middle" font-size="6.5" fill="#c0392b">战术②</text>
+      <text x="128" y="130" text-anchor="middle" font-size="6.2" fill="#7d7970">标记 ×1</text>
+      <text x="128" y="142" text-anchor="middle" font-size="6.2" fill="#7d7970">领袖 ×2</text>
+      <!-- ③ 宫廷近臣 蓝 -->
+      <rect x="170" y="42" width="76" height="138" rx="4" fill="#fbfaf7" stroke="#b4b2a9" stroke-width="0.7"/>
+      <rect x="170" y="42" width="76" height="14" rx="4" fill="#2a6fb0"/>
+      <text x="208" y="52" text-anchor="middle" font-size="7.5" font-weight="700" fill="#fff">宫廷近臣</text>
+      <text x="208" y="74" text-anchor="middle" font-size="6.5" fill="#1d4a7a">蓝</text>
+      <rect x="180" y="82" width="56" height="30" rx="3" fill="#e8f0f7" stroke="#2a6fb0" stroke-width="0.5" stroke-dasharray="2 2"/>
+      <text x="208" y="100" text-anchor="middle" font-size="6.5" fill="#2a6fb0">战术③</text>
+      <text x="208" y="130" text-anchor="middle" font-size="6.2" fill="#7d7970">标记 ×1</text>
+      <text x="208" y="142" text-anchor="middle" font-size="6.2" fill="#7d7970">领袖 ×2</text>
+      <!-- ④ 财政使 橙 -->
+      <rect x="250" y="42" width="76" height="138" rx="4" fill="#fbfaf7" stroke="#b4b2a9" stroke-width="0.7"/>
+      <rect x="250" y="42" width="76" height="14" rx="4" fill="#e08a2b"/>
+      <text x="288" y="52" text-anchor="middle" font-size="7.5" font-weight="700" fill="#fff">财政使</text>
+      <text x="288" y="74" text-anchor="middle" font-size="6.5" fill="#9a5a14">橙</text>
+      <rect x="260" y="82" width="56" height="30" rx="3" fill="#fdeede" stroke="#e08a2b" stroke-width="0.5" stroke-dasharray="2 2"/>
+      <text x="288" y="100" text-anchor="middle" font-size="6.5" fill="#e08a2b">战术④</text>
+      <text x="288" y="130" text-anchor="middle" font-size="6.2" fill="#7d7970">标记 ×1</text>
+      <text x="288" y="142" text-anchor="middle" font-size="6.2" fill="#7d7970">领袖 ×2</text>
+      <!-- ⑤ 意大利城市 绿 -->
+      <rect x="330" y="42" width="76" height="138" rx="4" fill="#fbfaf7" stroke="#b4b2a9" stroke-width="0.7"/>
+      <rect x="330" y="42" width="76" height="14" rx="4" fill="#4a9b54"/>
+      <text x="368" y="52" text-anchor="middle" font-size="7.5" font-weight="700" fill="#fff">意大利城市</text>
+      <text x="368" y="74" text-anchor="middle" font-size="6.5" fill="#2f6b38">绿</text>
+      <rect x="340" y="82" width="56" height="30" rx="3" fill="#eaf6ec" stroke="#4a9b54" stroke-width="0.5" stroke-dasharray="2 2"/>
+      <text x="368" y="100" text-anchor="middle" font-size="6.5" fill="#4a9b54">战术⑤</text>
+      <text x="368" y="130" text-anchor="middle" font-size="6.2" fill="#7d7970">标记 ×1</text>
+      <text x="368" y="142" text-anchor="middle" font-size="6.2" fill="#7d7970">领袖 ×2</text>
+      <!-- ⑥ 北非粮仓 黄 -->
+      <rect x="410" y="42" width="76" height="138" rx="4" fill="#fbfaf7" stroke="#b4b2a9" stroke-width="0.7"/>
+      <rect x="410" y="42" width="76" height="14" rx="4" fill="#d4b23a"/>
+      <text x="448" y="52" text-anchor="middle" font-size="7.5" font-weight="700" fill="#fff">北非粮仓</text>
+      <text x="448" y="74" text-anchor="middle" font-size="6.5" fill="#8a7316">黄</text>
+      <rect x="420" y="82" width="56" height="30" rx="3" fill="#fbf4d8" stroke="#d4b23a" stroke-width="0.5" stroke-dasharray="2 2"/>
+      <text x="448" y="100" text-anchor="middle" font-size="6.5" fill="#d4b23a">战术⑥</text>
+      <text x="448" y="130" text-anchor="middle" font-size="6.2" fill="#7d7970">标记 ×1</text>
+      <text x="448" y="142" text-anchor="middle" font-size="6.2" fill="#7d7970">领袖 ×2</text>
+    </g>
+    <text x="250" y="194" font-size="6.8" fill="#7d7970" text-anchor="middle">六势力区并排陈列；「领」标记当前所在区（示例在元老院），可在六区之间左右移动</text>
+  </g>
+</svg>
+<figcaption>中心区域：6 个中央势力区并排陈列，各放 1 张随机战术牌，领袖在区际左右移动（花色映射见序章 4）</figcaption>
+</figure>
+
+<h2>8.2 每次打牌结算的中心行动（二选一）</h2>
+<p>在<strong>摊开阶段，某张打出的牌被结算时</strong>，该牌的使用者（打牌玩家）必须从以下行动<strong>二选一</strong>：</p>
+<table>
+  <thead><tr><th style="width:40mm">行动</th><th style="width:40mm">条件</th><th>效果</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>① 放影响力标记</strong></td>
+      <td>无限制</td>
+      <td>在<strong>该牌颜色对应的颜色区</strong>放置 1 个自己的影响力标记（无限供应）。</td>
+    </tr>
+    <tr>
+      <td rowspan="2"><strong>② 移动领袖</strong></td>
+      <td>领袖<strong>已在</strong>该牌颜色区</td>
+      <td>可将领袖移动到<strong>任意其他颜色区</strong>。</td>
+    </tr>
+    <tr>
+      <td>领袖<strong>不在</strong>该牌颜色区</td>
+      <td>可将领袖移动到<strong>该牌颜色区</strong>（即移入对应色）。</td>
+    </tr>
+  </tbody>
+</table>
+<div class="note">
+  <strong>「对应颜色」指打出的那张牌的颜色</strong>（颜色区即序章所定六中央势力区：紫=元老院 / 红=禁卫军 / 蓝=宫廷近臣 / 橙=财政使 / 绿=意大利城市 / 黄=北非粮仓）。例如打出一张橙色（财政使）牌：行动①在财政使区放 1 标记；行动②则看领袖当前位置——若领袖已在财政使区，可把它移到任意其他势力区；若领袖不在，则把它移入财政使区。
+</div>
+
+<h2>8.3 打空手牌时的领袖放置</h2>
+<p><strong>当一名玩家打空某条战线的手牌（该战线手牌为 0）</strong>时，触发一次特殊的领袖放置：</p>
+<ol>
+  <li>按<strong>战场标记顺时针</strong>对应的玩家次序，该玩家（或多玩家触发时轮流）将<strong>自己的领袖</strong>放置到<strong>任意一个 6 色区域</strong>。 </li>
+  <li>这一放置<strong>不消耗</strong> 8.2 的打牌行动，是打空手牌的额外权利。</li>
+  <li>多名玩家同回合打空时，按标记顺时针次序<strong>轮流</strong>放置。 </li>
+</ol>
+
+<div class="box">
+  <div class="box-t">为何「战场标记顺时针」 </div>
+  <p>标记本身每回合<strong>逆时针</strong>迁移（决定结算起点）；而领袖放置的<strong>玩家轮转次序</strong>按「战场标记顺时针」——这是用户明确指定的两个独立方向。置放次序以标记当前所在战线的玩家为锚，沿环顺时针推进。</p>
+</div>
+
+<h2>8.4 影响力结算</h2>
+<p>每条战线摊开结算完毕（即一个回合结束时），统计中心区域各色的影响力：</p>
+<table class="tight">
+  <thead><tr><th style="width:40mm">来源</th><th class="c" style="width:26mm">影响力点数</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>领袖在该色区</td><td class="c">2 点</td><td>每名玩家自己的领袖在其所在色区计 2 点（归属该玩家）。</td></tr>
+    <tr><td>影响力标记</td><td class="c">1 点</td><td>每 1 个标记计 1 点，归属标记主人。</td></tr>
+  </tbody>
+</table>
+<p>每位玩家在每色区有<strong>独立累计</strong>的影响力（自己的标记数 ×1 + 自己的领袖若在 ×2）。比较时按玩家分别排名。</p>
+
+<h2>8.5 战术牌的夺取</h2>
+<div class="box warn">
+  <div class="box-t">赢得战术牌条件</div>
+  <p class="note" style="border-left:3px solid #8a3324">⏱ <strong>结算时机</strong>：战术牌归属的确定统一在<strong>回合末的中心结算窗口</strong>进行（与 8.9 占位计分同窗口，对应 6.1 流程 ③④）——即<strong>所有玩家本回合的暗扣与逐线摊开结算全部完成之后</strong>，而非在某一格夺旗的瞬间。这与「无消耗立即打出」（11.3）是两件事：先回合末统一定归属，归属确定后方可于当回合末免费打出；<strong>若当回合未立即打出，该免费额度于回合末作废（不跨回合保留），牌仍留手中按 11.3 正常打出。</strong></p>
+  <p>在某一颜色区，若某玩家的影响力<strong>排名第一（高于其他所有玩家）</strong>，且该玩家在该区的<strong>总影响力 ≥ 6</strong>，则他获得该区上那张<strong>战术牌进入手牌</strong>。</p>
+  <p><strong>「无论战术牌在哪」</strong>：只要满足条件，即使得分过程中战术牌曾被移动/暂存，也归其手牌。 </p>
+  <p><strong>判定对象是该区「绑定的那张战术牌」，不是「该区此刻摆着的那张牌」</strong>。依次检查下列位置并就地取走：</p>
+  <ul>
+    <li>仍摆在某个中央区上待夺 → 直接取走；</li>
+    <li>已被别的玩家握在手中 → <strong>从他手中取走</strong>（对方失去该牌）；</li>
+    <li>已被打出、正作为阵型牌或环境牌贴在战场上 → <strong>从战场上取走</strong>（该格随之少一张牌）；</li>
+    <li>已经在自己手里 → 不重复结算（不会刷分、也不会重复记入日志）。</li>
+  </ul>
+</div>
+<div class="note"><strong>为什么这样设计</strong>：中央区的价值不只在「夺到牌」，更在「持续压制某个颜色」。这条规则让「打赢中央区」这件事<strong>总能兑现</strong>，而不是因为牌恰好被别人摸走而落空 —— 玩家不会再遇到「我明明占了第一，却什么都没拿到」的情形。</div>
+
+<h2>8.6 战术牌与战线的关系</h2>
+<div class="box">
+  <div class="box-t">三类战术牌各自的作用范围</div>
+  <ul>
+    <li><strong>士气牌</strong>（领袖 ×2 / 御林铁骑 / 戍边军团）：打入某格后<strong>就是该格阵型里的一张牌</strong>，与部队牌同等参与 5.2 比较；该旗幟结算时随之下场。</li>
+    <li><strong>环境牌</strong>（西普里安瘟疫 / 多瑙河春汛）：贴在某未夺旗幟己方一侧后，<strong>持续改变该格的比较方式</strong>（只比点数和 / 改为四张成阵），一直有效<strong>直到该旗幟被夺走</strong>；夺旗后它随旗幟结算失效并放回来源区。若<strong>多瑙河春汛在旗幟未夺时被 8.5 夺走</strong>，该格容量<strong>即刻由 4 落回 3</strong>，超出的牌<strong>由该侧牌主选择弃掉</strong>（见 11.5）。</li>
+    <li><strong>计谋牌</strong>：打出后<strong>落场</strong>（不进入任何格），绑定其来源中央区并在受影响牌位留「虚空站位 + 模型」标记（<strong>虚空站位不占格位</strong>，该格仍可继续佈军）；该区被对手<strong>超越</strong>时连牌带效果被夺取（见 11.5）。</li>
+  </ul>
+  <p><strong>还摆在中央区、尚未被夺走的战术牌不影响任何战线</strong> —— 它们只通过 8.5（夺取）与 8.9（占位得分）参与游戏。真正影响战线胜负的，永远是已经<strong>打出去</strong>的牌。</p>
+</div>
+
+
+<h2>8.7 主导花色的确定</h2>
+<div class="box green">
+  <div class="box-t">主导花色 = 回合末总影响力最高的颜色</div>
+  <p>一个回合的所有战线结算与中心行动完成后，<strong>统计 6 个中央势力区（颜色区）全部玩家的影响力总和</strong>，<strong>总和最高</strong>的颜色即为本回合的<strong>主导花色</strong>。</p>
+  <p>主导花色<strong>每回合刷新</strong>，用于下一回合的牌型第二优先级比较（见 5.2）。</p>
+</div>
+<div class="box warn">
+  <div class="box-t">并列第一 → 无主导花色（v1.1 明确）</div>
+  <p>若 6 个区中有<strong>两个或两个以上</strong>颜色区的总影响力<strong>并列最高</strong>，则本回合<strong>不产生主导花色</strong>：该回合内的牌型比较<strong>只比「牌型等级 → 点数和」</strong>，跳过第 2 级主导花色张数（见 5.2）。</p>
+  <p>并列时<strong>不沿用上一回合的主导花色</strong>；下一回合重新统计，若不再并列则重新产生主导花色。</p>
+</div>
+
+<h2>8.8 中心区域与战线胜负的关系</h2>
+<ul>
+  <li>中心区域除通过<strong>主导花色</strong>影响牌型比较、并通过<strong>战术牌</strong>提供额外介入手段外，其<strong>「各区第一」本身也直接计分</strong>（见 8.9）。</li>
+  <li>已分出胜负的旗幟<strong>锁定</strong>，不受主导花色后续变化影响（兵贵神速，见 5.2）。</li>
+  <li>未分的旗幟，其比较受当回合主导花色约束。</li>
+</ul>
+
+<h2>8.9 中央区第一的计分（占位 · v1.1 新增）</h2>
+<div class="box green">
+  <div class="box-t">每个中央区 = 一个可易主的 1 分得分点</div>
+  <p>每个回合末（与 8.5 夺战术牌同一判定窗口），逐个检查 6 个中央势力区：某玩家在该区<strong>影响力排名第一（高于其他所有玩家）</strong>且<strong>总影响力 ≥ 6</strong>，即<strong>取得该区的 1 分</strong>。</p>
+  <ul>
+    <li><strong>并列第一</strong>（该区无人独占第一）时：本回合该区<strong>不结算分数</strong>，也不夺战术牌，与 8.7 的并列规则一致。</li>
+    <li><strong>首次取得</strong>某区（该区此前无主）：该玩家 <strong>+1</strong>，无人扣分。</li>
+    <li><strong>易主</strong>（该区原有主被超越）：新区主 <strong>+1</strong>，旧区主 <strong>−1</strong> —— 与夺旗一样是<strong>严格零和转移</strong>。</li>
+    <li><strong>已持有</strong>该区的玩家再次达成第一：<strong>不重复计分</strong>（防止原地刷分）。该区分归其所有，直到被他人超越。</li>
+    <li><strong>可反复易主（v1.2）</strong>：同一区可在整局中被<strong>反复夺取 / 反超</strong>，每次易主都按上述零和规则结算，不再受「每区限一次」限制；这也是 11.5 计谋牌可被反复夺取的机制基础。</li>
+  </ul>
+</div>
+<div class="note"><strong>为什么这样设计</strong>：中央区不再只是「间接影响力」，而是与旗幟并列的第二得分轴 —— 你可以靠夺旗取胜，也可以靠长期压制 6 个势力区取胜。同时「易主才转移分数」保证了除各区首次易主外，分数总量严格守恒。</div>
+</div>
+
+<!-- ============ 9 ============ -->
+<div class="sec">
+<h1><span class="h1-no">9</span>夺旗判定</h1>
+
+<h2>9.1 基本规则</h2>
+<p>当某格已<strong>放满 3 张</strong>，且能<strong>确定自身阵型强于对手</strong>时，即可<strong>宣告夺旗</strong>。</p>
+<h3>可宣告的情形</h3>
+<ul>
+  <li>已满 3 张，对手该格为空或不足 3 张，且牌堆剩余已不足以让对手凑出更强阵型。</li>
+  <li>已满 3 张，对手未满分，但牌堆耗尽，对手无论如何补牌都无法超过你。</li>
+  <li>双方皆满 3 张，直接比较牌型，你强则夺旗。</li>
+</ul>
+<div class="note"><strong>本作由系统自动判定</strong>：结算时系统会逐一检查对手<strong>剩余可用牌</strong>（其手牌 + 该战线牌堆 + 弃牌堆中的部队牌与士气牌），判断其是否还能凑出<strong>不弱于你</strong>的阵型；一旦不可能，立即判你夺旗。故「对手看似还能摸牌、实际已无法更强」的局面会被正确判胜（对手的领袖 / 御林铁骑 / 戍边军团等万能牌同样计入其可用池）。<br><strong>评估范围仅限「常规手段」</strong>：即部队牌与士气牌。<strong>环境牌与计谋牌不计入</strong>——它们属于非常规手段（可改变比较方式或改动牌局），故本判定仅在<strong>常规手段下不可推翻</strong>。战报会标注每次夺旗的判定依据（如「主导花色光环锁死」「对手可用牌不足」「对手已无法凑出更强阵型」）。</div>
+<div class="note"><strong>主导花色光环（判定关键）</strong>：比较次序为「牌型等级 → 主导花色张数 → 点数和」。当回合主导花色是一个<strong>固定的光环</strong>——若你的阵型已达<strong>最高等级</strong>、且三张<strong>全为主导花色</strong>（主导张数 = 3），而对手格上已有<strong>一张异色牌</strong>，则他之后无论补到什么牌，主导张数都<strong>永远 ≤ 2</strong>，第 2 级上永远追不上你 → 此局<strong>不可推翻</strong>，系统立即判你夺旗。反之，若对手手上或可摸到的牌中还有主导花色（例如他能补成同为最高等级、主导张数同为 3 且点数和更大），则仍可能翻盘，不予判定。</div>
+<h3>不可宣告的情形</h3>
+<ul>
+  <li>对手牌堆仍有牌，且存在让对手凑出更强阵型的可能。</li>
+  <li>牌型与点数和完全相同——<strong>后结算方判负</strong>（按 6.2 摊开顺序）。</li>
+</ul>
+
+<h2>9.2 牌型比较含主导花色</h2>
+<p>夺旗比较严格按 5.2 三级优先度：牌型等级 → 主导花色张数 → 点数和。因此<strong>同一格的胜负可能随回合主导花色变化而逆转</strong>，除非该格已提前分出结果。</p>
+
+<h2>9.3 夺旗判定窗口与锁定</h2>
+<div class="note"><strong>时间线</strong>：暗扣时你已指定目标格（7.2 第 2 步）→ 摊开时该格进入比牌 → 满足条件即宣告夺旗。若摊开时<strong>该格已因更早的结算被判定</strong>（例如同一回合该格已被结算过），则不重复判夺。</div>
+<ul>
+  <li>在<strong>本轮正在结算的战线</strong>上，满足条件即可立即宣告夺旗。</li>
+  <li>若该战线非本轮标记所在，则在该战线结算窗口内宣告。</li>
+  <li><strong>一旦夺旗成功，该格结果立即锁定</strong>，后续主导花色变化不再影响其归属。</li>
+</ul>
+
+<h2>9.4 计分与旗幟归属</h2>
+<div class="box">
+  <div class="box-t">无「无人旗幟」</div>
+  <p>每面旗幟<strong>始终有归属</strong>，不存在无人占据的旗幟。开局时每条战线的 9 面旗<strong>已归属该线双方玩家</strong>（分配见 3.5）；任何一次夺旗都是<strong>零和转移</strong>：夺旗者 <strong>+1</strong>，原占据者 <strong>必 −1</strong>。</p>
+</div>
+<ul>
+  <li>旗幟被夺走，拉在该玩家一侧并<strong>立刻计分</strong>：夺旗者 <strong>+1</strong>，原占据者 <strong>−1</strong>。</li>
+  <li><strong>不存在「只有夺旗者 +1、对方不减」的情形</strong>；夺旗必然使双方分数反向变动 1 分。</li>
+  <li><strong>封存（v1.7）</strong>：旗幟夺走后该格<strong>立即封存</strong>——<strong>旗幟归属转移</strong>至夺旗者、原占据者失去该面旗；格上的牌<strong>留在原位、不清空</strong>；此后该格<strong>不可再佈军</strong>，<strong>战术牌亦不可再影响</strong>这组牌（格内的战术牌一并锁死）。故<strong>每面旗至多易主一次</strong>，开局归属见 3.5。</li>
+</ul>
+</div>
+
+<!-- ============ 10 ============ -->
+<div class="sec">
+<h1><span class="h1-no">10</span>计分与终局</h1>
+
+<h2>10.1 计分方式</h2>
+<table>
+  <thead><tr><th style="width:40mm">事件</th><th class="c" style="width:26mm">夺旗者</th><th class="c" style="width:26mm">原占据者</th><th>备注</th></tr></thead>
+  <tbody>
+    <tr><td>夺旗（任何情形）</td><td class="c" style="color:#2c6b3f"><strong>+1</strong></td><td class="c" style="color:#8a3324"><strong>−1</strong></td><td>严格零和：<strong>无无人旗幟</strong>，夺旗必然使另一方 −1。</td></tr>
+    <tr><td>取得某中央区第一（该区原无主）</td><td class="c" style="color:#2c6b3f"><strong>+1</strong></td><td class="c">—</td><td>规则 8.9：首次易主无人扣分。</td></tr>
+    <tr><td>夺得某中央区第一（该区原有主）</td><td class="c" style="color:#2c6b3f"><strong>+1</strong></td><td class="c" style="color:#8a3324"><strong>−1</strong></td><td>规则 8.9：与夺旗同为零和转移。</td></tr>
+  </tbody>
+</table>
+<div class="note">除各中央区<strong>首次易主</strong>外，所有分数变动均为零和；因此全场总分 = 旗帜分（恒 0）+ 中央区已易主区的净分（0 ~ 6）。</div>
+<p style="text-align:center; font-size:10.5pt; font-weight:700; background:var(--bg-soft); padding:2.6mm; border-radius:1.6mm; border:.5pt solid var(--line);">
+总分(P) = Σ<sub>战线 k</sub> ( 战线的夺旗数<sub>P</sub> − 战线的失旗数<sub>P</sub> )
+</p>
+<div class="box">
+  
+  <p>每名玩家两战场得分直接相加为其个人总分。例：战线 ⑦ 得 +1、战线 ⑧ 得 −2，总分为 −1。</p>
+</div>
+
+<div class="note"><strong>旗子数（终局与破平口径，v1.5）</strong>：<strong>旗子数(P) = 累计夺得旗幟格数(P) + 当前持有中央区数(P)</strong>。它与上式的「总分」不同——总分是零和净分（可正可负），旗子数是绝对计数（≥0）。终局由旗子数触发（10.2），排名破平亦先比旗子数（10.3）。</div>
+
+<h2>10.2 终局条件</h2>
+<ol>
+  <li><strong>任一玩家夺得 12 面旗子</strong>（v1.5：由旧的「12 分」改为「12 旗」）。<strong>旗子数 = 该玩家累计夺得的旗幟格数 + 当前持有的中央区数</strong>（中央区每区算 1 面旗，见 10.1）。触发后立即进入终局计分（10.3）。</li>
+  <li><strong>棋盘封满（v1.7）</strong>：所有格位均已<strong>封存</strong>（无处可再佈军）→ 立即终局计分。因每面旗至多易主一次（9.4），棋盘会随对局逐渐封满。</li>
+  <li><strong>所有战线牌堆均耗尽并第二次洗回后再次用尽</strong>。</li>
+  <li>玩家一致同意结束并进入计分。</li>
+</ol>
+<div class="box">
+  <div class="box-t">两种时长：短游戏 / 长游戏</div>
+  <p><strong>短游戏</strong>（web 版即此）：采用上述第 1 条——任一玩家夺得 <strong>12 面旗子</strong>即终局；若先触发第 2 条（棋盘封满）亦终局。<br>
+  <strong>长游戏</strong>：<strong>忽略第 1 条</strong>（不设 12 旗自动终止），一直进行到「<strong>所有玩家打空所有手牌</strong>」或「<strong>棋盘封满</strong>（所有人的战线都填满）」为止；玩家亦可随时一致同意结束（第 4 条）。牌堆耗尽（第 3 条）两者皆保留为兜底。</p>
+  <p style="font-size:9.5pt;color:var(--ink-2);border-top:.5pt dashed var(--line);padding-top:2mm;margin-top:2mm"><strong>预计时长</strong>（8 人局 · 每回合按 30–60 秒实测估算）：<strong>短游戏</strong>约 <strong>26 回合 ≈ 20 分钟</strong>（区间 13–26 分）；<strong>长游戏</strong>约 <strong>28–39 回合 ≈ 30 分钟</strong>（区间 19–39 分）。<br>注：因夺旗后该格封存（9.4）、每面旗至多易主一次，棋盘约在第 <strong>28 回合</strong>前后封满，故「长游戏」并不会比短游戏显著更长。</p>
+</div>
+
+<h2>10.3 胜负判定</h2>
+<p>终局后<strong>总分最高者获胜</strong>。总分相同：依次比 <strong>① 旗子总数</strong>（累计夺得的旗幟格数）、<strong>② 当前持有的中央区数</strong>，多者胜；仍同则平局。</p>
+</div>
+
+<!-- ============ 11 ============ -->
+<div class="sec">
+<h1><span class="h1-no">11</span>战术牌（效果与打出规则）</h1>
+
+
+
+<h2>11.1 战术牌构成（共 10 张，三类）</h2>
+<p>本作 10 张战术牌分为<strong>士气 / 环境 / 计谋</strong>三类。本作 6 色区开局各放 1 张，即从这 10 张的<strong>效果库</strong>中随机抽取 6 张置于场上（见 2.1 / 8.1）。</p>
+<table>
+  <thead><tr><th style="width:30mm">类别</th><th class="c" style="width:18mm">张数</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>士气战术 Morale</td><td class="c">4</td><td>作为牌打入阵型，与部队牌同等参与比较（领袖 ×2：克劳狄乌斯·哥提库斯 / 普罗布斯、御林铁骑、戍边军团）。</td></tr>
+    <tr><td>环境战术 Environment</td><td class="c">2</td><td>放在某未夺旗幟旁，长期改变该旗幟的比较方式（西普里安瘟疫、多瑙河春汛）。</td></tr>
+    <tr><td>计谋战术 Guile</td><td class="c">4</td><td>打出后<strong>落场持续 · 可被夺取</strong>：绑定其来源中央区，并在受影响的牌位留下「模型 + 虚空站位」标记；夺旗易主时被夺取并回滚（哥特游骑、莱茵换防、军团哗变、附庸倒戈，见 11.5）。</td></tr>
+  </tbody>
+</table>
+
+<h2>11.2 各牌效果（逐张）</h2>
+
+<h3>士气战术（打入本战线阵型，如同部队牌）</h3>
+<table>
+  <thead><tr><th style="width:32mm">牌名</th><th style="width:32mm">调用方式</th><th>效果</th></tr></thead>
+  <tbody>
+    <tr><td><strong>领袖 · 克劳狄乌斯·哥提库斯</strong><br><strong>领袖 · 普罗布斯</strong></td><td>如部队牌打入某格</td><td>万能牌：在<strong>该格结算时</strong>才确定其颜色与数字（可充当任意花色任意点数）。<br>限制：每名玩家<strong>在同一战线只能有一张领袖</strong>；若抽到第二张，持有但<strong>不可打出</strong>，留手至终局。</td></tr>
+    <tr><td><strong>御林铁骑</strong></td><td>如部队牌打入某格</td><td>视为任一花色的 <strong>8</strong>；颜色在该格结算时确定。</td></tr>
+    <tr><td><strong>戍边军团</strong></td><td>如部队牌打入某格</td><td>视为任一花色、数字 ≤3（即 1/2/3）的牌；颜色与点位结算时确定。</td></tr>
+  </tbody>
+</table>
+
+<h3>环境战术（放在某未夺旗幟旁，持续到终局）</h3>
+<table>
+  <thead><tr><th style="width:32mm">牌名</th><th style="width:32mm">调用方式</th><th>效果</th></tr></thead>
+  <tbody>
+    <tr><td><strong>西普里安瘟疫</strong></td><td>正面朝上置于某未夺旗幟己方一侧</td><td>该旗幟<strong>忽略一切牌型</strong>，仅比<strong>双方点数总和</strong>定胜负。</td></tr>
+    <tr><td><strong>多瑙河春汛</strong></td><td>正面朝上置于某未夺旗幟己方一侧</td><td>该旗幟改为<strong>以四张牌</strong>组成阵型比较，更难凑同花顺 / 方阵。<br><em>离场时</em>：该格容量由 4 落回 3；若某侧已佈满 4 张，<strong>由该侧牌主选择弃掉 1 张</strong>（部队牌入弃牌堆 / 战术牌回来源区）。</td></tr>
+  </tbody>
+</table>
+<div class="note">环境牌一旦打出<strong>留在该旗幟旁直到终局</strong>，且<strong>不可被「重新部署 / 逃兵」移动或移除</strong>。旗幟被夺后，其上环境牌失效、不再影响。</div>
+
+<h3>计谋战术（v1.2 落场持续 · 可被夺取 · 夺取后回滚）</h3>
+<table>
+  <thead><tr><th style="width:28mm">牌名</th><th style="width:22mm">模型</th><th>效果（打出后落场）</th></tr></thead>
+  <tbody>
+    <tr><td><strong>哥特游骑</strong></td><td>哥特骑兵</td><td>从<strong>本战线牌堆</strong>抽 <strong>3 张</strong>置于<strong>手牌末尾</strong>（以本战术牌在末尾把它们与原有手牌隔开）；其中 <strong>2 张被模型压住</strong>（暂扣入弃牌堆，可被夺取时拿回）。本回合不再补牌。<br><em>被夺取时</em>：末尾尚未使用的抽出牌放回牌堆顶，被压住的 2 张一并收回。</td></tr>
+    <tr><td><strong>莱茵换防</strong></td><td>换防旗手</td><td>将你方某<strong>未夺旗幟旁的一张牌</strong>，移到己方另<strong>一空位</strong>，或<strong>弃掉</strong>；原牌位留「虚空站位」标示此处被影响过（<strong>该格仍可继续佈军</strong>），原牌落到新位置（弃置则落到己方专属位）并<strong>盖上模型</strong>。<br><em>被夺取时</em>：按模型与牌位把该牌送回原位；<strong>若原位已被占满则不回归</strong>——移动的牌留在现处、弃掉的牌进弃牌堆。</td></tr>
+    <tr><td><strong>军团哗变</strong></td><td>哗变军士</td><td>将对手某<strong>未夺旗幟旁的一张牌</strong>移出并弃掉；同样在原位留虚空站位、在被弃牌上盖模型。<br><em>被夺取时</em>：按模型与牌位把该牌放回原位；<strong>若原位已被占满则不回归</strong>——该牌就此弃入本战线弃牌堆。</td></tr>
+    <tr><td><strong>附庸倒戈</strong></td><td>倒戈辅军</td><td>取对手某<strong>未夺旗幟旁的一张部队牌</strong>（不含战术牌）放到己方空位；同样在原位留虚空站位、在被移动牌上盖模型。<br><em>被夺取时</em>：按模型与牌位把该牌还回对手原位；<strong>若原位已被占满则不回归</strong>——该牌留在被移去的位置。</td></tr>
+  </tbody>
+</table>
+<div class="note">「未夺旗幟」= 尚未分出胜负的旗幟格。已夺旗幟上的牌<strong>不可被任何计谋 / 环境牌影响</strong>（契合本作「兵贵神速」原则）。</div>
+<div class="note"><strong>「空位」的定义</strong>：莱茵换防与附庸倒戈所说的「己方一个空位」，指<strong>该旗幟格己方一侧一张牌都没有</strong>的位置 —— 不能把牌移到 / 放到己方已经佈军的格子上。</div>
+<div class="note"><strong>落空（同时暗扣的竞态）</strong>：全桌同时暗扣（6.2），若计谋牌指定的目标牌或目标格在结算时<strong>已被对手同回合的动作改变</strong>（例如瞄准的牌被对手的军团哗变先弃掉、目标格已被夺旗），则该计谋牌<strong>落空</strong>：不产生效果、<strong>保留在手里不消耗</strong>，本回合该战线视为未行动。</div>
+
+<h2>11.3 打出规则</h2>
+<ol>
+  <li><strong>替代暗扣</strong>：轮到你在该战线暗扣时，可用一张战术牌<strong>代替部队牌</strong>暗扣（7.4 框架）；战术牌打出后<strong>不补牌</strong>。</li>
+  <li><strong>数量限制（每战线独立）</strong>：你<strong>已在该战线打出的战术牌数不得多于对手 +1</strong>；即只要你没比对手多，就能继续打，一旦多出则须等对手在该战线先打 1 张。 </li>
+  <li><strong>持有上限</strong>：战术牌<strong>不占</strong>手牌位，单独存放于自己面前（见 7.1 双线手牌）；但仍受 11.3 第 2 条「每战线战术牌数不超对手 +1」的限制。 </li>
+  <li><strong>牌型参与</strong>：士气类（领袖 / 御林铁骑 / 戍边军团）作为阵型一张牌参与 5.2 比较；环境类改变该格比较方式；计谋类<strong>落场不入阵型</strong>（见 11.5）。</li>
+  <li><strong>不可阻止夺旗</strong>：未打出的战术牌<strong>不能阻止</strong>对手宣告夺旗；已夺旗幟上的牌任何战术牌均不可影响。</li>
+  <li><strong>不限次数（v1.2 修订）</strong>：取消 v1.1 的「每个中央区限一次」。同一张战术牌被反复夺得后，<strong>可反复打出</strong>；不同中央区互不影响。</li>
+  <li><strong>无消耗立即打出（v1.2 追加 · v1.8 明确）</strong>：在<strong>回合末中心结算、战术牌归属已确定</strong>（即所有玩家本回合操作均已结束）之后，获得者可<strong>零行动消耗立即打出</strong>触发其效果；若<strong>当回合未立即打出，该免费额度于回合末作废</strong>（不跨回合保留），但战术牌仍留手中，之后按 11.3 打出需消耗一次暗扣行动。</li>
+</ol>
+
+<h2>11.4 本作专有规则</h2>
+<ul>
+  <li><strong>赢得后使用</strong>：按 8.5 / 11.5 赢得的战术牌进入自己面前的战术区（<strong>不占两线手牌位</strong>），此后按 11.3 在<strong>该玩家任意一条参与的战线</strong>上打出；获得当下可选「无消耗立即打出」（见 11.3），但若当回合不立即打出，该免费额度作废（牌仍留手中，之后按 11.3 正常打出）。</li>
+  <li><strong>弃牌与回收</strong>：战术牌因故离场（士气 / 环境牌随旗幟结算等）时不进入战线弃牌堆，而是<strong>放回其来源的中央势力区</strong>，继续供争夺，循环使用。<strong>计谋牌例外</strong>：打出后<strong>落场绑定</strong>，仅在被夺取 / 平局时回流（见 11.5）。</li>
+</ul>
+
+<h2>11.5 计谋牌落场 · 夺取 · 回滚（v1.2 新增 · v1.4 / v1.5 修订）</h2>
+<p>本作 4 张计谋牌（哥特游骑 / 莱茵换防 / 军团哗变 / 附庸倒戈）<strong>不再是「一打出即弃」的一次性牌</strong>，而是<strong>落场持续、可被对手夺取</strong>的「战场态势」牌；每张牌配一个<strong>模型</strong>，用于在牌面上标示它影响过哪些牌、以便<strong>被夺取时恢复原样</strong>。</p>
+<ol>
+  <li><strong>落场</strong>：计谋牌打出后<strong>不回流</strong>来源区，而是<strong>绑定其来源中央区</strong>，并在受影响的牌位留下「<strong>虚空站位</strong>（战术牌标示该牌位被影响过）+ <strong>模型</strong>（盖在被移动 / 弃置的牌上）」标记，标示这些牌被影响过。</li>
+  <li><strong>虚空站位只是虚空，不占格位（v1.4）</strong>：原牌位<strong>不是被封住</strong>的——该格<strong>照常可以继续佈军</strong>（你、对手都可以往里打）。</li>
+  <li><strong>夺取</strong>：回合末中心结算时，若该计谋牌绑定的中央区的<strong>唯一第一</strong>（影响力 ≥6 且无并列）<strong>不是其持有者</strong>，则该牌<strong>被新第一夺取</strong>，进入夺取者手中。</li>
+  <li><strong>回滚</strong>：被夺取时，按<strong>模型与牌的位置</strong>把该计谋的效果<strong>恢复原样</strong>；<strong>但已分出胜负（已夺旗）的旗幟不受影响</strong>——其上结果保持不变。</li>
+  <li><strong>虚空站位被占 → 不回归（v1.4）</strong>：若原牌位<strong>已经被重新佈满</strong>（没有空位），则被移走 / 弃掉的那张牌<strong>不回归</strong>：
+    <ul>
+      <li><strong>军团哗变 / 莱茵换防（弃置）</strong>：该牌就此<strong>弃入本战线弃牌堆</strong>。</li>
+      <li><strong>莱茵换防（移动）/ 附庸倒戈</strong>：该牌<strong>留在被移去的位置</strong>（不再回原位）。</li>
+    </ul>
+    这条规则同时保证「一格任一侧不超过容量」（常规 3 张 / 春汛 4 张）。</li>
+  <li><strong>追平不结算（v1.2 简化）</strong>：若该区<strong>无唯一第一</strong>（被追平并列或未达门槛），<strong>不结算</strong>——该牌<strong>留在场上、效果保留</strong>（不退回中央区）。只有被<strong>明确超越</strong>才触发夺取与回滚。</li>
+  <li><strong>可重复</strong>：同一中央区可<strong>反复夺取</strong>——不再受「每区限一次」限制；被反复夺得后可反复打出。</li>
+  <li><strong>春汛离场 · 由牌主选择弃牌（v1.5）</strong>：环境牌<strong>多瑙河春汛</strong>使该格容量变为 4。当它离场（被 8.5 夺走 / 随旗幟结算回收）时容量<strong>回落为 3</strong>；若某侧此刻<strong>有 4 张</strong>，超出的<strong>那 1 张由该侧牌主自行选择弃掉</strong>（<strong>不是</strong>由引擎自末尾自动裁剪）——部队牌入该战线弃牌堆、战术牌按 11.4 回流来源区。</li>
+</ol>
+<div class="note"><strong>多瑙河春汛离场（v1.4 澄清 · v1.5 修订）</strong>：春汛使该格容量由 <strong>3 变为 4</strong>。当它因 8.5「无论战术牌在哪」<strong>被夺走</strong>（或随旗幟结算离场）时，该格容量<strong>回落到 3</strong>；此时若某侧已佈满 4 张，<strong>由该侧牌主自行选择弃掉 1 张</strong>（见上条第 8 项）——部队牌进该战线弃牌堆、战术牌按 11.4 回流来源区，牌不会凭空消失。</div>
+<div class="note">设计意图：计谋牌从「打出即结算」变为「在场上留下一个可被拔除的隐患」——你用它做成的局势，只要在对应中央区被反超，就会被对手连牌带效果一起收回。这让中央区的争夺多了一层「拆招」维度，同时把 4 张计谋牌从一次性消耗品变成长期博弈的棋子。</div>
+</div>
+
+</body>
+</html>

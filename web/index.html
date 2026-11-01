@@ -1,0 +1,3847 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>三世纪：罗马的黄昏 · 1 vs 7 AI</title>
+<style>
+:root{
+  --parch:#f3e9d2; --parch2:#e6d8b6; --gold:#c9a227; --gold-d:#9c7a1e;
+  --ink:#2b2118; --ink-soft:#6b5c42; --me:#2f6f9f; --danger:#9c2b1e;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:"Noto Serif CJK SC","Songti SC","SimSun",serif;
+  background:var(--parch2); color:var(--ink); font-size:13px; line-height:1.5;
+}
+header{
+  background:var(--gold-d); color:#fff; padding:8px 16px;
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;
+  position:sticky; top:0; z-index:100; box-shadow:0 2px 8px rgba(0,0,0,.18);
+}
+header h1{font-size:16px;letter-spacing:1px}
+.hud{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;align-items:center}
+.hud b{color:#ffe9a8}
+button{
+  font-family:inherit; font-size:12px; padding:5px 11px; cursor:pointer;
+  background:#fff; color:var(--ink); border:1.5px solid var(--gold-d); border-radius:4px;
+}
+button:hover:not(:disabled){background:var(--gold); color:#fff}
+button:disabled{opacity:.45; cursor:not-allowed}
+button.primary{background:var(--me); color:#fff; border-color:var(--me)}
+button.primary:hover:not(:disabled){background:#245a80}
+
+main.app{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:12px;padding:12px;align-items:start}
+@media(max-width:1180px){ main.app{grid-template-columns:1fr} }
+
+/* ───── 圆环棋盘 ───── */
+.ring-toolbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px;font-size:11px;color:var(--ink-soft)}
+.ring-viewport{
+  overflow:auto; border:2px solid var(--gold-d); border-radius:10px;
+  background:#f6edcf; padding:8px;
+}
+.ring-wrap{position:relative;margin:0 auto}
+.ring{
+  position:relative; width:1150px; height:1150px;
+  transform:scale(var(--s,1)); transform-origin:0 0;
+  border-radius:50%;
+  background:radial-gradient(circle at 50% 50%, #fdf6e6 0%, #f4e9cf 55%, #e9dcb8 100%);
+  box-shadow:inset 0 0 0 3px #9c7a1e, 0 2px 10px rgba(0,0,0,.15);
+}
+.ring svg{position:absolute;inset:0;pointer-events:none}
+
+/* 席位 */
+.seat{
+  position:absolute;width:140px;height:56px;background:#fffdf3;
+  border:2px solid var(--gold);border-radius:9px;
+  display:flex;align-items:center;gap:6px;padding:4px 7px;
+  box-shadow:0 1px 4px rgba(0,0,0,.14);
+}
+.seat.me{border-color:var(--me);box-shadow:0 0 0 3px rgba(47,111,159,.28)}
+.seat.turn{border-color:var(--danger)}
+.seat-badge{
+  width:28px;height:28px;border-radius:50%;color:#fff;font-size:12px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;flex:0 0 28px;
+}
+.seat-txt{min-width:0;flex:1 1 auto}
+.seat-name{font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seat-sub{font-size:9px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seat-score{font-size:15px;font-weight:800;flex:0 0 auto}
+
+/* 战场（旗幟）格 */
+.cell{
+  position:absolute;width:36px;height:40px;background:#fffdf3;
+  border:1px solid #c9a227;border-radius:4px;padding:2px 1px;overflow:hidden;
+}
+.cell.mine{cursor:pointer}
+.cell.mine:hover{background:#fff}
+.cell.can{border-color:var(--me);box-shadow:0 0 0 2px rgba(47,111,159,.5);background:#eaf4fb}
+.cell.decided{opacity:.5}
+.cell.sealed{opacity:.5;filter:grayscale(.65)}
+.cell.mark{border-color:var(--danger);border-width:1.5px}
+.cell.hl{outline:3px solid var(--me);z-index:6}
+.cell-flag{height:3px;border-radius:2px;margin:0 1px 1px}
+.crow{display:flex;align-items:center;gap:1px;height:14px}
+.crow .dot{width:4px;height:4px;border-radius:50%;flex:0 0 4px}
+.chip{
+  flex:1 1 0;min-width:0;height:13px;border-radius:2px;color:#fff;
+  font-size:8px;font-weight:700;line-height:13px;text-align:center;overflow:hidden;
+}
+.chip.wait{background:#fffdf3!important;border:1px dashed #cdbb90;height:13px}
+
+/* 战线号徽标 */
+.lbadge{
+  position:absolute;width:26px;height:26px;border-radius:50%;
+  background:#fffdf3;border:2px solid var(--gold);color:var(--gold-d);
+  font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;
+}
+.lbadge.mark{background:var(--danger);color:#fff;border-color:var(--danger)}
+
+/* 中央势力区 */
+.zone{
+  position:absolute;width:224px;height:94px;background:#fffdf3;
+  border:2px solid;border-radius:10px;padding:5px 8px;cursor:pointer;
+  box-shadow:0 1px 4px rgba(0,0,0,.14);
+}
+.zone:hover{outline:3px solid rgba(201,162,39,.55)}
+.z-head{display:flex;align-items:baseline;justify-content:space-between;gap:4px}
+.z-name{font-size:12px;font-weight:800}
+.z-latin{font-size:8px;color:var(--ink-soft);font-style:italic}
+.z-score{font-size:11px;font-weight:800}
+.z-tac{
+  font-size:10px;margin:3px 0;padding:2px 4px;border-radius:4px;background:#f2e8cf;
+  border:1px dashed #cdbb90;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.z-tac.empty{color:#a09880;font-style:italic}
+.z-tac .z-loc{font-size:8px;font-style:normal}
+.z-hold{font-size:9px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.z-hold.none{color:#a09880;font-weight:400;font-style:italic}
+.z-bar{height:5px;border-radius:3px;background:#e6dcc0;overflow:hidden;margin-bottom:3px}
+.z-bar i{display:block;height:100%}
+.z-infl{display:flex;flex-wrap:wrap;gap:2px;min-height:16px;align-items:center}
+.z-infl .infl{width:15px;height:15px;border-radius:50%;color:#fff;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.z-lead{font-size:9px;color:var(--ink-soft);white-space:nowrap;overflow:hidden}
+/* 全席影响力明细（8 席 + 群体总和）：席位顺序 = 座次 1..8 */
+.z-all{
+  display:grid;grid-template-columns:repeat(9,1fr);gap:1px;align-items:center;
+  text-align:center;font-size:8px;font-weight:800;line-height:1.3;
+}
+.z-all .za{position:relative}
+.z-all .za.zero{opacity:.28;font-weight:400}
+.z-all .za.lead::after{
+  content:'◆';position:absolute;top:-4px;right:-1px;font-size:5px;color:var(--gold-d);
+}
+.z-all .z-tot{
+  font-size:8px;color:var(--gold-d);font-weight:800;
+  border-left:1px solid #e0d5b8;padding-left:2px;
+}
+
+/* 中央指挥盘 */
+.disc{
+  position:absolute;left:575px;top:575px;transform:translate(-50%,-50%);
+  width:336px;height:336px;border-radius:50%;
+  background:radial-gradient(circle at 50% 42%, #fffaea 0%, #f3e7c8 70%, #e7d8b0 100%);
+  border:3px solid var(--gold-d);
+  box-shadow:inset 0 0 0 6px rgba(201,162,39,.35), 0 2px 8px rgba(0,0,0,.15);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;text-align:center;
+}
+.disc .dir{font-size:46px;line-height:1;color:var(--gold-d)}
+.disc .dlab{font-size:12px;font-weight:800;color:var(--gold-d);letter-spacing:2px}
+.disc .d1{font-size:12px;margin-top:4px}
+.disc .d1 b{color:var(--danger)}
+.disc .d2{font-size:11px;color:var(--ink-soft)}
+.disc .d3{font-size:10px;color:var(--ink-soft);padding:0 30px}
+
+/* 手牌 / 计划 */
+.my-area{background:var(--parch);border:2px solid var(--gold-d);border-radius:8px;padding:10px;margin-top:10px}
+.my-area h2{font-size:13px;color:var(--gold-d);margin-bottom:6px}
+.hand-group{margin-bottom:8px}
+.hand-label{font-size:11px;color:var(--ink-soft);margin-bottom:3px}
+.hand{display:flex;gap:4px;flex-wrap:wrap}
+.hcard{
+  width:46px;height:64px;border:1.5px solid var(--gold-d);border-radius:4px;
+  background:#fff; cursor:pointer; display:flex;flex-direction:column;
+  align-items:center;justify-content:center;font-size:16px;font-weight:800;
+}
+.hcard:hover{transform:translateY(-2px)}
+.hcard.sel{outline:3px solid var(--me)}
+.plan-box{margin-top:8px;border:1px dashed var(--gold-d);border-radius:6px;padding:8px;background:#fffdf5}
+.plan-box h3{font-size:12px;color:var(--gold-d);margin-bottom:6px}
+.plan-row{display:flex;align-items:center;gap:6px;font-size:11px;padding:3px 0;flex-wrap:wrap}
+.plan-row .tag{font-weight:700;color:var(--gold-d);min-width:62px}
+.plan-row .done{color:#2c6b3f;font-weight:700}
+.plan-row .todo{color:#b23a2e}
+.mini-btn{font-size:10px;padding:2px 7px;border:1px solid var(--gold-d);border-radius:3px;background:#f0e8d2;cursor:pointer;color:#4a3a1a}
+.mini-btn:hover{background:#e2d5b4}
+.mini-btn.sel{background:var(--me);color:#fff;border-color:#1a4a63}
+.plan-zones{display:flex;gap:3px;flex-wrap:wrap;margin-top:4px}
+.msg{padding:8px;background:#fff8e8;border:1px solid var(--gold);border-radius:4px;font-size:12px;margin-top:8px}
+.msg.err{background:#fbe9e4;border-color:#b23a2e;color:#8a3324}
+
+/* 侧栏 */
+.side{display:flex;flex-direction:column;gap:10px}
+.panel{background:var(--parch);border:2px solid var(--gold);border-radius:8px;padding:10px}
+.panel h2{font-size:13px;color:var(--gold-d);margin-bottom:6px}
+.score-list{display:grid;grid-template-columns:1fr 1fr;gap:3px}
+.score-item{display:flex;justify-content:space-between;font-size:11px;padding:2px 5px;border-radius:3px;background:#fff8e8}
+.score-item.me{background:var(--me);color:#fff;font-weight:700}
+.score-item .sc{font-weight:800}
+.zgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.zmini{
+  border:1.5px solid;border-radius:5px;padding:3px 5px;background:#fffdf3;cursor:pointer;font-size:10px;
+}
+.zmini:hover{background:#fff}
+.zmini .zn{font-weight:800;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.zmini .zt{font-size:9px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.zmini .zt.none{color:#a09880;font-style:italic}
+.tac-list{display:flex;gap:3px;flex-wrap:wrap}
+.tac{font-size:9px;padding:2px 5px;background:#f0e8d2;border-radius:3px;border:1px solid var(--gold-d)}
+.log{font-size:10px;max-height:230px;overflow-y:auto;background:#fff8e8;border-radius:4px;padding:5px;border:1px solid var(--gold)}
+.log div{padding:1px 0;border-bottom:1px dotted #e0d5b8}
+
+/* 提示气泡 */
+.tip{
+  position:fixed;z-index:400;pointer-events:none;display:none;max-width:230px;
+  background:#2b2118;color:#f7edd8;font-size:10px;line-height:1.45;
+  padding:6px 8px;border-radius:5px;box-shadow:0 3px 10px rgba(0,0,0,.35);
+}
+.tip b{color:#ffd970}
+
+/* 弹窗 */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:500}
+.modal.hidden{display:none}
+.mbox{
+  background:var(--parch);border:3px solid var(--gold-d);border-radius:10px;
+  padding:16px 18px;max-width:460px;width:calc(100% - 40px);max-height:86vh;overflow:auto;
+}
+.mbox h3{font-size:15px;color:var(--gold-d);margin-bottom:8px}
+.mbox.wide{max-width:620px}
+.mbox .close{margin-top:12px;width:100%}
+/* 开局布置：手牌预览 / 花色统计 / 区选择 */
+.hcard.sm{width:32px;height:44px;font-size:12px;cursor:default;border-width:1.5px}
+.hcard.sm:hover{transform:none}
+.srow{display:flex;flex-wrap:wrap;align-items:center;gap:2px;font-size:12px;font-weight:800;margin:2px 0 6px}
+.sstat{padding:1px 4px;border-radius:4px}
+.sstat.top{background:#f2e6c4;text-decoration:underline;text-underline-offset:3px}
+.sstat.zero{opacity:.4;text-decoration:none}
+.ssep{color:#b8ab88;font-weight:400}
+.zgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}
+.zpick{display:flex;flex-direction:column;align-items:center;gap:2px;border:1.5px solid var(--gold-d);
+  border-radius:6px;background:#fffdf3;padding:7px 4px;cursor:pointer;color:inherit;font-family:inherit}
+.zpick:hover{background:#f3ebd5}
+.zpick.sel{outline:2px solid var(--me);background:#eaf3f7}
+.zp-sym{font-size:17px;font-weight:800;line-height:1}
+.zp-name{font-size:11px;font-weight:700}
+.zp-n{font-size:10px;color:var(--ink-soft)}
+.zp-n.hot{color:#a8620f;font-weight:700}
+.tcard{border:2px solid;border-radius:8px;padding:10px 12px;background:#fffdf3;margin-bottom:10px}
+.tcard .tcat{font-size:10px;font-weight:800;color:#fff;display:inline-block;padding:1px 7px;border-radius:9px;margin-bottom:5px}
+.tcard .tname{font-size:14px;font-weight:800;margin-bottom:4px}
+.tcard .tdesc{font-size:11px;color:var(--ink-soft);line-height:1.55}
+.kv{display:flex;justify-content:space-between;font-size:11px;padding:2px 0;border-bottom:1px dotted #e0d5b8}
+.kv b{font-weight:800}
+.note{font-size:10px;color:var(--ink-soft);margin-top:8px;line-height:1.5}
+.over{position:fixed;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;z-index:600}
+.over-box{background:var(--parch);border:3px solid var(--gold-d);border-radius:10px;padding:20px;max-width:420px;text-align:center}
+/* 内嵌规则书（按钮弹出） */
+.rules{font-size:11px;line-height:1.68;color:var(--ink)}
+.rules h3{font-size:14px;color:var(--gold-d);margin:0 0 4px}
+.rules .rlead{font-size:10.5px;color:var(--ink-soft);margin:0 0 8px;padding-bottom:7px;border-bottom:1px solid #e0d5b8}
+.rules h4{font-size:12.5px;color:var(--gold-d);margin:13px 0 4px;border-bottom:1px solid #e8ddc0;padding-bottom:2px}
+.rules ul,.rules ol{margin:3px 0 3px 17px;padding:0}
+.rules li{margin-bottom:3px}
+.rules b{color:#7a2e1e}
+.rules .rnote{font-size:10px;color:var(--ink-soft);margin:3px 0 0}
+</style>
+</head>
+<body>
+<header>
+  <h1>三世纪：罗马的黄昏</h1>
+  <div class="hud">
+    <span>回合 <b id="hRound">1</b></span>
+    <span>标记 <b id="hMarker">战线①</b></span>
+    <span>方向 <b id="hDir">顺时针 ↻</b></span>
+    <span>主导花色 <b id="hDom">—</b></span>
+    <span>你的分 <b id="hScore">0</b></span>
+    <span>你的旗 <b id="hFlags">0</b>/${WIN_FLAGS}</span>
+  </div>
+  <div>
+    <button id="btnRules">规则书</button>
+    <button id="btnNew">新局</button>
+    <button id="btnAuto">自动暗扣</button>
+    <button id="btnReveal" class="primary">摊开结算（已暗扣 0/2）</button>
+  </div>
+</header>
+
+<main class="app">
+  <section>
+    <div class="ring-toolbar">
+      <span>圆环棋盘 · 8 席环绕 · 8 条弧线各 9 面旗（72）· 中央 6 势力区</span>
+      <button id="zOut">缩小</button><button id="zFit">适应</button><button id="zIn">放大</button>
+      <span id="zLabel">100%</span>
+      <span style="color:var(--danger)">■</span><span>标记所在战线</span>
+      <span style="color:var(--me)">■</span><span>你的两条战线</span>
+    </div>
+    <div class="ring-viewport" id="viewport">
+      <div class="ring-wrap" id="ringWrap">
+        <div class="ring" id="ring">
+          <svg id="ringSvg" viewBox="0 0 1150 1150" width="1150" height="1150"></svg>
+          <div id="layerLines"></div>
+          <div id="layerSeats"></div>
+          <div id="layerCells"></div>
+          <div id="layerZones"></div>
+          <div id="disc" class="disc"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="my-area">
+      <h2>你的手牌（席 1 · 卡劳修斯）· 每条战线 7 张，两线不可混用</h2>
+      <div id="myHands"></div>
+      <div id="plan"></div>
+      <div class="msg" id="hint">点手牌 → 点该战线上的目标战场格：选战线 → 选战场 → 暗扣。全桌同时揭示，对手看不到你选了哪条弧。</div>
+    </div>
+  </section>
+
+  <aside class="side">
+    <div class="panel">
+      <h2>各席得分（严格零和 · 总分恒 0）</h2>
+      <div class="score-list" id="scores"></div>
+    </div>
+    <div class="panel">
+      <h2>中央区奖励牌（点击查看）</h2>
+      <div class="zgrid" id="zoneGrid"></div>
+      <div class="note">点击任一势力区查看该区待夺的战术牌全文；区名下的进度条为「你的影响力 / 6」。</div>
+    </div>
+    <div class="panel">
+      <h2>我的战术牌（不占手牌位）</h2>
+      <div class="tac-list" id="myTacs"><span style="font-size:10px;color:#a09880">暂无</span></div>
+    </div>
+    <div class="panel">
+      <h2>落场的计谋牌（持久 · 可被夺取）</h2>
+      <div class="tac-list" id="guileBoard"><span style="font-size:10px;color:#a09880">暂无</span></div>
+      <div class="note">计谋牌打出后<strong>落场</strong>，绑定其来源中央区；该区<strong>被对手超越</strong>时，牌与效果一并被夺走（规则 11.5）。</div>
+    </div>
+    <div class="panel">
+      <h2>战术牌图鉴（10 张）</h2>
+      <div class="tac-list" id="codex"></div>
+    </div>
+    <div class="panel">
+      <h2>战报</h2>
+      <div class="log" id="log"></div>
+    </div>
+  </aside>
+</main>
+
+<div class="tip" id="tip"></div>
+<div class="modal hidden" id="modal"><div class="mbox" id="mbox"></div></div>
+
+<script>
+var __M = {};
+__M.rules = (function(){
+// 三世纪：罗马的黄昏 —— 核心常量与规则数据
+// 严格对齐 rules.html 客户版
+
+// 6 中央势力 = 6 花色（决定牌面颜色）
+const SUITS = [
+  { id: 0, name: '元老院',   latin: 'Senatus',     color: '#6b4a8c' },
+  { id: 1, name: '禁卫军',   latin: 'Praetoriani', color: '#b23a2e' },
+  { id: 2, name: '宫廷近臣', latin: 'Aula Regia',  color: '#2f6f9f' },
+  { id: 3, name: '财政使',   latin: 'Fiscus',     color: '#d98324' },
+  { id: 4, name: '意大利城市', latin: 'Italia',    color: '#4e8a4f' },
+  { id: 5, name: '北非粮仓', latin: 'Annona',     color: '#d9ad2e' },
+];
+
+// 8 玩家势力（席位 0..7，对应规则书第 1-8 席）
+const FACTIONS = [
+  { seat: 0, name: '卡劳修斯',   realm: '不列颠分离政权', title: '不列颠的奥古斯都', color: '#1f6f8b' },
+  { seat: 1, name: '克罗库斯',   realm: '阿勒曼尼/法兰克诸部', title: '神庙毁灭者',  color: '#8a5a2b' },
+  { seat: 2, name: '奥勒良',     realm: '伊利里亚/多瑙河军团', title: '世界光复者',  color: '#b5462f' },
+  { seat: 3, name: '尼瓦',       realm: '哥特诸部',   title: '皇帝杀手',            color: '#3a3a3a' },
+  { seat: 4, name: '沙普尔一世', realm: '萨珊波斯',   title: '王中之王',            color: '#2f5fa8' },
+  { seat: 5, name: '芝诺比娅',   realm: '帕米拉帝国', title: '东方女王',            color: '#7a3b8f' },
+  { seat: 6, name: '巴高达',     realm: '巴高达起义', title: '自称皇帝',            color: '#4f6b3a' },
+  { seat: 7, name: '波斯图穆斯', realm: '高卢帝国',   title: '高卢帝国建立者',      color: '#6b6f76' },
+];
+
+// 牌型等级（规则 5.1）：同花顺 > 方阵 > 同花 > 顺子 > 杂军
+const FORM = {
+  SCRAP: 1,          // 杂军
+  STRAIGHT: 2,       // 顺子
+  FLUSH: 3,          // 同花
+  THREE_KIND: 4,     // 方阵
+  STRAIGHT_FLUSH: 5, // 同花顺
+};
+
+const FORM_NAME = {
+  5: '同花顺', 4: '方阵', 3: '同花', 2: '顺子', 1: '杂军', 0: '空',
+};
+
+// 环型规模：战场数 = 人数（规则 3.1）。默认 8（标准局）；setRingSize(n) 可在 2..8 间
+// 切换（少人数局模拟/对战用——规则书 3.1 人数表：3 人 = 3 条战线闭环，27 面旗）。
+// ES 模块活绑定：切换后所有 import 方即时生效；建局时应通过 createGame(seed,{nSeats})
+// 传入，规模同时烙进 g.nSeats 供 UI/统计读取。
+let N_SEATS = 8;
+let N_LINES = 8;
+function setRingSize(n) {
+  if (!Number.isInteger(n) || n < 2 || n > 8) throw new Error(`ring size must be 2..8, got ${n}`);
+  N_SEATS = n;
+  N_LINES = n;   // 规则 3.1：战场数 = 人数
+}
+const N_ZONES = 6;
+
+// 每条战线格数（规则 3.5）
+const CELLS_PER_LINE = 9;
+// 每条战线牌堆张数（6 色 × 1-10，规则 2.2）
+const DECK_SIZE = 60;
+// 每线每玩家手牌上限（规则 7.1 / 7.3，两线不可混用）
+const HAND_PER_LINE = 7;
+// 中心区夺战术牌门槛（规则 8.5）
+const CENTER_THRESHOLD = 6;
+// 领袖计点（规则 8.4）
+const LEADER_WORTH = 2;
+// 终局：任一玩家「旗子数」达到此值（规则 10.2 v1.5）。
+// 旗子数 = 该玩家累计夺得的旗幟格数 + 当前持有的中央区数（中央区每区算 1 面旗）。
+const WIN_FLAGS = 12;
+// 中央区占位计分（规则 8.6）：某区影响力达门槛且唯一第一者，夺得该区 1 分；
+// 该区易主时新区主 +1、旧区主 −1（严格零和）。开局各区无主，首次夺取无人扣分。
+const ZONE_POINT = 1;
+// 终局：牌堆需洗回次数（规则 10.2 第 2 条「第二次洗回后再次用尽」）
+const RESHUFFLES_TO_END = 2;
+// 兜底最大回合数（防止病态死循环）
+const MAX_ROUNDS = 400;
+
+// 战术牌库（10 张：士气 4 / 环境 2 / 计谋 4，规则 11.1）
+// cat: morale 参与阵型 / env 改变该格比较方式 / guile 即时结算
+// wild: 结算时才确定的「颜色 + 点数」取值域
+const TACTICS = [
+  { id: 'god1',   cat: 'morale', name: '领袖·克劳狄乌斯·哥提库斯',
+    desc: '万能牌：结算时确定颜色与数字', wild: { suits: null, ranks: null }, isLeaderCard: true },
+  { id: 'god2',   cat: 'morale', name: '领袖·普罗布斯',
+    desc: '万能牌：结算时确定颜色与数字', wild: { suits: null, ranks: null }, isLeaderCard: true },
+  { id: 'horse',  cat: 'morale', name: '御林铁骑',
+    desc: '视为任一花色的 8', wild: { suits: null, ranks: [8] } },
+  { id: 'shield', cat: 'morale', name: '戍边军团',
+    desc: '视为任一花色、点数 ≤3 的牌', wild: { suits: null, ranks: [1, 2, 3] } },
+  { id: 'plague', cat: 'env',    name: '西普里安瘟疫',
+    desc: '该旗幟忽略一切牌型，仅比双方点数总和', env: 'points' },
+  { id: 'flood',  cat: 'env',    name: '多瑙河春汛',
+    desc: '该旗幟改为以四张牌组成阵型比较', env: 'four' },
+  { id: 'scout',  cat: 'guile',  name: '哥特游骑',
+    desc: '从本战线牌堆抽 3 张入手；任选 2 张正面朝下放回牌堆顶。本回合不再补牌' },
+  { id: 'shift',  cat: 'guile',  name: '莱茵换防',
+    desc: '将你方某未夺旗幟旁的一张牌，移到己方另一空位，或弃掉' },
+  { id: 'mutiny', cat: 'guile',  name: '军团哗变',
+    desc: '将对手某未夺旗幟旁的一张牌移出并弃掉' },
+  { id: 'defect', cat: 'guile',  name: '附庸倒戈',
+    desc: '取对手某未夺旗幟旁的一张部队牌，放到己方一个空位' },
+];
+
+const TACTIC_BY_ID = Object.fromEntries(TACTICS.map(t => [t.id, t]));
+
+// 8 条战线：战线 i 连接席位 i 与 (i+1)%8（规则 3.3）
+function lineSeats(i) {
+  return [i, (i + 1) % N_SEATS];
+}
+// 某席参与的两条战线（规则 3.3）
+function playerLines(seat) {
+  return [(seat - 1 + N_SEATS) % N_SEATS, seat];
+}
+
+// 规则 6.3：先手方判定 —— 看方向指示器。
+// 顺时针(dir=+1)时战线 i 上「席 i+1」先结算；逆时针(dir=-1)时「席 i」先结算。
+function firstHand(lineIdx, dir) {
+  const [a, b] = lineSeats(lineIdx);
+  return dir > 0 ? b : a;
+}
+// 后结算方（规则 5.1 第 3 条 / 9.1：平手时后结算方判负）
+function secondHand(lineIdx, dir) {
+  const [a, b] = lineSeats(lineIdx);
+  return dir > 0 ? a : b;
+}
+
+// 规则 6.2 / 4.1：本回合摊开顺序 = 从标记所在线起，沿指示器方向绕环一圈。
+// 起点恒为标记线本身。
+function revealOrder(markerLine, dir = +1) {
+  const order = [];
+  for (let k = 0; k < N_LINES; k++) {
+    order.push((markerLine + dir * k + N_LINES * 2) % N_LINES);
+  }
+  return order;
+}
+
+// 规则 3.5：旗幟初始归属。
+// 线 i（连接席 i 与席 i+1）由「环向前位」席 i 拿 5 面、席 i+1 拿 4 面。
+// 战线⑧（席 8 – 席 1）由席 8 拿 5 面、席 1 拿 4 面 —— 与规则书表格一致。
+// 每人恰在两条线上一次拿 5、一次拿 4，合计 9 面，全局 72 面严格对称。
+function initialFlags() {
+  const assign = [];
+  for (let i = 0; i < N_LINES; i++) {
+    const [a, b] = lineSeats(i);
+    const cells = [];
+    for (let k = 0; k < CELLS_PER_LINE; k++) cells.push(k < 5 ? a : b);
+    assign.push(cells);
+  }
+  return assign;
+}
+// 规则 8.3：打空手牌时的领袖放置。
+// 注：多个玩家同回合打空时规则要求「按标记顺时针轮流放置」，但因暗扣本身是全桌同时
+// 进行的（6.2），且同一色区可容纳多名玩家的领袖（互不排斥），放置先后不改变任何结果，
+// 故引擎按席序一次性结算，不额外实现轮转次序。
+
+return { SUITS, FACTIONS, FORM, FORM_NAME, N_SEATS, N_LINES, setRingSize, N_ZONES, CELLS_PER_LINE, DECK_SIZE, HAND_PER_LINE, CENTER_THRESHOLD, LEADER_WORTH, WIN_FLAGS, ZONE_POINT, RESHUFFLES_TO_END, MAX_ROUNDS, TACTICS, TACTIC_BY_ID, lineSeats, playerLines, firstHand, secondHand, revealOrder, initialFlags };
+})();
+__M.formation = (function(){
+// 牌型判定与比较 —— 严格对齐 rules.html 5.1 / 5.2 / 9 / 11.2
+const { FORM, TACTIC_BY_ID, SUITS } = __M.rules;
+
+const ALL_SUITS = SUITS.map(s => s.id);
+const ALL_RANKS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+// 万能牌组合爆炸保护（同格最多 3~4 张，极端情况回退贪心）
+const MAX_COMBOS = 20000;
+
+function isTacticCard(card) {
+  return !!card && card.tactic != null;
+}
+
+// 某张牌的候选（花色, 点数）取值域。普通部队牌只有唯一取值。
+function cardOptions(card) {
+  if (!isTacticCard(card)) return [{ suit: card.suit, rank: card.rank }];
+  const t = TACTIC_BY_ID[card.tactic];
+  if (!t || !t.wild) return [{ suit: card.suit ?? 0, rank: card.rank ?? 0 }];
+  const suits = t.wild.suits || ALL_SUITS;
+  const ranks = t.wild.ranks || ALL_RANKS;
+  const out = [];
+  for (const s of suits) for (const r of ranks) out.push({ suit: s, rank: r });
+  return out;
+}
+
+// 枚举一叠牌（含万能牌）所有具体化组合
+function expandCards(cards) {
+  let combos = [[]];
+  for (const c of cards) {
+    const opts = cardOptions(c);
+    const next = [];
+    for (const combo of combos) {
+      if (next.length >= MAX_COMBOS) break;
+      for (const o of opts) next.push(combo.concat([o]));
+    }
+    combos = next;
+    if (combos.length >= MAX_COMBOS) break;
+  }
+  return combos;
+}
+
+// 判定 n 张牌的阵型等级（规则 5.1；n=4 用于「多瑙河春汛」）
+// 同花顺(5) > 方阵(4) > 同花(3) > 顺子(2) > 杂军(1)
+function formationLevel(cards) {
+  if (!cards || cards.length === 0) return 0;
+  const n = cards.length;
+  // 阵型需至少 3 张（规则 5.1）。不足 3 张时「同花 / 连续」会空真成立，
+  // 会把 1~2 张误判为同花顺（等级 5，最强）——故 n<3 一律视为未成阵（杂军）。
+  if (n < 3) return FORM.SCRAP;
+  const suits = cards.map(c => c.suit);
+  const ranks = cards.map(c => c.rank).slice().sort((a, b) => a - b);
+  const sameSuit = suits.every(s => s === suits[0]);
+  let consecutive = true;
+  for (let i = 1; i < n; i++) if (ranks[i] !== ranks[i - 1] + 1) { consecutive = false; break; }
+  const sameRank = n >= 2 && ranks.every(r => r === ranks[0]);
+
+  if (sameSuit && consecutive) return FORM.STRAIGHT_FLUSH; // 同花顺
+  if (sameRank) return FORM.THREE_KIND;                    // 方阵
+  if (sameSuit) return FORM.FLUSH;                         // 同花
+  if (consecutive) return FORM.STRAIGHT;                   // 顺子
+  return FORM.SCRAP;                                       // 杂军
+}
+
+function pointSum(cards) {
+  return cards.reduce((s, c) => s + (c.rank || 0), 0);
+}
+
+// 主导花色张数（三级优先度的第 2 级，规则 5.2）
+function dominantCount(cards, dominantSuit) {
+  if (dominantSuit == null) return 0;
+  return cards.filter(c => c.suit === dominantSuit).length;
+}
+
+// 阵型的比较向量：牌型等级 > 主导花色张数 > 点数和
+function formationValue(cards, dominantSuit) {
+  return {
+    level: formationLevel(cards),
+    dom: dominantCount(cards, dominantSuit),
+    pts: pointSum(cards),
+  };
+}
+
+// 万能牌取最优：按 ①等级 ②主导花色张数 ③点数和 字典序最大化
+function bestFormation(cards, dominantSuit) {
+  if (cards.every(c => !isTacticCard(c))) return formationValue(cards, dominantSuit);
+  let best = null;
+  for (const combo of expandCards(cards)) {
+    const v = formationValue(combo, dominantSuit);
+    if (!best || v.level > best.level ||
+      (v.level === best.level && v.dom > best.dom) ||
+      (v.level === best.level && v.dom === best.dom && v.pts > best.pts)) {
+      best = v;
+    }
+  }
+  return best || formationValue(cards, dominantSuit);
+}
+
+// 万能牌取最大点数和（用于「西普里安瘟疫」只比点数）
+function maxPointSum(cards) {
+  if (cards.every(c => !isTacticCard(c))) return pointSum(cards);
+  let best = 0;
+  for (const combo of expandCards(cards)) {
+    const s = pointSum(combo);
+    if (s > best) best = s;
+  }
+  return best;
+}
+
+// 比较两个阵型。返回 >0 表示 a 胜，<0 表示 b 胜，0 表示平手
+// 规则 5.2：① 牌型等级 ② 主导花色张数 ③ 点数和
+// 万能牌各自取对自己最有利的取值（规则 11.2：结算时才确定）
+function compareForm(aCards, bCards, dominantSuit) {
+  const A = bestFormation(aCards, dominantSuit);
+  const B = bestFormation(bCards, dominantSuit);
+  if (A.level !== B.level) return A.level > B.level ? 1 : -1;
+  if (A.dom !== B.dom) return A.dom > B.dom ? 1 : -1;
+  if (A.pts !== B.pts) return A.pts > B.pts ? 1 : -1;
+  return 0; // 平手 → 由调用方按「后结算方判负」裁决
+}
+
+// 环境牌「西普里安瘟疫」：忽略牌型，仅比点数和（规则 11.2）
+function comparePointsOnly(aCards, bCards) {
+  const A = maxPointSum(aCards), B = maxPointSum(bCards);
+  if (A !== B) return A > B ? 1 : -1;
+  return 0;
+}
+
+// 格中某玩家的牌
+function playerCardsAt(cell, seat) {
+  return (cell.sides && cell.sides[seat]) || [];
+}
+
+return { isTacticCard, cardOptions, expandCards, formationLevel, pointSum, dominantCount, formationValue, bestFormation, maxPointSum, compareForm, comparePointsOnly, playerCardsAt };
+})();
+__M.engine = (function(){
+// 游戏状态与回合流程引擎 —— 严格对齐 rules.html 客户版
+const {
+  SUITS, FACTIONS, TACTICS, TACTIC_BY_ID,
+  CELLS_PER_LINE, DECK_SIZE, HAND_PER_LINE,
+  CENTER_THRESHOLD, LEADER_WORTH, WIN_FLAGS, ZONE_POINT, RESHUFFLES_TO_END, MAX_ROUNDS,
+  N_SEATS, N_LINES, N_ZONES, setRingSize,
+  lineSeats, playerLines, firstHand, secondHand, revealOrder, initialFlags,
+} = __M.rules;
+const { compareForm, comparePointsOnly, bestFormation, maxPointSum, formationLevel, pointSum, formationValue } = __M.formation;
+
+// ---------------- 随机 ----------------
+function makeRng(seed) {
+  let s = (seed >>> 0) || 1;
+  return function rng() {
+    s ^= s << 13; s >>>= 0;
+    s ^= s >> 17;
+    s ^= s << 5;  s >>>= 0;
+    return s / 4294967296;
+  };
+}
+function shuffle(arr, rng) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+function buildDeck() {
+  const d = [];
+  for (let s = 0; s < 6; s++) for (let r = 1; r <= 10; r++) d.push({ suit: s, rank: r });
+  return d;
+}
+
+// ---------------- 建局 ----------------
+function createGame(seed = 12345, opts) {
+  // 少人数局（规则 3.1「战场数 = 人数」）：建局前切换环型规模（默认 8 不受影响）
+  if (opts && opts.nSeats != null) setRingSize(opts.nSeats);
+  const rng = makeRng(seed);
+  const flagAssign = initialFlags();
+
+  const lines = [];
+  for (let i = 0; i < N_LINES; i++) {
+    lines.push({
+      idx: i,
+      deck: shuffle(buildDeck(), rng),
+      discard: [],
+      reshuffles: 0,
+      cells: Array.from({ length: CELLS_PER_LINE }, (_, k) => ({
+        k,
+        sides: {},               // seat -> [card]
+        env: {},                 // seat -> envTacticId（规则 11.2 置于己方一侧）
+        owner: flagAssign[i][k], // 旗幟当前归属（规则 3.5 开局即有主）
+        decided: false,          // 本轮摊开中是否已判过（规则 9.3 不重复判夺）
+        sealed: false,           // v1.7：夺旗后封存（牌留原位、不可再佈军、战术牌不可再影响）
+      })),
+    });
+  }
+
+  // 手牌：hands[seat][lineIdx] = [card]
+  const hands = Array.from({ length: N_SEATS }, () => ({}));
+  for (let seat = 0; seat < N_SEATS; seat++) {
+    for (const li of playerLines(seat)) {
+      const h = [];
+      for (let k = 0; k < HAND_PER_LINE; k++) h.push(lines[li].deck.pop());
+      hands[seat][li] = h;
+    }
+  }
+
+  // 中心区：6 格，开局各随机 1 张战术牌（规则 2.1 / 8.1）
+  const tacDeck = shuffle(TACTICS.map(t => t.id), rng);
+  const zones = SUITS.map((s, i) => ({
+    idx: i, suit: s.id, name: s.name, color: s.color,
+    tactics: tacDeck[i] || null,
+    influence: {},                 // seat -> count
+  }));
+  // 战术牌的来源区（规则 11.4：离场后放回来源中央势力区循环使用）
+  const tacticHome = {};
+  const zoneTactic = Array(N_ZONES).fill(null);   // 反查：中央区 -> 该区绑定的战术牌（规则 8.5）
+  for (let i = 0; i < N_ZONES; i++) {
+    if (tacDeck[i]) { tacticHome[tacDeck[i]] = i; zoneTactic[i] = tacDeck[i]; }
+  }
+
+  // 领袖：每人 1（规则 2.1）
+  const leaders = {};
+  for (let seat = 0; seat < N_SEATS; seat++) leaders[seat] = seat % N_ZONES;
+
+  return {
+    seed, rng,
+    nSeats: N_SEATS,               // 环型规模（规则 3.1：战场数 = 人数；createGame opts.nSeats 可设 2..8）
+    mode: (opts && opts.mode) || 'short',   // 'short'（默认，web 版：12 旗终局）/ 'long'（忽略 12 旗）
+    lines, hands, zones, leaders, tacticHome, zoneTactic,
+    markerLine: 0,                 // 规则 4.3 开局钉在战线 ①
+    revealDir: +1,                 // 规则 6.3b 方向指示器，首回合顺时针
+    dominantSuit: null,            // 规则 8.7 每回合末刷新（并列则为 null）
+    scores: Array(N_SEATS).fill(0),     // 总分 = 旗帜分 + 中央区占位分
+    centerScores: Array(N_SEATS).fill(0), // 规则 8.6 中央区占位得分（含负分）
+    zoneHolder: Array(N_ZONES).fill(null), // 各中央区当前「第一」归属
+    zoneHolds: Array(N_SEATS).fill(0),  // 各席夺取中央区第一的累计次数
+    captures: Array(N_SEATS).fill(0),   // 夺旗次数（规则 10.3 平局判定）
+    // v1.2：取消「每个中央区限一次」——字段保留以兼容旧序列化，但不再用于拦截
+    zoneTacticPlayed: Array.from({ length: N_SEATS }, () => Array(N_ZONES).fill(0)),
+    playerTactics: Array.from({ length: N_SEATS }, () => []),
+    // v1.2：落场的计谋牌（持久 · 可夺取 · 可回滚）。每项：
+    //   { seat, tacticId, home, line, undo:[...], marks:[...] }
+    guileBoard: [],
+    // v1.2：被计谋牌「模型压住 / 移出」的部队牌的隔离区。
+    //   这些牌不参与 line.discard 的洗牌循环，只有其计谋牌被夺取（回滚）时才回到牌堆顶 / 原位；
+    //   因此不会被 refill 洗回可抽牌堆，符合「模型压住」语义（修复 v1.2 初版泄漏 bug）。
+    guileHold: [],
+    // v1.2：获得战术牌后的「无消耗立即打出」额度（席 → [tacticId]）
+    pendingFreePlay: Array.from({ length: N_SEATS }, () => []),
+    tacticsPlayed: Array.from({ length: N_SEATS }, () => Array(N_LINES).fill(0)),
+    round: 1,
+    tacticsWonCount: 0,            // 累计被夺取的战术牌次数（规则 8.5）
+    pendingRecycle: [],            // 6 区全满时暂存待回流的战术牌（保底，防丢牌）
+    // v1.5：春汛离场后「超容弃牌」待决队列。每项 { line, cell, seat, excess }：
+    //   某格因「多瑙河春汛」容量 4→3 时，若某侧仍佈满 4 张，则由该侧玩家自行选择弃掉一张
+    //   （规则 11.5）。真正移除在 resolveFloodDiscards 完成，UI 可中途拦截让人类选牌。
+    pendingFloodDiscard: [],
+    log: [],
+    over: false,
+    winner: null,
+    endReason: null,
+    _round: null,                  // 本回合临时数据
+  };
+}
+
+// ---------------- 查询 ----------------
+// 以下读取类接口对「非法区 / 缺失对象」一律返回安全值，不抛异常（健壮性：模糊测试要求）
+function zoneInfluence(g, zone, seat) { return (zone && zone.influence[seat]) || 0; }
+function zoneTotal(g, zone) {
+  return zone ? Object.values(zone.influence).reduce((a, b) => a + b, 0) : 0;
+}
+// 某玩家在某区的总影响力（标记 ×1 + 领袖 2，规则 8.4）—— 纯函数，无副作用
+function playerZoneScore(g, zone, seat) {
+  if (!zone) return 0;
+  let v = zone.influence[seat] || 0;
+  if (g.leaders[seat] === zone.idx) v += LEADER_WORTH;
+  return v;
+}
+// 某区全部玩家影响力总和（规则 8.7）
+function zoneScoreAll(g, zone) {
+  if (!zone) return 0;
+  let tot = 0;
+  for (let s = 0; s < N_SEATS; s++) tot += playerZoneScore(g, zone, s);
+  return tot;
+}
+
+// 单元格阵型容量：常规 3 张；「多瑙河春汛」4 张（规则 11.2）
+function cellCapacity(cell) {
+  if (!cell) return 3;
+  let cap = 3;
+  for (const id of Object.values(cell.env || {})) {
+    if (TACTIC_BY_ID[id] && TACTIC_BY_ID[id].env === 'four') cap = 4;
+  }
+  return cap;
+}
+function cellHasEnv(cell, kind) {
+  if (!cell) return false;
+  for (const id of Object.values(cell.env || {})) {
+    const t = TACTIC_BY_ID[id];
+    if (t && t.env === kind) return true;
+  }
+  return false;
+}
+
+// 规则 8.7：主导花色 = 回合末总影响力最高的颜色。
+// v1.1 修订：若有两区（及以上）并列第一，则本回合不产生主导花色（返回 null），
+// 不再沿用上回合结果 —— 明确「并列即无主导」。
+function computeDominantSuit(g) {
+  let best = -1, bestVal = -1, tie = false;
+  for (let z = 0; z < N_ZONES; z++) {
+    const val = zoneScoreAll(g, g.zones[z]);
+    if (val > bestVal) { bestVal = val; best = z; tie = false; }
+    else if (val === bestVal && val > 0) { tie = true; }
+  }
+  if (bestVal <= 0) return null;
+  if (tie) return null;
+  return best;
+}
+
+// ---------------- 合法性校验 ----------------
+// 规则 7.2：暗扣必须选线 → 选格 → 扣牌；已决出的格不可再投入新牌
+function canPlayTroop(g, seat, lineIdx, cellIdx, handIdx) {
+  if (!Number.isInteger(seat) || seat < 0 || seat >= N_SEATS) return { ok: false, why: '席号非法' };
+  const hand = g.hands[seat]?.[lineIdx];
+  if (!hand || hand.length === 0) return { ok: false, why: '该战线手牌为 0' };
+  if (handIdx < 0 || handIdx >= hand.length) return { ok: false, why: '手牌索引无效' };
+  const cell = g.lines[lineIdx]?.cells?.[cellIdx];
+  if (!cell) return { ok: false, why: '格位无效' };
+  if (cell.decided) return { ok: false, why: '该格本轮已决出，不可再投入新牌' };
+  if (cell.sealed) return { ok: false, why: '该格已封存（夺旗后不可再用）' };
+  const cap = cellCapacity(cell);
+  if ((cell.sides[seat] || []).length >= cap) return { ok: false, why: `该格己方已满 ${cap} 张` };
+  return { ok: true };
+}
+
+// 规则 11.3：战术牌可替代暗扣。返回是否允许
+function canPlayTactic(g, seat, lineIdx, tacticId, cellIdx) {
+  if (!Number.isInteger(seat) || seat < 0 || seat >= N_SEATS) return { ok: false, why: '席号非法' };
+  const t = TACTIC_BY_ID[tacticId];
+  if (!t) return { ok: false, why: '未知战术牌' };
+  if (!(g.playerTactics[seat] || []).includes(tacticId)) return { ok: false, why: '你未持有该战术牌' };
+  // v1.2：取消「每个中央区限一次」——同一区的战术牌可反复夺得并再次打出。
+  // 计谋牌落场后参数在执行时校验，不要求格位
+  const cell = g.lines[lineIdx]?.cells?.[cellIdx];
+  if (t.cat !== 'guile') {
+    if (!cell) return { ok: false, why: '格位无效' };
+    if (cell.sealed) return { ok: false, why: '该格已封存（夺旗后不可再用）' };
+    if (cell.decided) return { ok: false, why: '该格本轮已决出' };
+  }
+
+  // 规则 11.3.2：每战线独立，己方已打出战术牌数不得多于对手 +1
+  const [sA, sB] = lineSeats(lineIdx);
+  const opp = seat === sA ? sB : sA;
+  const mine = g.tacticsPlayed[seat][lineIdx];
+  const theirs = g.tacticsPlayed[opp][lineIdx];
+  // 打出后为 mine+1，须满足 mine+1 ≤ theirs+1，即 mine ≤ theirs
+  if (mine > theirs) return { ok: false, why: '本战线战术牌数将多于对手 +1（规则 11.3.2）' };
+
+  if (t.cat === 'morale') {
+    // 规则 11.2：每名玩家在同一战线只能有一张「领袖」万能牌
+    if (t.isLeaderCard) {
+      const has = (cell.sides[seat] || []).some(c => {
+        const ct = TACTIC_BY_ID[c.tactic];
+        return ct && ct.isLeaderCard;
+      });
+      if (has) return { ok: false, why: '同一格己方已有一张领袖牌' };
+      for (let k = 0; k < CELLS_PER_LINE; k++) {
+        const cs = g.lines[lineIdx].cells[k].sides[seat] || [];
+        if (cs.some(c => { const ct = TACTIC_BY_ID[c.tactic]; return ct && ct.isLeaderCard; })) {
+          return { ok: false, why: '同一战线己方只能有一张领袖牌' };
+        }
+      }
+    }
+    if ((cell.sides[seat] || []).length >= cellCapacity(cell)) return { ok: false, why: '该格己方已满' };
+    return { ok: true };
+  }
+  if (t.cat === 'env') {
+    // 规则 11.2：置于某未夺旗幟己方一侧；一格己方一侧只放一张环境牌
+    if (cell.env[seat]) return { ok: false, why: '该格己方一侧已有环境牌' };
+    return { ok: true };
+  }
+  return { ok: true }; // guile：即时结算，参数在执行时校验
+}
+
+// ---------------- 动作执行 ----------------
+// action 形态：
+//   { kind:'troop',  line, cell, handIdx, center:{type:'place'}|{type:'leader', zone} }
+//   { kind:'tactic', line, tacticId, cell?, ...guile 参数 }
+//   { kind:'empty',  line, leaderZone }   // 规则 8.3 打空手牌时的领袖放置
+function applyAction(g, seat, action) {
+  if (!action) return { ok: false, why: '空动作' };
+  if (!Number.isInteger(seat) || seat < 0 || seat >= N_SEATS) return { ok: false, why: '席号非法' };
+  if (action.kind === 'troop') return playTroop(g, seat, action);
+  if (action.kind === 'tactic') return playTactic(g, seat, action);
+  if (action.kind === 'empty') return playEmpty(g, seat, action);
+  // 兜底：该战线所有格己方均已满编，无任何合法暗扣点
+  if (action.kind === 'skip') {
+    g.log.push(`${FACTIONS[seat].name} 战线${action.line + 1} 无合法暗扣点，本回合跳过`);
+    return { ok: true, skipped: true };
+  }
+  return { ok: false, why: '未知动作类型' };
+}
+
+// 暗扣一张部队牌（规则 7.2 第 3 步）。中心行动延后到摊开时执行（规则 8.2）
+function playTroop(g, seat, action) {
+  const { line: lineIdx, cell: cellIdx, handIdx } = action;
+  const chk = canPlayTroop(g, seat, lineIdx, cellIdx, handIdx);
+  if (!chk.ok) return chk;
+  const hand = g.hands[seat][lineIdx];
+  const [card] = hand.splice(handIdx, 1);
+  const cell = g.lines[lineIdx].cells[cellIdx];
+  if (!cell.sides[seat]) cell.sides[seat] = [];
+  cell.sides[seat].push(card);
+  g._round.pending.push({
+    seat, lineIdx, cellIdx, kind: 'troop', card, center: action.center || { type: 'place' },
+  });
+  return { ok: true, card };
+}
+
+// 规则 7.4：战术牌替代暗扣，打出后不补牌。
+// 规则 8.2 的中心行动以「打出的牌的颜色」为前提，而战术牌在打出时并无固有颜色
+// （士气牌的颜色要到该格结算时才确定），故战术牌不触发中心行动、也不补牌。
+function playTactic(g, seat, action) {
+  const { line: lineIdx, tacticId, cell: cellIdx } = action;
+  const chk = canPlayTactic(g, seat, lineIdx, tacticId, cellIdx);
+  if (!chk.ok) return chk;
+  const t = TACTIC_BY_ID[tacticId];
+
+  if (t.cat === 'morale') {
+    const cell = g.lines[lineIdx].cells[cellIdx];
+    if (!cell.sides[seat]) cell.sides[seat] = [];
+    cell.sides[seat].push({ tactic: tacticId });
+    consumeTactic(g, seat, lineIdx, tacticId);
+    return { ok: true, tactic: t };
+  }
+  if (t.cat === 'env') {
+    const cell = g.lines[lineIdx].cells[cellIdx];
+    cell.env[seat] = tacticId;
+    consumeTactic(g, seat, lineIdx, tacticId);
+    return { ok: true, tactic: t };
+  }
+  // guile：v1.2 落场持久化（不再即时离场回流）。
+  //   打出后绑定其来源中央区；在受影响的牌位留下「虚空站位 + 模型」标记（marks）；
+  //   回合末中心结算时若该区唯一第一易主 → 被夺取，按 undo 回滚（已决出旗幟不受影响）。
+  const res = execGuile(g, seat, lineIdx, tacticId, action);
+  if (!res.ok) return res;
+  if (res.fizzled) {
+    // 落空：动作不生效、战术牌保留（不消耗、不落场）
+    g.log.push(`${FACTIONS[seat].name} 在战线${lineIdx + 1} 的计谋「${t.name}」落空：${res.why}（战术牌保留）`);
+    return { ok: true, fizzled: true, why: res.why, tactic: t };
+  }
+  consumeTactic(g, seat, lineIdx, tacticId);
+  const entry = {
+    seat, tacticId, home: g.tacticHome[tacticId] ?? null, line: lineIdx,
+    undo: res.undo || [], marks: res.marks || [],
+  };
+  g.guileBoard.push(entry);
+  const hn = entry.home != null ? g.zones[entry.home].name : '—';
+  g.log.push(`${FACTIONS[seat].name} 在战线${lineIdx + 1} 打出计谋「${t.name}」→ 落场（绑定中央区「${hn}」）`);
+  return { ok: true, tactic: t, board: entry };
+}
+
+function consumeTactic(g, seat, lineIdx, tacticId) {
+  const i = g.playerTactics[seat].indexOf(tacticId);
+  if (i >= 0) g.playerTactics[seat].splice(i, 1);
+  g.tacticsPlayed[seat][lineIdx] += 1;
+  // v1.2：若该牌正处于「无消耗立即打出」额度中，一并消耗额度
+  const q = g.pendingFreePlay?.[seat];
+  if (q) { const k = q.indexOf(tacticId); if (k >= 0) q.splice(k, 1); }
+}
+
+// 规则 8.3：该战线手牌为 0 时无法暗扣，改为把领袖放到任意 6 色区
+function playEmpty(g, seat, action) {
+  const { line: lineIdx, leaderZone } = action;
+  const hand = g.hands[seat]?.[lineIdx] || [];
+  if (hand.length > 0) return { ok: false, why: '该战线仍有手牌，不能触发领袖放置' };
+  const z = leaderZone ?? g.leaders[seat];
+  // 注意：不能用 z < 0 || z >= N_ZONES 判 NaN / 对象（比较恒为 false 会漏过）
+  if (!Number.isInteger(z) || z < 0 || z >= N_ZONES) return { ok: false, why: '目标区无效' };
+  g.leaders[seat] = z;
+  g.log.push(`${FACTIONS[seat].name} 战线${lineIdx + 1} 手牌为 0 → 领袖放置于「${g.zones[z].name}」（规则 8.3）`);
+  return { ok: true };
+}
+
+// 规则 11.2 计谋牌即时效果
+// 注意：全桌「同时暗扣」（6.2），本席规划目标时看到的局面，到结算时可能已被
+// 对手同回合的动作改变（例如瞄准的牌被对手的哗变先弃掉）。这类「目标在结算时
+// 已不存在」属于并发竞态，判为 fizzle（落空）：动作不生效、战术牌保留，
+// 不计为非法动作。真正的违规（无此牌 / 超数量限制）仍返回 ok:false。
+const FIZZLE = why => ({ ok: true, fizzled: true, why });
+
+function execGuile(g, seat, lineIdx, tacticId, action) {
+  const line = g.lines[lineIdx];
+  const [sA, sB] = lineSeats(lineIdx);
+  const opp = seat === sA ? sB : sA;
+
+  if (tacticId === 'scout') {
+    // v1.2：抽 3 张置于手牌末尾（用本战术牌在末尾隔开）；其中 2 张「被模型压住」＝暂弃入弃牌堆，
+    //       并在 undo 中记录，供被夺取时「拿回」；余下未被使用的抽出牌在被夺取时放回牌堆顶。
+    const drawn = [];
+    for (let i = 0; i < 3; i++) {
+      if (!line.deck.length) {
+        if (!line.discard.length) break;
+        line.deck = shuffle(line.discard, g.rng); line.discard = []; line.reshuffles += 1;
+      }
+      drawn.push(line.deck.pop());
+    }
+    if (!drawn.length) return FIZZLE('牌堆与弃牌堆皆空，无法抽牌');
+    const hand = g.hands[seat][lineIdx];
+    const handBase = hand.length;
+    hand.push(...drawn);                       // 置于手牌末尾
+    const need = Math.min(2, drawn.length);
+    let uniq;
+    if (Array.isArray(action.returnIdxs) && action.returnIdxs.length >= need) {
+      // 只允许从「新抽的 3 张」里指定（索引 ≥ handBase）
+      uniq = [...new Set(action.returnIdxs)].filter(i => i >= handBase && i < hand.length);
+      if (uniq.length < need) uniq = drawn.map((_, i) => handBase + i).slice(0, need);
+      uniq = uniq.slice(0, need);
+    } else {
+      // 未指定时默认「压住」点数最小的 2 张（AI 默认策略）
+      uniq = drawn.map((c, i) => [handBase + i, c.rank || 0])
+        .sort((a, b) => a[1] - b[1] || a[0] - b[0]).slice(0, need).map(x => x[0]);
+    }
+    const covered = [];
+    uniq.sort((a, b) => b - a).forEach(i => {
+      const [c] = hand.splice(i, 1);
+      g.guileHold.push(c);                     // 被「模型」压住 → 隔离区（不参与洗牌，被夺取时拿回）
+      covered.push(c);
+    });
+    // 规则 7.3 手牌上限
+    enforceHandCap(g, seat, lineIdx);
+    g._round.noRefill.add(`${seat}:${lineIdx}`);
+    return {
+      ok: true,
+      undo: [{ type: 'scout', line: lineIdx, seat, drawn: drawn.slice(), covered }],
+      marks: covered.map(c => ({ kind: 'cover', line: lineIdx, seat, card: c })),
+    };
+  }
+
+  if (tacticId === 'shift') {
+    // 将己方某未夺旗幟旁的一张牌，移到己方另一空位，或弃掉
+    const from = action.fromCell, idx = action.cardIdx;
+    const cell = line.cells[from];
+    if (!cell || cell.decided) return FIZZLE('来源格在结算时已决出或无效');
+    const cards = cell.sides[seat] || [];
+    if (idx < 0 || idx >= cards.length) return FIZZLE('来源牌在结算时已不在该格');
+    const [card] = cards.splice(idx, 1);
+    if (action.toCell == null) {
+      if (!card.tactic) g.guileHold.push(card);   // 被模型压住 → 隔离区（被夺取时按 undo 恢复原样）
+      else recycleTactic(g, card.tactic);
+      return {
+        ok: true,
+        // 部队牌被弃 → 记位置，供被夺取时「恢复原样」；战术牌已回流，无法回滚
+        undo: card.tactic ? [] : [{ type: 'discard', line: lineIdx, cell: from, seat, card }],
+        marks: [{ kind: 'model', line: lineIdx, seat, card, fromCell: from, toCell: null }],
+      };
+    }
+    if (action.toCell === from) {
+      cards.splice(idx, 0, card);            // 回滚：同格空转无意义
+      return FIZZLE('目标格与来源格相同');
+    }
+    const dst = line.cells[action.toCell];
+    if (!dst || dst.decided) { cards.splice(idx, 0, card); return FIZZLE('目标格在结算时已决出'); }
+    // 规则 11.2：「空位」= 该格己方一侧尚未佈军
+    // v1.4：「虚空站位」只是虚空，不占格位 —— 该格仍可继续佈军；
+    //       若因此被填满，则计谋牌失效（被夺取）时该牌不再回归（见 rollbackGuile）。
+    if ((dst.sides[seat] || []).length > 0) {
+      cards.splice(idx, 0, card);
+      return FIZZLE('目标格己方一侧在结算时已非「空位」');
+    }
+    if (!dst.sides[seat]) dst.sides[seat] = [];
+    dst.sides[seat].push(card);
+    return {
+      ok: true,
+      undo: [{ type: 'move', line: lineIdx, fromCell: from, toCell: action.toCell, fromSeat: seat, toSeat: seat, card }],
+      marks: [{ kind: 'model', line: lineIdx, seat, card, fromCell: from, toCell: action.toCell }],
+    };
+  }
+
+  if (tacticId === 'mutiny') {
+    // 将对手某未夺旗幟旁的一张牌移出并弃掉
+    const cell = line.cells[action.targetCell];
+    if (!cell || cell.decided) return FIZZLE('目标格在结算时已决出或无效');
+    const cards = cell.sides[opp] || [];
+    const idx = action.cardIdx;
+    if (idx < 0 || idx >= cards.length) return FIZZLE('目标牌在结算时已不在该格');
+    const [card] = cards.splice(idx, 1);
+    if (!card.tactic) g.guileHold.push(card);   // 被模型压住 → 隔离区（被夺取时按 undo 恢复原样）
+    else recycleTactic(g, card.tactic);
+    return {
+      ok: true,
+      undo: card.tactic ? [] : [{ type: 'discard', line: lineIdx, cell: action.targetCell, seat: opp, card }],
+      marks: [{ kind: 'model', line: lineIdx, seat: opp, card, fromCell: action.targetCell, toCell: null }],
+    };
+  }
+
+  if (tacticId === 'defect') {
+    // 取对手某未夺旗幟旁的一张部队牌（不含战术牌），放到己方一个空位
+    const cell = line.cells[action.targetCell];
+    if (!cell) return { ok: false, why: '目标格无效' };
+    // 与哗变/换防一致：目标格「结算时已决出」是同时暗扣的竞态 → 落空（保留牌不消耗）；
+    //   仅「格位本身非法」才是硬失败（规则 11.2 落空条款）。
+    if (cell.decided) return FIZZLE('目标格在结算时已决出');
+    const cards = cell.sides[opp] || [];
+    const idx = action.cardIdx;
+    if (idx < 0 || idx >= cards.length) return FIZZLE('目标牌在结算时已不在该格');
+    if (cards[idx].tactic) return FIZZLE('目标牌在结算时已变为战术牌');
+    const dst = line.cells[action.toCell];
+    if (!dst || dst.decided) return FIZZLE('己方目标格在结算时已决出或无效');
+    // 规则 11.2：「空位」= 该格己方一侧尚未佈军（v1.4：虚空站位不占格位，仍可佈军）
+    if ((dst.sides[seat] || []).length > 0) {
+      return FIZZLE('己方目标格在结算时已非「空位」');
+    }
+    const [card] = cards.splice(idx, 1);
+    if (!dst.sides[seat]) dst.sides[seat] = [];
+    dst.sides[seat].push(card);
+    return {
+      ok: true,
+      undo: [{ type: 'move', line: lineIdx, fromCell: action.targetCell, toCell: action.toCell, fromSeat: opp, toSeat: seat, card }],
+      marks: [{ kind: 'model', line: lineIdx, seat: opp, card, fromCell: action.targetCell, toCell: action.toCell }],
+    };
+  }
+  return { ok: false, why: '该计谋牌尚未实现' };
+}
+
+function enforceHandCap(g, seat, lineIdx) {
+  const line = g.lines[lineIdx];
+  const hand = g.hands[seat][lineIdx];
+  while (hand.length > HAND_PER_LINE) line.discard.push(hand.pop());
+}
+
+// ---------------- 中心区（规则 8.2）----------------
+// 打出的牌颜色决定可选行动：
+//   ① 放标记：只能放在该牌颜色对应区
+//   ② 移动领袖：领袖已在该色区 → 可移到任意其他区；否则只能移入该色区
+function centerOptions(g, seat, cardSuit) {
+  if (!Number.isInteger(cardSuit) || cardSuit < 0 || cardSuit >= N_ZONES) return null;   // 非法花色
+  const cur = g.leaders[seat];
+  const leaderZones = cur === cardSuit
+    ? [...Array(N_ZONES).keys()].filter(z => z !== cardSuit)
+    : [cardSuit];
+  return { placeZone: cardSuit, leaderZones };
+}
+
+function applyCenterAction(g, seat, cardSuit, choice) {
+  const opt = centerOptions(g, seat, cardSuit);
+  if (!opt) return { ok: false, why: `中心行动花色非法（${cardSuit}）` };
+  if (!choice || choice.type === 'place') {
+    g.zones[opt.placeZone].influence[seat] = (g.zones[opt.placeZone].influence[seat] || 0) + 1;
+    return { ok: true, did: 'place', zone: opt.placeZone };
+  }
+  if (choice.type === 'leader') {
+    const z = choice.zone;
+    if (!opt.leaderZones.includes(z)) {
+      return { ok: false, why: `领袖不能移至该区（可选：${opt.leaderZones.join(',')}）` };
+    }
+    g.leaders[seat] = z;
+    return { ok: true, did: 'leader', zone: z };
+  }
+  return { ok: false, why: '未知中心行动' };
+}
+
+// ---------------- 补牌（规则 7.3）----------------
+function refill(g, seat, lineIdx) {
+  const line = g.lines[lineIdx];
+  if (!line || !g.hands[seat] || !g.hands[seat][lineIdx]) return false;
+  if (line.deck.length === 0) {
+    if (line.discard.length === 0) return false;
+    line.deck = shuffle(line.discard, g.rng);
+    line.discard = [];
+    line.reshuffles += 1;
+    g.log.push(`战线${lineIdx + 1} 牌堆耗尽，洗回弃牌堆（${line.deck.length} 张，第 ${line.reshuffles} 次）`);
+  }
+  if ((g.hands[seat][lineIdx] || []).length >= HAND_PER_LINE) return false;
+  g.hands[seat][lineIdx].push(line.deck.pop());
+  return true;
+}
+
+// ---------------- 夺旗判定（规则 9）----------------
+// v1.3（规则 9.1 第 1 条）：对手用「常规手段」还能否凑出 ≥ 我方的阵型？
+//   池 = 对手手牌 + 该线牌堆 + 弃牌堆（仅取可入阵型的牌：部队牌 / 士气万能牌；
+//   环境 / 计谋牌不参与阵型，它们对本格的影响已体现在当前格局上）。
+//   只要存在一种「补满后不弱于我方」的组合 → 认为「对手仍可能翻盘」（平手也算，保守）。
+//   返回 { could, poolShort, domCap }：
+//     could     —— 对手是否仍可能翻盘
+//     poolShort —— 对手连「补满」都做不到（手牌+牌堆+弃牌堆已不足）
+//     domCap    —— 对手「主导花色张数」可达上限（格上已有的异色牌会永久锁死它；万能牌可变主导色故不算异色）
+function opponentBeatCheck(g, lineIdx, cellIdx, oppSeat, myCards, cap, dominantSuit) {
+  const line = g.lines[lineIdx];
+  const oppCards = line.cells[cellIdx].sides[oppSeat] || [];
+  const need = cap - oppCards.length;
+  // 格上「确定异色」的牌（非万能牌且花色 ≠ 主导花色）→ 永久占据格位，主导张数被锁死
+  let offSuit = 0;
+  if (dominantSuit != null) {
+    for (const c of oppCards) {
+      if (c && c.tactic == null && c.suit !== dominantSuit) offSuit += 1;
+    }
+  }
+  const domCap = cap - offSuit;
+  if (need <= 0) return { could: true, poolShort: false, domCap };   // 已满编：交给比牌处理
+  const pool = [], seen = new Set();
+  const push = c => {
+    if (!c) return;
+    if (c.tactic) { const t = TACTIC_BY_ID[c.tactic]; if (!t || t.cat !== 'morale') return; }
+    const key = c.tactic ? 'T' + c.tactic : `${c.suit}:${c.rank}`;
+    if (seen.has(key)) return;
+    seen.add(key); pool.push(c);
+  };
+  for (const c of (g.hands[oppSeat]?.[lineIdx] || [])) push(c);
+  for (const c of line.deck) push(c);
+  for (const c of line.discard) push(c);
+  if (pool.length < need) return { could: false, poolShort: true, domCap };  // 连补满都做不到 → 稳胜
+  pool.sort((a, b) => (b.rank || 0) - (a.rank || 0));  // 大牌先试，尽早命中
+
+  const pick = [];
+  let scanned = 0;
+  const LIMIT = 30000;                               // 组合爆炸保护：超限按「仍可能」保守处理
+  const rec = (start, left) => {
+    if (left === 0) { scanned++; return compareForm(myCards, oppCards.concat(pick), dominantSuit) <= 0; }
+    for (let i = start; i <= pool.length - left; i++) {
+      pick.push(pool[i]);
+      if (rec(i + 1, left - 1)) return true;
+      pick.pop();
+      if (scanned > LIMIT) return true;
+    }
+    return false;
+  };
+  return { could: rec(0, need), poolShort: false, domCap };
+}
+
+// v1.3：夺旗判定的「归因」——战报要说明为什么判 / 为什么不判（规则 9.1）
+//   ① 对手可用牌不足（连补满都做不到）
+//   ② 主导花色光环锁死（对手主导张数上限 < 我方主导张数 → 第 2 级比较上永远追不上）
+//   ③ 其它：对手已无法凑出更强阵型
+function lockReason(myCards, chk, cap, dominantSuit) {
+  if (chk.poolShort) return '对手可用牌不足（手牌+牌堆+弃牌堆已凑不满该格）';
+  if (dominantSuit != null && chk.domCap < cap) {
+    const myDom = bestFormation(myCards, dominantSuit).dom;
+    if (myDom > chk.domCap) {
+      return `主导花色光环锁死：对手主导张数上限 ${chk.domCap} < 我方 ${myDom}`;
+    }
+  }
+  return '对手已无法凑出更强阵型';
+}
+
+function checkCapture(g, lineIdx, cellIdx) {
+  const line = g.lines[lineIdx];
+  const cell = line && line.cells[cellIdx];
+  if (!cell) return { winner: null, reason: '格位无效' };
+  if (cell.sealed) return { winner: null, reason: '该格已封存' };   // v1.7：封存格不再判定
+  const [sA, sB] = lineSeats(lineIdx);
+  const cardsA = cell.sides[sA] || [];
+  const cardsB = cell.sides[sB] || [];
+  if (cardsA.length === 0 && cardsB.length === 0) return { winner: null, reason: '空格' };
+  if (cell.decided) return { winner: null, reason: '本轮已决出' };
+
+  const cap = cellCapacity(cell);
+  const deckEmpty = line.deck.length === 0 && line.discard.length === 0;
+  const pointsOnly = cellHasEnv(cell, 'points');   // 西普里安瘟疫：忽略牌型，仅比点数和
+  if (cardsA.length < cap || cardsB.length < cap) {
+    if (pointsOnly) {
+      // 瘟疫：忽略牌型、不要求满编，仅比点数和 → 仍需牌堆有牌可补，否则落到下方点数比较
+      if (!deckEmpty) return { winner: null, reason: '对手可能补强' };
+    } else {
+      // 常规阵型：满编方是否已「稳胜」→ 取决于对手用剩余常规牌能否凑出 ≥ 我方的阵型
+      if (cardsA.length >= cap) {
+        const chk = opponentBeatCheck(g, lineIdx, cellIdx, sB, cardsA, cap, g.dominantSuit);
+        return chk.could
+          ? { winner: null, reason: '对手可能补强' }
+          : { winner: sA, reason: lockReason(cardsA, chk, cap, g.dominantSuit), lock: true };
+      }
+      if (cardsB.length >= cap) {
+        const chk = opponentBeatCheck(g, lineIdx, cellIdx, sA, cardsB, cap, g.dominantSuit);
+        return chk.could
+          ? { winner: null, reason: '对手可能补强' }
+          : { winner: sB, reason: lockReason(cardsB, chk, cap, g.dominantSuit), lock: true };
+      }
+      return { winner: null, reason: '双方未满编' };
+    }
+  }
+
+  let cmp;
+  if (pointsOnly) cmp = comparePointsOnly(cardsA, cardsB);
+  else cmp = compareForm(cardsA, cardsB, g.dominantSuit);
+
+  if (cmp > 0) return { winner: sA, reason: '压过对手' };
+  if (cmp < 0) return { winner: sB, reason: '压过对手' };
+  // 规则 5.1 第 3 条 / 9.1：牌型与点数和皆同 → 后结算方判负
+  const loser = secondHand(lineIdx, g.revealDir);
+  const winner = loser === sA ? sB : sA;
+  return { winner, reason: '平手：后结算方判负', tie: true };
+}
+
+// 执行夺旗：严格零和（规则 9.4 / 10.1）
+function resolveCapture(g, lineIdx, cellIdx) {
+  const res = checkCapture(g, lineIdx, cellIdx);
+  if (res.winner == null) return res;
+  const line = g.lines[lineIdx];
+  const cell = line.cells[cellIdx];
+  if (!cell) return res;
+  const [sA, sB] = lineSeats(lineIdx);
+  const loser = res.winner === sA ? sB : sA;
+
+  g.scores[res.winner] += 1;
+  g.scores[loser] -= 1;
+  g.captures[res.winner] += 1;
+  cell.owner = res.winner;
+  cell.decided = true; // 本轮不再重复判夺（规则 9.3）
+  // v1.7：夺旗后该格「封存」——牌留在原位、归属定格；此后不可再佈军，战术牌也不可再影响这组牌。
+  //   （旧规则 9.4 的「清空后重新佈军、可反复夺回」已废除。）
+  cell.sealed = true;
+  g.log.push(`战线${lineIdx + 1} 第${cellIdx + 1}格：${FACTIONS[res.winner].name} 夺旗（${res.reason}${res.lock ? ' · 常规手段下不可推翻' : ''}）· ${FACTIONS[res.winner].name}+1 / ${FACTIONS[loser].name}-1 · 该格封存`);
+  return res;
+}
+
+// 规则 11.4：战术牌离场后放回来源中央势力区，继续供争夺。
+// 保底：若来源区已被占（极端情形），放进任意空区 —— 绝不丢牌（曾因「来源区有牌就丢弃」
+// 造成战术牌凭空消失）。
+function recycleTactic(g, tacticId) {
+  const home = g.tacticHome[tacticId];
+  if (home == null) return false;
+  if (g.zones[home].tactics == null) { g.zones[home].tactics = tacticId; return true; }
+  if (g.zones[home].tactics === tacticId) return false;   // 该牌本就在场上（不该发生）
+  for (let j = 0; j < N_ZONES; j++) {
+    if (j !== home && g.zones[j].tactics == null) { g.zones[j].tactics = tacticId; return true; }
+  }
+  // 6 区全满（理论上不可能：只有 6 张牌且本张正在离场）→ 挂到队列，下一回合末再试
+  g.pendingRecycle.push(tacticId);
+  return false;
+}
+
+// ---------------- 中央区「第一位」（规则 8.5 / 8.6 共用判定）----------------
+// 某区唯一第一（影响力 ≥ 门槛且无并列）→ 返回 {seat, val}；否则 null。
+// 并列第一既不能夺牌（8.5），也不能取得该区分数（8.6）。
+function zoneLeaderOf(g, zoneIdx) {
+  const z = g.zones[zoneIdx];
+  if (!z) return null;
+  let best = null, bestVal = -1, tie = false;
+  for (let seat = 0; seat < N_SEATS; seat++) {
+    const v = playerZoneScore(g, z, seat);
+    if (v > bestVal) { bestVal = v; best = seat; tie = false; }
+    else if (v === bestVal && v > 0) tie = true;
+  }
+  if (best == null || tie || bestVal < CENTER_THRESHOLD) return null;
+  return { seat: best, val: bestVal };
+}
+
+// 规则 8.5「无论战术牌在哪」：定位某张战术牌当前的位置
+//   zone: 某个中央区待夺 | hand: 某玩家手中 | guile: 已落场（绑定来源中央区的计谋牌）
+//   cell: 作为阵型牌附在某格 | env: 作为环境牌附在某格 | void: 不在任何位置（异常）
+function locateTactic(g, tacticId) {
+  for (let j = 0; j < N_ZONES; j++) if (g.zones[j].tactics === tacticId) return { type: 'zone', zone: j };
+  for (let s = 0; s < N_SEATS; s++) if (g.playerTactics[s].includes(tacticId)) return { type: 'hand', seat: s };
+  // v1.2：落场的计谋牌（持久 · 可被夺取）——由 11.5 结算夺取，8.5 不夺取；但必须能定位，
+  //       否则 UI 会把「已落场」误显示为「—／未知／牌库中」。
+  const gb = (g.guileBoard || []).find(e => e.tacticId === tacticId);
+  if (gb) return { type: 'guile', zone: gb.home, seat: gb.seat };
+  for (let li = 0; li < N_LINES; li++) {
+    const line = g.lines[li];
+    for (let k = 0; k < line.cells.length; k++) {
+      const cell = line.cells[k];
+      for (const key of Object.keys(cell.sides)) {
+        if ((cell.sides[key] || []).some(c => c.tactic === tacticId)) {
+          return { type: 'cell', line: li, cell: k, seat: +key };
+        }
+      }
+      for (const key of Object.keys(cell.env || {})) {
+        if (cell.env[key] === tacticId) return { type: 'env', line: li, cell: k, seat: +key };
+      }
+    }
+  }
+  return { type: 'void' };
+}
+
+// 从定位到的位置把战术牌取出（不改变归属，只做移除）
+function takeTacticFrom(g, tacticId, where) {
+  if (where.type === 'zone') { g.zones[where.zone].tactics = null; return true; }
+  if (where.type === 'hand') {
+    const arr = g.playerTactics[where.seat];
+    const i = arr.indexOf(tacticId);
+    if (i < 0) return false;
+    arr.splice(i, 1);
+    return true;
+  }
+  if (where.type === 'cell') {
+    const cell = g.lines[where.line].cells[where.cell];
+    if (cell.sealed) return false;          // v1.7：封存格内的战术牌锁死，8.5 不可取走
+    const arr = cell.sides[where.seat] || [];
+    const i = arr.findIndex(c => c.tactic === tacticId);
+    if (i < 0) return false;
+    arr.splice(i, 1);
+    return true;
+  }
+  if (where.type === 'env') {
+    const cell = g.lines[where.line].cells[where.cell];
+    if (cell.sealed) return false;          // v1.7：封存格的环境牌锁死，8.5 不可取走
+    if (cell.env && cell.env[where.seat] === tacticId) {
+      delete cell.env[where.seat];
+      // v1.5：「多瑙河春汛」离场（被 8.5 夺走 / 结算回收）→ 该格容量由 4 回落到 3。
+      // 超容的牌不再由引擎自动裁剪，而是登记为「待决」，由该侧玩家自行选择弃掉哪一张
+      // （规则 11.5）。真正移除在 resolveFloodDiscards 完成，以保证「格内 ≤ 容量」不变量
+      // 在本回合结算完毕前恢复；UI 可在其中途弹窗让人类决策，AI 侧用默认策略即时结算。
+      const cap = cellCapacity(cell);
+      let pendingCount = 0;
+      for (const key of Object.keys(cell.sides)) {
+        const arr = cell.sides[key];
+        if (arr && arr.length > cap) {
+          g.pendingFloodDiscard.push({ line: where.line, cell: where.cell, seat: +key, excess: arr.length - cap });
+          pendingCount += arr.length - cap;
+        }
+      }
+      if (pendingCount) {
+        g.log.push(`「多瑙河春汛」离场：战线${where.line + 1} 第${where.cell + 1}格容量回落为 ${cap}，`
+          + `超出容量 ${pendingCount} 张，由牌主选择弃掉（部队牌入弃牌堆 / 战术牌回来源区）`);
+      }
+      return true;
+    }
+    return false;
+  }
+  // guile（已落场的计谋牌）：夺取由 11.5 processGuileBoard 结算，8.5 不在此处直接取走
+  return false;
+}
+
+// ---------------- v1.5 春汛离场「超容弃牌」待决（规则 11.5）----------------
+// 春汛被 8.5 夺走（或结算离场）时该格容量 4→3，超出的牌由牌主玩家自行选择弃掉一张。
+// 引擎把每个「某侧仍 > 容量」的格子登记为待决任务（见 takeTacticFrom），等
+// resolveFloodDiscards 真正移除：部队牌 → 该战线弃牌堆；战术牌 → 规则 11.4 回流来源区
+// （都不凭空消失）。UI 可逐个拦截让人类选牌，AI 侧用默认策略即时结算。
+function floodDiscardCandidates(g, task) {
+  const cell = g.lines[task.line]?.cells?.[task.cell];
+  if (!cell) return [];
+  return (cell.sides[task.seat] || []).slice();
+}
+
+// 默认策略（AI）：从 4 张里去掉一张后，使剩余阵型（等级 > 主导张数 > 点数和）最强。
+function autoFloodPicker(g, task, cards) {
+  const dom = g.dominantSuit;
+  let best = null, bestCard = cards[cards.length - 1];
+  for (let i = 0; i < cards.length; i++) {
+    const rest = cards.slice(0, i).concat(cards.slice(i + 1));
+    const v = formationValue(rest, dom);
+    if (!best || v.level > best.level
+      || (v.level === best.level && v.dom > best.dom)
+      || (v.level === best.level && v.dom === best.dom && v.pts > best.pts)) {
+      best = v; bestCard = cards[i];
+    }
+  }
+  return bestCard;
+}
+
+// 结算单个待决任务：pickFn(g, task, cards) → 要弃掉的牌（对象或下标）；缺省用 autoFloodPicker。
+// 返回 { seat, line, cell, card }；该侧已满足容量则返回 null。
+function resolveOneFloodDiscard(g, task, pickFn) {
+  const cell = g.lines[task.line]?.cells?.[task.cell];
+  if (!cell) return null;
+  const arr = cell.sides[task.seat] || [];
+  if (arr.length <= cellCapacity(cell)) return null;      // 已满足，无需再弃
+  let card = (pickFn || autoFloodPicker)(g, task, arr.slice());
+  if (typeof card === 'number') card = arr[card];
+  if (!card || arr.indexOf(card) < 0) card = arr[arr.length - 1];   // 兜底：弃最后一张
+  arr.splice(arr.indexOf(card), 1);
+  if (card.tactic) recycleTactic(g, card.tactic);
+  else g.lines[task.line].discard.push(card);
+  return { seat: task.seat, line: task.line, cell: task.cell, card };
+}
+
+// 结算全部待决（runRound / finishRound 的默认自动路径）。
+function resolveFloodDiscards(g, pickFn) {
+  const events = [];
+  const queue = g.pendingFloodDiscard || [];
+  g.pendingFloodDiscard = [];
+  for (const task of queue) {
+    let guard = 0;
+    while (guard++ < 8) {
+      const ev = resolveOneFloodDiscard(g, task, pickFn);
+      if (!ev) break;
+      events.push(ev);
+    }
+  }
+  return events;
+}
+
+// ---------------- 战术牌夺取（规则 8.5）----------------
+// 规则原文要点：「他获得该区上那张战术牌进入手牌」+「无论战术牌在哪 …… 也归其手牌」。
+// 因此判定不看「该区此刻有没有牌」，而是看「该区绑定的那张牌现在在哪」：
+//   在别的区待夺 / 在别人手里 / 已作为阵型牌或环境牌打在场上 —— 一律取出交给夺牌者。
+function checkTacticsWin(g, zoneIdx) {
+  const z = g.zones[zoneIdx];
+  if (!z) return null;
+  const L = zoneLeaderOf(g, zoneIdx);
+  if (!L) return null;
+  const tac = g.zoneTactic[zoneIdx] ?? z.tactics;
+  if (!tac) return null;
+  if (g.playerTactics[L.seat].includes(tac)) return null;   // 已在该玩家手中，不重复结算
+  const where = locateTactic(g, tac);
+  if (!takeTacticFrom(g, tac, where)) return null;
+  g.playerTactics[L.seat].push(tac);
+  // v1.7：8.5 获得战术牌同样发放「无消耗立即打出」额度（规则 11.3：8.5 / 11.5 皆可）
+  g.pendingFreePlay[L.seat].push(tac);
+  g.tacticsWonCount += 1;
+  const fromTxt = where.type === 'zone' ? '中央区待夺'
+    : where.type === 'hand' ? `从 ${FACTIONS[where.seat].name} 手中`
+      : '从战场上（已打出）';
+  g.log.push(`中心区「${z.name}」：${FACTIONS[L.seat].name} 影响力 ${L.val} ≥ ${CENTER_THRESHOLD} 且排名第一，夺得战术牌「${TACTIC_BY_ID[tac].name}」（${fromTxt}）`);
+  return { winner: L.seat, tactic: tac, zone: zoneIdx, from: where.type };
+}
+function checkAllTacticsWins(g) {
+  const out = [];
+  for (let z = 0; z < N_ZONES; z++) {
+    const r = checkTacticsWin(g, z);
+    if (r) out.push(r);
+  }
+  return out;
+}
+
+// ---------------- 中央区占位计分（规则 8.6）----------------
+// 每个中央区是一个可易主的 1 分得分点：
+//   新区主 +1；若该区原有主，则旧主 −1（严格零和）。
+//   开局各区无主，首次夺取只 +1、无人扣分（唯一一次非零和）。
+//   已持有该区者再次达成第一不重复计分（防止原地刷分）。
+function checkZoneScore(g, zoneIdx) {
+  if (!g.zones[zoneIdx]) return null;
+  const L = zoneLeaderOf(g, zoneIdx);
+  if (!L) return null;
+  const prev = g.zoneHolder[zoneIdx];
+  if (prev === L.seat) return null;
+  g.zoneHolder[zoneIdx] = L.seat;
+  g.scores[L.seat] += ZONE_POINT;
+  g.centerScores[L.seat] += ZONE_POINT;
+  g.zoneHolds[L.seat] += 1;
+  if (prev != null) {
+    g.scores[prev] -= ZONE_POINT;
+    g.centerScores[prev] -= ZONE_POINT;
+  }
+  g.log.push(`中心区「${g.zones[zoneIdx].name}」第一：${FACTIONS[L.seat].name} 影响力 ${L.val}`
+    + `${prev == null ? '（该区首次易主，+1）' : `，取代 ${FACTIONS[prev].name}（+1 / −1）`}`);
+  return { zone: zoneIdx, winner: L.seat, prev, val: L.val };
+}
+function checkAllZoneScores(g) {
+  const out = [];
+  for (let z = 0; z < N_ZONES; z++) {
+    const r = checkZoneScore(g, z);
+    if (r) out.push(r);
+  }
+  return out;
+}
+
+// ---------------- v1.2 计谋牌落场：夺取 / 回滚（规则 11.5）----------------
+// 按「模型 + 牌位」把一次计谋效果恢复原样。已决出（decided）的旗幟不受影响（规则 11.5 第 3 条）。
+//
+// v1.4（用户定稿）：「虚空站位」只是虚空，**不占格位** —— 原格位可以照常继续佈军。
+//   因此当计谋牌失效（被夺取）需要回滚时：
+//     · 原格位**还有空位** → 牌回归原样；
+//     · 原格位**已被占满**（或战场本回合已结算）→ 该牌**不回归**：
+//         弃型（哗变 / 换防弃牌）→ 就此弃入该战线弃牌堆；
+//         移型（换防移动 / 倒戈）  → 留在被移去的位置。
+//   这条规则同时保证了「一格任一侧 ≤ 容量」这一硬不变量（否则回滚会推出 4 张）。
+function rollbackGuile(g, entry) {
+  let reverted = 0, skipped = 0, blocked = 0;   // blocked：虚空站位已被占 → 不回归
+  for (const u of entry.undo || []) {
+    if (u.type === 'move') {
+      const src = g.lines[u.line]?.cells?.[u.fromCell];
+      const dstCell = g.lines[u.line]?.cells?.[u.toCell];
+      const dstArr = dstCell?.sides?.[u.toSeat] || [];
+      const i = dstArr.indexOf(u.card);
+      if (i < 0) { skipped++; continue; }                     // 牌已随目标格结算离场 → 无需再动
+      // 来源格本回合已结算（已清空）→ 按「已完成夺旗的战场不改结果」不回滚；牌留在现处
+      if (!src || src.decided) { skipped++; continue; }
+      // 目标格已决出 / 已封存 → 该牌已随这面旗定格：规则 11.5 第 4 条「已分出胜负的
+      //   旗幟不受影响」+ 11.2「已夺旗幟上的牌不可被任何计谋影响」→ 不得把牌从封存格
+      //   里取回（曾因漏此检查，换防/倒戈移到对手 lock 格里的牌被回滚拽出封存格）。
+      if (!dstCell || dstCell.decided || dstCell.sealed) { skipped++; continue; }
+      // v1.4：虚空站位被占（原格位已无空位）→ 不回归，牌留在被移去的位置
+      if ((src.sides[u.fromSeat] || []).length >= cellCapacity(src)) { blocked++; continue; }
+      dstArr.splice(i, 1);
+      if (!src.sides[u.fromSeat]) src.sides[u.fromSeat] = [];
+      src.sides[u.fromSeat].push(u.card);
+      reverted++;
+    } else if (u.type === 'discard') {
+      const src = g.lines[u.line]?.cells?.[u.cell];
+      const i = g.guileHold.indexOf(u.card);     // 从隔离区取回被「模型压住」的牌
+      if (i < 0) { skipped++; continue; }
+      if (!src || src.decided || (src.sides[u.seat] || []).length >= cellCapacity(src)) {
+        // v1.4：虚空站位被占 / 战场本回合已结算 → 不回归；该牌就此弃入本战线弃牌堆
+        //       （原本就是被弃的牌），既不会凭空消失，也不会把格位挤到容量以上。
+        g.guileHold.splice(i, 1);
+        g.lines[u.line].discard.push(u.card);
+        if (src && !src.decided) blocked++; else skipped++;
+        continue;
+      }
+      g.guileHold.splice(i, 1);
+      if (!src.sides[u.seat]) src.sides[u.seat] = [];
+      src.sides[u.seat].push(u.card);
+      reverted++;
+    } else if (u.type === 'scout') {
+      const line = g.lines[u.line];
+      const hand = g.hands[u.seat][u.line] || [];
+      for (const c of u.drawn) {                 // 未被使用的抽出牌 → 回牌堆顶
+        const i = hand.indexOf(c);
+        if (i >= 0) { hand.splice(i, 1); line.deck.push(c); reverted++; }
+      }
+      for (const c of u.covered) {                // 被模型压住的 2 张 → 从隔离区拿回牌堆顶
+        const di = g.guileHold.indexOf(c);
+        if (di >= 0) { g.guileHold.splice(di, 1); line.deck.push(c); reverted++; }
+      }
+    }
+  }
+  return { reverted, skipped, blocked };
+}
+
+// 回合末中心结算：处理所有落场计谋牌（v1.2 简化：只有「被超越」才结算）
+//   · 仍为该区唯一第一 → 保留
+//   · 该区无唯一第一（被追平 / 未达门槛）→ 保留（不结算、不退回中央）
+//   · 该区唯一第一易主（被超越）→ 被新领先者夺取：回滚 + 卡归其手（附「无消耗立即打出」额度）
+function processGuileBoard(g) {
+  const events = [];
+  const remain = [];
+  for (const e of g.guileBoard) {
+    const L = e.home != null ? zoneLeaderOf(g, e.home) : null;
+    // 「被追平」（无唯一第一）不结算：牌留在场上、效果不撤销，便于结算；
+    // 只有被明确超越（存在唯一第一且非原持有者）才夺取。
+    if (!L || L.seat === e.seat) { remain.push(e); continue; }
+    const rb = rollbackGuile(g, e);
+    const zname = e.home != null ? g.zones[e.home].name : '—';
+    const tname = TACTIC_BY_ID[e.tacticId] ? TACTIC_BY_ID[e.tacticId].name : e.tacticId;
+    g.playerTactics[L.seat].push(e.tacticId);
+    g.pendingFreePlay[L.seat].push(e.tacticId);
+    g.tacticsWonCount += 1;
+    g.log.push(`中央区「${zname}」领先被超越：${FACTIONS[L.seat].name} 直接夺取计谋牌「${tname}」`
+      + `（原持有 ${FACTIONS[e.seat].name}；效果按模型/牌位回滚 ${rb.reverted} 处`
+      + `${rb.blocked ? `，${rb.blocked} 处因虚空站位已被占而未回归` : ''}`
+      + `${rb.skipped ? `，${rb.skipped} 处因旗幟已决出而未回滚` : ''}）`);
+    events.push({
+      type: 'guile-captured', zone: e.home, from: e.seat, to: L.seat, tactic: e.tacticId,
+      reverted: rb.reverted, skipped: rb.skipped, blocked: rb.blocked,
+    });
+  }
+  g.guileBoard = remain;
+  return events;
+}
+
+// ---------------- v1.2 无消耗立即打出 ----------------
+// 通过 8.5 / 夺取获得的战术牌，可在持有额度内「零行动消耗」立即打出一次。
+function hasFreePlay(g, seat, tacticId) {
+  return (g.pendingFreePlay?.[seat] || []).includes(tacticId);
+}
+function useFreePlay(g, seat, action) {
+  const id = action && action.tacticId;
+  if (!hasFreePlay(g, seat, id)) return { ok: false, why: '该战术牌无「无消耗立即打出」额度' };
+  return applyAction(g, seat, action);
+}
+
+// v1.7：结算「无消耗立即打出」待决。获得战术牌的当下（8.5 / 11.5），持有者可选零行动消耗立即打出。
+//   pickFn(g, seat, tacticId) → 返回一个 action（立即打出）或 null（留着，之后按 11.3 花一次暗扣行动打出）。
+// v1.8：结算起始席按回合轮换（g.round % N_SEATS），消除「固定 0→7」对先手席的系统性偏斜——
+//   多席同回合持有免费打出额度时，原先恒为席位号小者先结算，造成 seat0 结构性占优。
+let FREEPLAY_FAIR_ORDER = true;
+function setFreePlayFair(v) { FREEPLAY_FAIR_ORDER = !!v; }
+function resolveFreePlays(g, pickFn) {
+  const events = [];
+  if (!pickFn) return events;
+  const order = [];
+  if (FREEPLAY_FAIR_ORDER) {
+    const start = ((g.round || 0) % N_SEATS + N_SEATS) % N_SEATS;   // 每回合轮换起始席
+    for (let k = 0; k < N_SEATS; k++) order.push((start + k) % N_SEATS);
+  } else {
+    for (let seat = 0; seat < N_SEATS; seat++) order.push(seat);    // 旧行为：固定 0→7
+  }
+  for (const seat of order) {
+    const ids = (g.pendingFreePlay[seat] || []).slice();
+    for (const id of ids) {
+      if (!g.pendingFreePlay[seat].includes(id)) continue;    // 已被消耗
+      let action = null;
+      try { action = pickFn(g, seat, id); } catch (e) { action = null; }
+      if (!action) continue;                                  // 选择留着
+      const r = useFreePlay(g, seat, action);
+      if (r && r.ok) events.push({ seat, tacticId: id, action });
+    }
+  }
+  return events;
+}
+
+// ---------------- 回合流程（规则 6.1）----------------
+// 摊开：从标记线起沿指示器方向逐线结算
+// centerPicker(pending) → 该行动的中心行动选择。缺省时用暗扣时提交的 p.center（AI 提交式）。
+// UI 可用它让玩家在「亮牌之后、比牌之前」才决定（规则 6.2 第 2 条）。
+function revealLine(g, lineIdx, centerPicker) {
+  const events = [];
+  // 8.2 中心行动：本线本回合打出的部队牌，按牌色二选一
+  for (const p of g._round.pending) {
+    if (p.lineIdx !== lineIdx || p.kind !== 'troop') continue;
+    const choice = centerPicker ? centerPicker(p) || p.center : p.center;
+    applyCenterAction(g, p.seat, p.card.suit, choice);
+  }
+  // 9 夺旗判定
+  for (let k = 0; k < CELLS_PER_LINE; k++) {
+    const r = resolveCapture(g, lineIdx, k);
+    if (r.winner != null) events.push({ line: lineIdx, cell: k, winner: r.winner, reason: r.reason, tie: !!r.tie, lock: !!r.lock });
+  }
+  // 7.3 补牌：本线打出部队牌者各补 1 张（战术牌替代暗扣不补牌，规则 7.4）
+  for (const p of g._round.pending) {
+    if (p.lineIdx !== lineIdx || p.kind !== 'troop') continue;
+    if (g._round.noRefill.has(`${p.seat}:${lineIdx}`)) continue;
+    refill(g, p.seat, lineIdx);
+  }
+  return events;
+}
+
+function revealAll(g, centerPicker) {
+  const events = [];
+  const order = revealOrder(g.markerLine, g.revealDir);
+  for (const li of order) events.push(...revealLine(g, li, centerPicker));
+  return events;
+}
+
+// 规则 10.2（v1.5）：某玩家「旗子数」= 累计夺得的旗幟格数 + 当前持有的中央区数
+// （中央区每区算 1 面旗）。用于终局触发与排名破平。
+function zoneHoldCount(g, seat) {
+  let n = 0;
+  for (let z = 0; z < N_ZONES; z++) if (g.zoneHolder[z] === seat) n++;
+  return n;
+}
+function flagTotal(g, seat) {
+  return (g.captures[seat] || 0) + zoneHoldCount(g, seat);
+}
+
+// 规则 10.2：终局条件（g.mode：'short' 短游戏 / 'long' 长游戏）
+function checkEnd(g) {
+  // 短游戏：任一玩家旗子数达 12 → 终局（长游戏忽略此条）
+  if (g.mode !== 'long' && g.captures.some((_, s) => flagTotal(g, s) >= WIN_FLAGS)) {
+    g.over = true;
+    g.winner = topSeat(g);            // 按 总分 → 旗子数 → 中央区数 排名
+    g.endReason = 'flags';
+    return 'flags';
+  }
+  // 棋盘封满——所有格位均已封存（无处可再佈军）→ 终局（短 / 长皆可）
+  if (g.lines.every(l => l.cells.every(c => c.sealed))) {
+    g.over = true; g.endReason = 'board'; g.winner = topSeat(g); return 'board';
+  }
+  // 长游戏：所有玩家「打空所有手牌」→ 终局
+  if (g.mode === 'long'
+    && g.hands.every(h => Object.values(h).every(a => !a || a.length === 0))) {
+    g.over = true; g.endReason = 'hands'; g.winner = topSeat(g); return 'hands';
+  }
+  const allExhausted = g.lines.every(
+    l => l.deck.length === 0 && l.discard.length === 0 && l.reshuffles >= RESHUFFLES_TO_END
+  );
+  if (allExhausted) { g.over = true; g.endReason = 'deck'; g.winner = topSeat(g); return 'deck'; }
+  if (g.round > MAX_ROUNDS) { g.over = true; g.endReason = 'maxrounds'; g.winner = topSeat(g); return 'maxrounds'; }
+  return null;
+}
+
+function topSeat(g) {
+  return finalRanking(g)[0].seat;
+}
+
+// 回合末（规则 6.1 ③④⑤）
+// opts.deferFlood=true：春汛离场「超容弃牌」保留为待决，交由界面逐个让玩家选择；
+//                       否则默认即时结算（AI 策略）。
+function endRound(g, opts) {
+  const o = opts || {};
+  // v1.2：计谋牌落场结算（夺取 / 回滚）——必须排在清除「已决出」标记之前，
+  // 以保留「已完成夺旗的战场不改变结果」的判定依据（规则 11.5）。
+  const guileEvents = processGuileBoard(g);
+  // 清掉本轮「已决出」标记：规则 9.4 清空后的格可重新佈军再战
+  for (const l of g.lines) for (const c of l.cells) c.decided = !!c.sealed;   // v1.7：封存格永久保持「已决出」
+  // 回流队列（保底）：把暂存的战术牌放回场上，确保 6 张牌始终可被争夺
+  if (g.pendingRecycle.length) {
+    const queue = g.pendingRecycle;
+    g.pendingRecycle = [];
+    for (const id of queue) recycleTactic(g, id);
+  }
+  // ③ 中心结算：主导花色 + 战术牌夺取 + 占位计分（规则 8.5 / 8.6 / 8.7）
+  g.dominantSuit = computeDominantSuit(g);
+  const tacWins = checkAllTacticsWins(g);   // 春汛若被夺走，会在此登记「超容弃牌」待决
+  const zoneWins = checkAllZoneScores(g);
+  // v1.7：「无消耗立即打出」——获得战术牌的当下可零消耗立即打出。
+  //   必须在 g._round 清空前处理（applyAction 的计谋牌分支依赖 _round 上下文）。
+  //   UI 传 freePicker 以交互/策略决定；未传则保留额度、留到之后按普通行动打出。
+  let freePlays = null;
+  if (o.freePicker) freePlays = resolveFreePlays(g, o.freePicker);
+  // v1.8：免费打出额度「当回合不用即作废」——8.5 / 11.5 在回合末发放，本回合
+  //   resolveFreePlays 未使用的额度，回合结束时清空，不跨回合保留。
+  //   战术牌本身仍留在该玩家手牌，之后按规则 11.3 花一次暗扣行动正常打出即可。
+  for (let s = 0; s < N_SEATS; s++) g.pendingFreePlay[s] = [];
+  // ④ 方向指示器翻面 + 标记逆时针迁移
+  g.revealDir = -g.revealDir;
+  g.markerLine = (g.markerLine - 1 + N_LINES) % N_LINES;
+  g.round += 1;
+  g._round = null;
+  // ⑤ 终局检查
+  const end = checkEnd(g);
+  // v1.5：春汛离场「超容弃牌」——默认自动结算（保留最强 3 张）；deferFlood 时留给 UI。
+  let floodDiscards = null;
+  if ((g.pendingFloodDiscard || []).length && !o.deferFlood) {
+    floodDiscards = resolveFloodDiscards(g, o.floodPicker);
+  }
+  // v1.7：「无消耗立即打出」已在上文（g._round 清空前）处理。
+  return { tacWins, zoneWins, guileEvents, end, floodDiscards, freePlays };
+}
+
+// 完整一个回合：① 暗扣 → ② 摊开 → ③ 中心结算 → ④ 标记迁移 → ⑤ 终局
+// chooser(g, seat) → 该席本回合的动作数组（其两条战线各至多 1 个）
+// 分步 UI 可改为：collectRound → 逐线 revealLine（可中断等待玩家选中心行动）→ finishRound
+function collectRound(g, chooser) {
+  if (g.over) return { ok: false, why: '游戏已结束' };
+  g._round = { pending: [], noRefill: new Set() };
+  const applied = [];
+  const errors = [];
+
+  // ① 暗扣：规则 6.2 明确「全桌同时暗扣」。
+  // 必须先把全部 8 席的决策收集完，再统一落子 —— 否则按席号顺序执行会让后手席位
+  // 观察到先手已扣的牌，造成席 0 恒处于信息劣势、席 7 恒占优的系统性偏斜。
+  const plans = [];
+  for (let seat = 0; seat < N_SEATS; seat++) {
+    plans.push({ seat, acts: (chooser(g, seat) || []).slice(0, 2) });
+  }
+
+  for (const { seat, acts } of plans) {
+    const seen = new Set();
+    for (const a of acts) {
+      if (seen.has(a.line)) { errors.push(`席${seat} 在战线${a.line + 1} 重复行动`); continue; }
+      seen.add(a.line);
+      const r = applyAction(g, seat, a);
+      applied.push({ seat, action: a, result: r });
+      if (!r.ok) errors.push(`席${seat}: ${r.why}`);
+    }
+  }
+  return { ok: true, applied, errors };
+}
+
+// 规则 6.1 ③④⑤：中心结算（主导花色 / 夺战术牌）+ 指示器翻面 + 标记迁移 + 终局检查
+function finishRound(g, opts) { return endRound(g, opts); }
+
+function runRound(g, chooser, centerPicker, opts) {
+  let r = collectRound(g, chooser);
+  if (!r.ok) return r;
+  const events = revealAll(g, centerPicker);
+  // freePlays 必须传出：UI 自动模式（index.src.html logRound）靠它播「无消耗立即打出」，
+  //   探针也靠它区分常规行动 / 8.5 免费打出两条执行路径（曾因丢字段而不可见）。
+  const { tacWins, zoneWins, guileEvents, end, floodDiscards, freePlays } = finishRound(g, opts);
+  return { ok: true, applied: r.applied, events, tacWins, zoneWins, guileEvents, end, floodDiscards, freePlays, errors: r.errors };
+}
+
+// ---------------- 开局布置领袖 ----------------
+// 规则依据：2.1「领袖模型 每人 1 个，用于中心区域移动」。规则书未规定初始位置，
+// 故 createGame 给的默认落点只是兜底值；正式开局应由每位玩家自选起始区
+// （轮流次序沿用 8.3「按战场标记顺时针」）。此环节不触发 8.5 夺牌检查。
+function setInitialLeader(g, seat, zone) {
+  if (!Number.isInteger(zone) || zone < 0 || zone >= N_ZONES) return { ok: false, why: '区号无效' };
+  g.leaders[seat] = zone;
+  return { ok: true };
+}
+function applyInitialLeaders(g, pickFn) {
+  for (let s = 0; s < N_SEATS; s++) setInitialLeader(g, s, pickFn(g, s));
+  return true;
+}
+// AI 启发式：把自己两条战线的主色区作为起始落点（同分时用 rng 扰动，保持可复现）
+function suggestInitialLeader(g, seat) {
+  const counts = Array(N_ZONES).fill(0);
+  for (const li of playerLines(seat)) {
+    for (const c of g.hands[seat][li] || []) if (!c.tactic) counts[c.suit] += 1;
+  }
+  const max = Math.max(...counts);
+  const best = counts.map((v, i) => [v, i]).filter(([v]) => v === max).map(([, i]) => i);
+  if (best.length === 1) return best[0];
+  return best[Math.min(best.length - 1, Math.floor(g.rng() * best.length))];
+}
+
+// 规则 10.3（v1.5）：总分最高者胜；同分比旗子总数；仍同比当前持有的中央区数；再同则并列。
+//   （「旗子」在此指累计夺得的旗幟格数 captures；中央区单独作为第二级破平，与 10.2 的合计口径区分。）
+function finalRanking(g) {
+  return Array.from({ length: N_SEATS }, (_, i) => ({
+    seat: i, score: g.scores[i], captures: g.captures[i], zones: zoneHoldCount(g, i),
+  })).sort((a, b) => (b.score - a.score) || (b.captures - a.captures) || (b.zones - a.zones) || (a.seat - b.seat));
+}
+
+return { makeRng, createGame, zoneInfluence, zoneTotal, playerZoneScore, zoneScoreAll, cellCapacity, cellHasEnv, computeDominantSuit, canPlayTroop, canPlayTactic, applyAction, centerOptions, applyCenterAction, refill, checkCapture, resolveCapture, recycleTactic, zoneLeaderOf, locateTactic, floodDiscardCandidates, resolveOneFloodDiscard, resolveFloodDiscards, checkTacticsWin, checkAllTacticsWins, checkZoneScore, checkAllZoneScores, processGuileBoard, hasFreePlay, useFreePlay, setFreePlayFair, resolveFreePlays, revealLine, revealAll, zoneHoldCount, flagTotal, endRound, collectRound, finishRound, runRound, setInitialLeader, applyInitialLeaders, suggestInitialLeader, finalRanking };
+})();
+__M.ai = (function(){
+// 进阶 AI：对手建模 + 两步预判 + 中心区策略
+// 每席每回合在其镇守的两条战线各产出 1 个动作（规则 7.2）
+const {
+  FACTIONS, CELLS_PER_LINE, HAND_PER_LINE, CENTER_THRESHOLD,
+  LEADER_WORTH, TACTIC_BY_ID, N_ZONES, N_SEATS, WIN_FLAGS,
+  lineSeats, playerLines, secondHand,
+} = __M.rules;
+const { bestFormation, maxPointSum, compareForm, comparePointsOnly } = __M.formation;
+const {
+  canPlayTroop, canPlayTactic, cellCapacity, cellHasEnv,
+  playerZoneScore, centerOptions, makeRng, flagTotal,
+} = __M.engine;
+
+// ---------- 单张牌在手牌中的价值 ----------
+function cardValue(card, hand) {
+  let v = 0.35;
+  v += (card.rank / 10) * 0.25;
+  v += hand.filter(c => c.suit === card.suit).length * 0.12;
+  v += hand.filter(c => Math.abs(c.rank - card.rank) === 1 && c.suit === card.suit).length * 0.10;
+  v += hand.filter(c => Math.abs(c.rank - card.rank) === 1).length * 0.05;
+  v += hand.filter(c => c.rank === card.rank).length * 0.10;
+  return Math.min(1, v);
+}
+
+// ---------- 终局意识（v1.9 候选，由 o.endgameW 加权；默认 0 = 关闭）----------
+// 终局由「旗子数（累计夺旗 + 持有中央区）≥ 12」触发，但胜负按总分定（规则 10.2）。
+// 探针依据（200 局全席 v2）：91% 对局由 12 旗终局；终局时最大旗子数 100% ≥ 10；
+//   59% 的局冠亚军分差 ≤ 2 分；7.7% 的局「触发者反而输」——最后几面旗的争夺经常
+//   直接决定胜负，而默认 AI 对此毫无意识（夺旗/防守收益都是固定值，与局势无关）。
+// 策略：距终局 ≤ 5 面旗时启动（near 0..1）：
+//   总分领先 → 在「夺旗类」收益上追加加速分 acc（尽早触发终局锁定优势）；
+//   总分落后 → 在「避损类」收益上追加拖延分 den（晚一轮终局 = 多一轮追分）。
+//  v1 乘法版（对子集项 ×1.6 以内）实测 2008 个决策点零 argmax 翻转——候选间边际差
+//   远大于这点缩放，故改为加式：幅度 = near × min(|分差|,3)/2，最大 +1.5，与夺旗项
+//   （+2.0）同量级，才可能真正改变决策。
+function endgameBoost(g, seat) {
+  if (g.mode === 'long') return { acc: 0, den: 0 };   // 长游戏无 12 旗终局
+  let maxFlags = 0, maxOther = -Infinity;
+  for (let s = 0; s < N_SEATS; s++) {
+    const f = flagTotal(g, s);
+    if (f > maxFlags) maxFlags = f;
+    if (s !== seat && g.scores[s] > maxOther) maxOther = g.scores[s];
+  }
+  const rem = WIN_FLAGS - maxFlags;
+  if (rem > 5) return { acc: 0, den: 0 };             // 距终局还早，不启动
+  const near = Math.min(1, (6 - rem) / 6);
+  const lead = g.scores[seat] - maxOther;
+  const mag = Math.min(Math.abs(lead), 3) / 2;        // 分差 3 分即满幅
+  if (lead > 0) return { acc: near * mag, den: 0 };
+  if (lead < 0) return { acc: 0, den: near * mag };
+  return { acc: 0, den: 0 };
+}
+
+// ---------- 出牌位置评估 ----------
+function evalPlay(g, seat, lineIdx, cellIdx, handIdx, o) {
+  const line = g.lines[lineIdx];
+  const cell = line.cells[cellIdx];
+  const [sA, sB] = lineSeats(lineIdx);
+  const opp = seat === sA ? sB : sA;
+  const hand = g.hands[seat][lineIdx];
+  const card = hand[handIdx];
+  const cap = cellCapacity(cell);
+  const mine = (cell.sides[seat] || []).concat([card]);
+  const theirs = cell.sides[opp] || [];
+  const dom = g.dominantSuit;
+  // 终局意识附加分（o.endgameW > 0 时启用；默认 0 时完全不计算，行为与旧版一致）
+  //   acc：领先方的「加速夺旗」附加分；den：落后方的「拖延避损」附加分
+  const eg = o && o.endgameW ? endgameBoost(g, seat) : null;
+  const acc = eg ? eg.acc * o.endgameW : 0;
+  const den = eg ? eg.den * o.endgameW : 0;
+
+  let score = 0;
+  // 旗幟归属：夺下对手的旗更有价值（规则 10.1 零和）
+  score += cell.owner === seat ? 0.15 : 0.65 + acc * 0.5;
+
+  if (cellHasEnv(cell, 'points')) {
+    // 瘟疫：只比点数和
+    const my = maxPointSum(mine), th = maxPointSum(theirs);
+    score += (my - th) * 0.05;
+    // 修正：原写 `mine > th`（数组 vs 数字，恒为 false），使「满编且点数和领先」的
+    // +2 奖励成为死代码；应为点数和比较 `my > th`。
+    if (mine.length === cap && my > th) score += 2 + acc * 2;
+  } else {
+    const myV = bestFormation(mine, dom);
+    const thV = bestFormation(theirs, dom);
+    score += myV.level * 0.45;
+    if (dom != null) score += (myV.dom - thV.dom) * 0.18;
+    score += (myV.pts - thV.pts) * 0.015;
+
+    if (mine.length === cap) {
+      if (theirs.length === cap) {
+        const cmp = compareForm(mine, theirs, dom);
+        if (cmp > 0) score += 2.0 + acc * 2;
+        else if (cmp < 0) score -= 1.6 + den * 2;
+        else {
+          // 平手：后结算方判负（规则 5.1 第 3 条）
+          const iLose = secondHand(lineIdx, g.revealDir) === seat;
+          score += iLose ? -(1.2 + den * 1.5) : 1.2 + acc * 1.5;
+        }
+      } else {
+        score += 1.0 + acc * 0.5; // 施压：对手未成编
+      }
+    } else if (mine.length === cap - 1) {
+      score += 0.5; // 再一张即成阵
+    }
+    // 对手已成型的威胁
+    if (theirs.length === cap) {
+      const cmp = compareForm(mine, theirs, dom);
+      if (cmp < 0) score -= 0.9 + den * 1.5;
+    }
+  }
+  score += cardValue(card, hand) * 0.25;
+  return score;
+}
+
+// ---------- 中心区二选一（规则 8.2）----------
+function isTopInZone(g, zoneIdx, seat, value) {
+  for (let s = 0; s < N_SEATS; s++) {
+    if (s === seat) continue;
+    if (playerZoneScore(g, g.zones[zoneIdx], s) >= value) return false;
+  }
+  return true;
+}
+
+// 规则 8.6：本席在 zoneIdx 影响力 +delta 后成为「唯一第一」能拿到的分值：
+//   0 = 拿不到；1 = 该区首次易主（+1，无人扣分）；2 = 从对手手里抢（我 +1 且对手 −1，净差 2）
+function zonePointGain(g, seat, zoneIdx, delta) {
+  const z = g.zones[zoneIdx];
+  const after = playerZoneScore(g, z, seat) + delta;
+  if (after < CENTER_THRESHOLD) return 0;
+  if (!isTopInZone(g, zoneIdx, seat, after)) return 0;
+  const holder = g.zoneHolder[zoneIdx];
+  if (holder === seat) return 0;          // 已持有，再达成也不加分
+  return holder == null ? 1 : 2;
+}
+
+const TACTIC_BONUS = 1.5;
+
+function centerChoice(g, seat, suit) {
+  const opt = centerOptions(g, seat, suit);
+  const z = g.zones[suit];
+  const cur = playerZoneScore(g, z, seat);
+  const leaderThere = g.leaders[seat] === suit;
+
+  // 领袖不在该色区：移入即 +2 影响力 → 若能达成该区第一（规则 8.6 直接得分）或能夺牌 → 移入
+  if (!leaderThere) {
+    const withLeader = cur + LEADER_WORTH;
+    const gain = zonePointGain(g, seat, suit, LEADER_WORTH);
+    if (gain > 0 && withLeader >= CENTER_THRESHOLD) return { type: 'leader', zone: suit };
+    if (z.tactics && withLeader >= CENTER_THRESHOLD && isTopInZone(g, suit, seat, withLeader)) {
+      return { type: 'leader', zone: suit };
+    }
+  }
+  // 领袖已在该色区：可移到任意其他区 → 选最有价值的一个
+  if (leaderThere) {
+    let best = null, bestV = -Infinity;
+    for (const tz of opt.leaderZones) {
+      const v = playerZoneScore(g, g.zones[tz], seat) + LEADER_WORTH
+        + (g.zones[tz].tactics ? TACTIC_BONUS : 0)
+        + (g.zoneHolder[tz] === seat ? 0.8 : 0)
+        + zonePointGain(g, seat, tz, LEADER_WORTH) * 3
+        + centerSuitValue(g, seat, tz) * 1.2;      // 长远：把领袖停在对未来最有利的区
+      if (v > bestV) { bestV = v; best = tz; }
+    }
+    // 留在原地 = 放 1 枚标记（+1 影响力）
+    const stayValue = cur + 1 + (z.tactics ? TACTIC_BONUS : 0)
+      + (g.zoneHolder[suit] === seat ? 0.8 : 0)
+      + zonePointGain(g, seat, suit, 1) * 3
+      + centerSuitValue(g, seat, suit) * 1.2;
+    if (best != null && bestV > stayValue + 0.5) return { type: 'leader', zone: best };
+  }
+  // 默认：放影响力标记（规则 8.2 行动①）
+  return { type: 'place' };
+}
+
+// ---------- 战术牌使用 ----------
+// o（可选）：{ moraleStrict, useGuile } —— 用于同批种子的前后对照实验
+function tacticPlan(g, seat, lineIdx, used, o) {
+  const line = g.lines[lineIdx];
+  const [sA, sB] = lineSeats(lineIdx);
+  const opp = seat === sA ? sB : sA;
+  const held = g.playerTactics[seat];
+  if (!held.length) return null;
+
+  for (const id of held) {
+    const t = TACTIC_BY_ID[id];
+    if (!t) continue;
+    if (used && used.has(id)) continue;   // 同一张牌不能在本回合两条线重复使用
+    if (o && o.onlyTactic && id !== o.onlyTactic) continue;   // v1.7：仅评估指定那张（免费打出用）
+    // 规则 11.3.2：本战线已打出战术牌数不得多于对手 +1（计谋牌即时生效，同样受限）
+    // 注意：士气 / 环境牌需要具体格位，不能拿 undefined 去校验 —— 否则会被误判为
+    // 「格位无效」而永远用不出去（曾经的实际 bug：AI 从不使用士气/环境牌）。
+    if (t.cat === 'guile') {
+      if (!canPlayTactic(g, seat, lineIdx, id, undefined).ok) continue;
+    } else {
+      let anyCell = false;
+      for (let k = 0; k < CELLS_PER_LINE; k++) {
+        if (canPlayTactic(g, seat, lineIdx, id, k).ok) { anyCell = true; break; }
+      }
+      if (!anyCell) continue;
+    }
+
+    if (t.cat === 'morale') {
+      if (o && o.moraleStrict === false) {
+        // 旧逻辑：只要找到 cap-1 的格就补（不预判胜负）
+        for (let k = 0; k < CELLS_PER_LINE; k++) {
+          const cell = line.cells[k];
+          const mine = cell.sides[seat] || [];
+          if (mine.length !== cellCapacity(cell) - 1) continue;
+          if (!canPlayTactic(g, seat, lineIdx, id, k).ok) continue;
+          return { kind: 'tactic', line: lineIdx, tacticId: id, cell: k };
+        }
+      }
+      // 在「己方 cap-1 张」的格里挑最好的一个补上成型：
+      // 用 compareForm 预判补上后的胜负，只在能赢（或至少不输）时才花这张牌，
+      // 且优先补「能压过对手 / 能抢下对方旗」的格。
+      let bestK = -1, bestV = -Infinity;
+      for (let k = 0; k < CELLS_PER_LINE; k++) {
+        const cell = line.cells[k];
+        const mine = cell.sides[seat] || [];
+        if (mine.length !== cellCapacity(cell) - 1) continue;
+        if (!canPlayTactic(g, seat, lineIdx, id, k).ok) continue;
+        const withCard = mine.concat([{ tactic: id }]);
+        const theirs = cell.sides[opp] || [];
+        const cmp = theirs.length ? compareForm(withCard, theirs, g.dominantSuit) : 1;
+        const v = (cmp > 0 ? 3 : cmp === 0 ? 0.4 : -1.5)
+          + (cell.owner === seat ? 0 : 0.6)          // 能夺对方的旗更值
+          + (theirs.length >= cellCapacity(cell) ? 0.4 : 0);
+        if (v > bestV) { bestV = v; bestK = k; }
+      }
+      if (bestK >= 0 && bestV > 0) return { kind: 'tactic', line: lineIdx, tacticId: id, cell: bestK };
+    }
+
+    if (t.cat === 'env') {
+      if (id === 'plague') {
+        // 我方点数和领先、但牌型落后 → 用瘟疫抹平牌型差距
+        for (let k = 0; k < CELLS_PER_LINE; k++) {
+          const cell = line.cells[k];
+          if (cell.decided || cellHasEnv(cell, 'points')) continue;
+          const mine = cell.sides[seat] || [], theirs = cell.sides[opp] || [];
+          if (mine.length < 2 || theirs.length < 2) continue;
+          if (maxPointSum(mine) > maxPointSum(theirs)
+            && compareForm(mine, theirs, g.dominantSuit) < 0
+            && canPlayTactic(g, seat, lineIdx, id, k).ok) {
+            return { kind: 'tactic', line: lineIdx, tacticId: id, cell: k };
+          }
+        }
+      }
+      if (id === 'flood') {
+        // 我方牌型已成型且对手未满 → 拖到 4 张，让对手更难凑阵
+        for (let k = 0; k < CELLS_PER_LINE; k++) {
+          const cell = line.cells[k];
+          if (cell.decided || cellHasEnv(cell, 'four')) continue;
+          const mine = cell.sides[seat] || [], theirs = cell.sides[opp] || [];
+          if (mine.length === 3 && theirs.length < 3 && canPlayTactic(g, seat, lineIdx, id, k).ok) {
+            return { kind: 'tactic', line: lineIdx, tacticId: id, cell: k };
+          }
+        }
+      }
+    }
+
+    if (t.cat === 'guile') {
+      // freeRelax：免费打出零行动消耗，门槛应低于普通打出——手牌 ≤ 6 时侦察净赚
+      //   （抽 3 张、2 张被模型压住，手牌仍 ≤ 7 上限，不触发弃牌）。
+      // 牌堆与弃牌堆皆空（后期牌全锁进封存格/手牌）→ 引擎按落空契约处理、牌保留，
+      //   但暗扣行动已花掉——探针实测 100 局 8 人档 1130 次侦察全部因此落空，故加闸。
+      // freeScout（chooseFreePlay 默认开）：零成本打出不设手牌门槛，只要求牌堆非空——
+      //   实测授予时刻手牌≤4 与牌堆非空互斥（0/255 次授予满足旧门槛），去掉门槛后
+      //   228/255 可打出，否则侦察对 AI 是死牌（_scout_probe.mjs Part 1/2/3）。
+      if (id === 'scout' && line.deck.length + line.discard.length > 0
+        && (o && o.freeScout || g.hands[seat][lineIdx].length <= (o && o.freeRelax ? 6 : 4))) {
+        return { kind: 'tactic', line: lineIdx, tacticId: id, returnIdxs: null };
+      }
+      if (id === 'mutiny') {
+        // 弃掉对手某未决出格中「破坏力最大」的一张。
+        // 修正：原用 `theirs[ci].rank` 估值 —— 士气 / 环境牌（{ tactic }）没有 rank，
+        //   该项为 undefined → 整式变 NaN → 战术牌目标永远选不中，白白丢掉
+        //   「拆掉对手士气牌」这一高价值打法（引擎 execGuile 允许弃战术牌，会回流中央区）。
+        // 现改为按「移除该牌后对手阵型掉级多少」衡量伤害，并兼容瘟疫格（只比点数和）。
+        let best = null, bestV = -Infinity;
+        for (let k = 0; k < CELLS_PER_LINE; k++) {
+          const cell = line.cells[k];
+          if (cell.decided) continue;
+          const theirs = cell.sides[opp] || [];
+          if (!theirs.length) continue;
+          const envPoints = cellHasEnv(cell, 'points');
+          const measure = arr => (envPoints ? maxPointSum(arr) : bestFormation(arr, g.dominantSuit).level);
+          const before = measure(theirs);
+          for (let ci = 0; ci < theirs.length; ci++) {
+            const after = theirs.filter((_, i) => i !== ci);
+            const dmg = (before - measure(after)) * (envPoints ? 1 : 10);
+            const v = dmg + (theirs[ci].rank || 0) * 0.1;   // 同伤害时优先弃大牌
+            if (v > bestV) { bestV = v; best = { k, ci }; }
+          }
+        }
+        if (best && bestV > 0) return { kind: 'tactic', line: lineIdx, tacticId: id, targetCell: best.k, cardIdx: best.ci };
+      }
+      if (id === 'defect' && !(o && o.useGuile === false)) {
+        // 取对手「最伤」的一张部队牌：拿走它能让对手该格阵型掉级最多；
+        // 对手满编的格额外加分（拿走其一 = 直接废掉对手一次成型）。
+        let best = null, bestV = -Infinity;
+        for (let k = 0; k < CELLS_PER_LINE; k++) {
+          const cell = line.cells[k];
+          if (cell.decided) continue;
+          const theirs = cell.sides[opp] || [];
+          if (!theirs.length) continue;
+          const before = bestFormation(theirs, g.dominantSuit).level;
+          for (let ci = 0; ci < theirs.length; ci++) {
+            if (theirs[ci].tactic) continue;          // 规则：附庸倒戈只能取部队牌
+            const after = theirs.filter((_, i) => i !== ci);
+            const afterLv = bestFormation(after, g.dominantSuit).level;
+            const v = (before - afterLv) * 10
+              + (theirs.length >= cellCapacity(cell) ? 5 : 0)
+              + theirs[ci].rank * 0.2;
+            if (v > bestV) { bestV = v; best = { k, ci }; }
+          }
+        }
+        // freeRelax：零成本拿走对手任意部队牌都是正收益（其阵型掉级 ≥ 0 且该牌
+        //   易主到我方空位），无需「掉级 ≥ 5」的普通行动门槛。
+        if (best && bestV >= (o && o.freeRelax ? 0 : 5)) {
+          const to = emptyCellFor(g, line, seat);
+          if (to >= 0) {
+            return { kind: 'tactic', line: lineIdx, tacticId: id, targetCell: best.k, cardIdx: best.ci, toCell: to };
+          }
+        }
+      }
+      if (id === 'shift' && !(o && o.useGuile === false)) {
+        // 把己方「必输格」里的一张牌，挪到「对手已开始佈军、我方还空着」的格，
+        // 把废牌变成有效资源（弃掉一张牌本身没有收益）。
+        const to = (() => {
+          for (let k = 0; k < CELLS_PER_LINE; k++) {
+            const c = line.cells[k];
+            if (c.decided) continue;
+            if (!(c.sides[seat] || []).length && (c.sides[opp] || []).length > 0) return k;
+          }
+          return -1;
+        })();
+        if (to >= 0) {
+          for (let k = 0; k < CELLS_PER_LINE; k++) {
+            const c = line.cells[k];
+            if (c.decided || k === to) continue;
+            if (!(c.sides[seat] || []).length) continue;
+            const hopeless = (c.sides[opp] || []).length >= cellCapacity(c)
+              && compareForm(c.sides[seat] || [], c.sides[opp] || [], g.dominantSuit) < 0;
+            if (hopeless && canPlayTactic(g, seat, lineIdx, id, k).ok) {
+              return { kind: 'tactic', line: lineIdx, tacticId: id, fromCell: k, cardIdx: 0, toCell: to };
+            }
+          }
+        }
+      }
+    }
+  }
+  return null;
+}
+
+// 该战线上「己方一侧还没佈军的未决格」（规则 11.2 的「空位」）
+function emptyCellFor(g, line, seat) {
+  for (let k = 0; k < line.cells.length; k++) {
+    const c = line.cells[k];
+    if (!c.decided && !(c.sides[seat] || []).length) return k;
+  }
+  return -1;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// v1：纯贪心 + 启发式（保留作对照组，用于量化比较）
+// ══════════════════════════════════════════════════════════════════
+function chooseActionsV1(g, seat) {
+  const out = [];
+  const usedTactics = new Set();   // 同一张战术牌本回合只能使用一次
+  for (const lineIdx of playerLines(seat)) {
+    const hand = g.hands[seat][lineIdx] || [];
+
+    // 规则 8.3：手牌为 0 → 触发领袖放置
+    if (hand.length === 0) {
+      out.push({ kind: 'empty', line: lineIdx, leaderZone: bestLeaderZone(g, seat) });
+      continue;
+    }
+
+    // 战术牌替代暗扣（规则 7.4）
+    const tp = tacticPlan(g, seat, lineIdx, usedTactics);
+    if (tp) { usedTactics.add(tp.tacticId); out.push(tp); continue; }
+
+    // 选格 + 选牌
+    let best = null;
+    for (let k = 0; k < CELLS_PER_LINE; k++) {
+      for (let hi = 0; hi < hand.length; hi++) {
+        if (!canPlayTroop(g, seat, lineIdx, k, hi).ok) continue;
+        const score = evalPlay(g, seat, lineIdx, k, hi);
+        if (!best || score > best.score) best = { lineIdx, cell: k, handIdx: hi, score };
+      }
+    }
+    // 手牌非空但所有格己方均已满编 —— 无合法暗扣点
+    if (!best) { out.push({ kind: 'skip', line: lineIdx }); continue; }
+    out.push({
+      kind: 'troop',
+      line: lineIdx,
+      cell: best.cell,
+      handIdx: best.handIdx,
+      center: centerChoice(g, seat, hand[best.handIdx].suit),
+    });
+  }
+  return out;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// v2：贪心候选 + 蒙特卡洛概率搜索（对手手牌未知 → 采样补全后模拟对局结果）
+//   核心思想：静态估值只看「现在这张牌放上去长什么样」，不知道对手手里还有
+//   什么、牌堆里还剩什么。v2 从「不可见牌池」随机采样对手手牌与未来补牌，
+//   把该格模拟到满编后统计胜率，用「期望分数变动」代替启发式打分。
+//   全部采样使用由 (seed, 回合, 格位, 牌) 派生的确定性 PRNG → 同种子可复现。
+// ══════════════════════════════════════════════════════════════════
+function hashSeed(...vals) {
+  let h = 2166136261 >>> 0;
+  for (const v of vals) h = Math.imul(h ^ (((v | 0) + 0x9e3779b9) >>> 0), 16777619) >>> 0;
+  return h >>> 0;
+}
+
+// 本战线的「不可见牌池」：60 张（6 色 × 1-10）减去已摊出的牌、弃牌堆、我的手牌。
+// 剩下的就是「牌堆 + 对手手牌」，即我无从得知的部分。
+function unseenPool(g, lineIdx, seat) {
+  const cnt = new Uint8Array(60).fill(1);
+  const dec = c => {
+    if (!c || c.tactic) return;
+    const i = c.suit * 10 + (c.rank - 1);
+    if (i >= 0 && i < 60 && cnt[i] > 0) cnt[i] -= 1;
+  };
+  const line = g.lines[lineIdx];
+  for (const cell of line.cells) for (const side of Object.values(cell.sides)) for (const c of side) dec(c);
+  for (const c of line.discard) dec(c);
+  for (const c of (g.hands[seat]?.[lineIdx] || [])) dec(c);
+  return cnt;
+}
+function poolTotal(cnt) {
+  let t = 0;
+  for (let i = 0; i < 60; i++) t += cnt[i];
+  return t;
+}
+function drawFromPool(cnt, rng) {
+  const total = poolTotal(cnt);
+  if (total <= 0) return null;
+  let k = Math.floor(rng() * total);
+  for (let i = 0; i < 60; i++) {
+    k -= cnt[i];
+    if (k < 0) { cnt[i] -= 1; return { suit: (i / 10) | 0, rank: (i % 10) + 1 }; }
+  }
+  return null;
+}
+
+// 把该格模拟到满编，统计我方胜率。
+// 返回「期望分数变动」：夺旗是我 +1 / 对手 −1（净 +2），失守是净 −2。
+// 注意：随机种子刻意不包含 myCard —— 同一格的所有候选共用同一批随机样本
+// （common random numbers），这样「打这张 / 不打这张」的差值是降噪后的边际值。
+function cellWinExpectation(g, lineIdx, cellIdx, seat, myCard, samples = 16) {
+  const line = g.lines[lineIdx];
+  const cell = line.cells[cellIdx];
+  const [sA, sB] = lineSeats(lineIdx);
+  const opp = seat === sA ? sB : sA;
+  const cap = cellCapacity(cell);
+  const mineBase = (cell.sides[seat] || []).concat(myCard ? [myCard] : []);
+  const oppBase = cell.sides[opp] || [];
+  const envPoints = cellHasEnv(cell, 'points');
+  const rng = makeRng(hashSeed(g.seed, g.round, lineIdx, cellIdx, seat));
+  const loserOnDraw = secondHand(lineIdx, g.revealDir);
+  const pool0 = unseenPool(g, lineIdx, seat);   // 建一次，每次采样只做 60 字节拷贝
+  const dom = g.dominantSuit;
+  let win = 0, draw = 0;
+  for (let it = 0; it < samples; it++) {
+    const cnt = pool0.slice();
+    const mine = mineBase.slice(), opp = oppBase.slice();
+    // 我方会积极补满此格（我在意这一格）
+    while (mine.length < cap) { const c = drawFromPool(cnt, rng); if (!c) break; mine.push(c); }
+    // 对手是「理性对手」：落后时高概率继续投，领先/无关时多半收手。
+    // （把对手一律当成会补满，会系统性低估我在强势格上的胜率 —— 这是上一版失真的主因）
+    while (opp.length < cap) {
+      const cur = envPoints ? comparePointsOnly(mine, opp) : compareForm(mine, opp, dom);
+      const p = cur < 0 ? 0.85 : 0.30;
+      if (rng() > p) break;
+      const c = drawFromPool(cnt, rng);
+      if (!c) break;
+      opp.push(c);
+    }
+    const cmp = envPoints ? comparePointsOnly(mine, opp) : compareForm(mine, opp, dom);
+    if (cmp > 0) win++;
+    else if (cmp === 0) draw++;
+  }
+  // 规则 5.1 第 3 条：完全平手时「后结算方判负」
+  const winOnDraw = loserOnDraw === seat ? 0 : 1;
+  const pWin = (win + draw * winOnDraw) / samples;
+  return 2 * pWin - 2 * (1 - pWin);
+}
+
+// 「这张牌的边际价值」= 打它之后的期望分 − 不打它的期望分。
+// 直接比期望分会让 AI 把牌浪费在「本来就已经赢定」的格上；比较边际值才能
+// 把牌投到真正能改变胜负的地方（这是 v2 第一版输给 v1 的根因）。
+function cellDeltaEV(g, lineIdx, cellIdx, seat, myCard, samples) {
+  const withCard = cellWinExpectation(g, lineIdx, cellIdx, seat, myCard, samples);
+  const without = cellWinExpectation(g, lineIdx, cellIdx, seat, null, samples);
+  return withCard - without;
+}
+
+// ---------- 中央区的长远价值（规则 8.6 / 8.9，「更长远的中区贪心」）----------
+// 打出的牌的颜色决定中心行动落在哪个区（规则 8.2 行动①只能放该色区），
+// 因此「选哪张牌」等价于「往哪个中央区投资」。中央区是第二得分轴，
+// 这里按「离门槛多近 / 该区第一归谁 / 对手是否逼近 / 奖励牌是否还在」定价。
+function centerSuitValue(g, seat, suit) {
+  const z = g.zones[suit];
+  if (!z) return 0;
+  const cur = playerZoneScore(g, z, seat);
+  const after = Math.min(cur + 1, CENTER_THRESHOLD);
+  let v = (after / CENTER_THRESHOLD) * 0.9;      // 越接近 6 越值钱（长期推力）
+  if (after >= CENTER_THRESHOLD) v += 0.6;       // 本回合即可达标
+  const holder = g.zoneHolder[suit];
+  if (holder === seat) v += 0.35;                // 守住自己的区分
+  else if (holder != null) v += 1.0;             // 抢别人的区分（净差 2 分）
+  else v += 0.6;                                 // 首次夺取 +1
+  let oppMax = 0;
+  for (let s = 0; s < N_SEATS; s++) if (s !== seat) oppMax = Math.max(oppMax, playerZoneScore(g, z, s));
+  if (oppMax >= CENTER_THRESHOLD - 1) v += 0.5;  // 对手逼近 → 防守要紧
+  if (z.tactics) v += 0.35;                      // 该区还有奖励牌可夺
+  return v;
+}
+
+// ---------- v2 主决策：本席两条战线各 1 个动作 ----------
+const DEF_OPTS = {
+  // 只对静态分最高的 K 个候选做概率搜索。
+  // 经配对差分标定（两组独立样本）：6→12 为显著正增益（Δ +0.676 / t=2.78，+0.732 / t=2.85，
+  //   夺冠率 17.6~17.9% vs 基线 15.2~15.6%）；18 / 24 反而不显著（更多边际候选只带来 MC 噪声）。
+  topK: 12,
+  samples: 48,    // 每个候选的采样次数（16 次时胜率的标准误 ~0.12，噪声盖过信号）
+  // MC 边际期望分权重。经五轮配对差分标定（32~64 种子 × 8 席，多套独立种子）：
+  //   1.0→1.5 显著（t=2.10）；继续上行 2.0~8.0 在四套种子上 Δ 全部为正、夺冠率全部
+  //   不低于基线；4→6 头对头显著（t=2.07）、4→8 不显著（t=1.79）、6→8 头对头
+  //   Δ≈0（t=−0.03，夺冠率 16.0% vs 13.9%）→ 6 与 8 统计等价，取更保守的 6
+  //   （mcW→∞ 会退化为纯 MC argmax，静态/中区项被完全淹没，6 仍保留其余量）。
+  mcW: 6.0,       // 边际期望分（−4..+4，通常 −2..+2）的权重
+  staticW: 1.0,   // 静态启发式分的权重
+  // 中央区长远价值权重。经 40 种子 × 8 席配对差分标定：
+  //   centerW=0 → Δ+0.934 / 0.2 → Δ+1.684 / 0.8 → Δ+1.193 分/席（相对纯贪心基线）
+  // 权重过大会为了中区牺牲战线（中区全程只值 6 分，战线才是主战场），0.2 附近最优。
+  centerW: 0.2,
+  // 终局意识权重（0 = 关闭）。临近 12 旗终局时按总分领先/落后追加夺旗加速/避损拖延分。
+  // 已实测否决：乘法版（×1.6 以内）2008 个决策点零 argmax 翻转；加式版 W=1（t=1.00）、
+  //   W=2（t=0.00）均不显著——AI 原本的「完成必胜格/回避必输格」偏好已与终局正确
+  //   策略同向，附加分只微调、无统计可测收益。保留开关供后续实验，默认关闭。
+  endgameW: 0,
+  moraleStrict: true,   // 士气牌只在「补上后能赢」时才打（false = 旧逻辑：凑够张数就打）
+  useGuile: true,       // 是否使用附庸倒戈 / 莱茵换防策略
+};
+const AI_V2_DEFAULT = { ...DEF_OPTS };
+
+// 纯贪心基线（关掉概率搜索、中区项与两项战术改进）：v2 的可控对照
+function chooseActionsGreedy(g, seat) {
+  return chooseActions(g, seat, { mcW: 0, topK: 0, centerW: 0, moraleStrict: false, useGuile: false });
+}
+// 只开战术改进（不开 MC / 中区项）：用于把增益归因到具体组件
+function chooseActionsTacticsOnly(g, seat) {
+  return chooseActions(g, seat, { mcW: 0, topK: 0, centerW: 0 });
+}
+
+function chooseActions(g, seat, opts) {
+  const o = opts ? { ...DEF_OPTS, ...opts } : DEF_OPTS;
+  const out = [];
+  const usedTactics = new Set();
+  for (const lineIdx of playerLines(seat)) {
+    const hand = g.hands[seat][lineIdx] || [];
+    if (hand.length === 0) {
+      out.push({ kind: 'empty', line: lineIdx, leaderZone: bestLeaderZone(g, seat) });
+      continue;
+    }
+    const tp = tacticPlan(g, seat, lineIdx, usedTactics, o);
+    if (tp) { usedTactics.add(tp.tacticId); out.push(tp); continue; }
+
+    // ① 贪心枚举全部合法候选并排序
+    const cands = [];
+    for (let k = 0; k < CELLS_PER_LINE; k++) {
+      for (let hi = 0; hi < hand.length; hi++) {
+        if (!canPlayTroop(g, seat, lineIdx, k, hi).ok) continue;
+        cands.push({ k, hi, s: evalPlay(g, seat, lineIdx, k, hi, o) });
+      }
+    }
+    if (!cands.length) { out.push({ kind: 'skip', line: lineIdx }); continue; }
+    cands.sort((a, b) => b.s - a.s);
+
+    // ② 概率搜索：仅当该格「值得算」（对手已有牌，或我方一张即成型）才花采样预算；
+    //    判据是边际期望值 ΔEV，而不是绝对期望值。
+    const [sA, sB] = lineSeats(lineIdx);
+    const oppSeat = seat === sA ? sB : sA;
+    let best = cands[0], bestV = -Infinity;
+    const baseEV = new Map();      // 每格「不打这张」的基准期望，同格多个候选只算一次
+    for (const c of cands.slice(0, o.topK)) {
+      const cell = g.lines[lineIdx].cells[c.k];
+      const oppLen = (cell.sides[oppSeat] || []).length;
+      const myLen = (cell.sides[seat] || []).length + 1;
+      const worthIt = oppLen > 0 || myLen >= cellCapacity(cell) - 1;
+      let v = c.s * o.staticW;
+      if (worthIt) {
+        if (!baseEV.has(c.k)) baseEV.set(c.k, cellWinExpectation(g, lineIdx, c.k, seat, null, o.samples));
+        const delta = cellWinExpectation(g, lineIdx, c.k, seat, hand[c.hi], o.samples) - baseEV.get(c.k);
+        v += delta * o.mcW;
+      }
+      // 中央区长远价值：这张牌的颜色会把中心行动引向某个区
+      if (o.centerW) v += centerSuitValue(g, seat, hand[c.hi].suit) * o.centerW;
+      if (v > bestV) { bestV = v; best = c; }
+    }
+    out.push({
+      kind: 'troop',
+      line: lineIdx,
+      cell: best.k,
+      handIdx: best.hi,
+      center: centerChoice(g, seat, hand[best.hi].suit),
+    });
+  }
+  return out;
+}
+
+// 领袖放置（规则 8.3 / 8.0）：选「有奖励牌 + 我方影响力高 + 能抢下或守住该区第一」的区
+function bestLeaderZone(g, seat) {
+  let best = g.leaders[seat], bestV = -Infinity;
+  for (let z = 0; z < N_ZONES; z++) {
+    const delta = g.leaders[seat] === z ? 0 : LEADER_WORTH;
+    const v = playerZoneScore(g, g.zones[z], seat) + delta
+      + (g.zones[z].tactics ? 1.0 : 0)
+      + (g.zoneHolder[z] === seat ? 1.2 : 0)
+      + zonePointGain(g, seat, z, delta) * 2;
+    if (v > bestV) { bestV = v; best = z; }
+  }
+  return best;
+}
+
+// 兼容旧签名：UI/测试可只取第一个动作
+function chooseAction(g, seat) { return chooseActions(g, seat)[0] || null; }
+
+// v1.7：「无消耗立即打出」策略 —— 仅评估刚获得的那张战术牌；找到有价值的用法即立即打出
+//   （零行动消耗，故只要能用就用），否则返回 null（留着之后按普通行动打出）。
+// opts.freeRelax：免费打出零行动消耗，接受门槛低于 tacticPlan 的普通行动门槛
+//   （附庸倒戈去掉「掉级 ≥ 5」、侦察手牌上限 4 → 6）；v1.8 额度当回合不用即作废，
+//   用行动级标准衡量一个零成本机会，等于把白送的额度浪费掉。
+function chooseFreePlay(g, seat, tacticId, opts) {
+  // v1.11：freeScout 默认真——零成本打出的评估标准必须与「花一次行动」区分：侦察只要牌堆
+  //   非空就净赚（过滤得 1 张 + 隔离 2 张封锁），不设手牌门槛（tacticPlan 侦察分支注释有实测）。
+  //   opts.freeScout:false 可关（A/B 对照用）。
+  const o = { ...AI_V2_DEFAULT, freeScout: true, ...(opts || {}), onlyTactic: tacticId };
+  for (const li of playerLines(seat)) {
+    const tp = tacticPlan(g, seat, li, null, o);
+    if (tp && tp.tacticId === tacticId) return tp;
+  }
+  return null;
+}
+
+function explainAction(g, seat, action) {
+  if (!action) return '无动作';
+  if (action.kind === 'troop') {
+    return `战线${action.line + 1} 第${action.cell + 1}格 暗扣部队牌`;
+  }
+  if (action.kind === 'tactic') {
+    return `战线${action.line + 1} 打出战术牌「${TACTIC_BY_ID[action.tacticId]?.name || '?'}」`;
+  }
+  if (action.kind === 'empty') return `战线${action.line + 1} 手牌为 0，领袖放置`;
+  return '无动作';
+}
+
+return { chooseActionsV1, cellWinExpectation, cellDeltaEV, centerSuitValue, AI_V2_DEFAULT, chooseActionsGreedy, chooseActionsTacticsOnly, chooseActions, chooseAction, chooseFreePlay, explainAction };
+})();
+</script>
+<script>
+const {
+  SUITS, FACTIONS, N_SEATS, N_ZONES, TACTICS, TACTIC_BY_ID,
+  CENTER_THRESHOLD, WIN_FLAGS, FORM_NAME,
+  lineSeats, playerLines, firstHand, revealOrder,
+} = __M.rules;
+const E = __M.engine;
+const { bestFormation } = __M.formation;
+const { chooseActions, chooseFreePlay } = __M.ai;
+
+const ME = 0;
+// 交互模式：?auto=N 自动对局时不弹任何等待面板（供无头回归使用）
+const PARAMS = new URLSearchParams(location.search);
+const interactive = PARAMS.get('auto') == null;
+let g;
+let sel = { line: null, card: null };
+let plans = {};
+let pending = null;
+let tacPlan = null;       // 正在选目标的战术牌：{ id, line, stage }
+let zoom = null;          // null = 自动适应
+
+const SUIT_SYMBOL = ['♠', '♥', '♦', '♣', '⚜', '✦'];
+const suitName = i => SUITS[i] ? SUITS[i].name : '?';
+const suitColor = i => SUITS[i] ? SUITS[i].color : '#888';
+const LINE_CN = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧'];
+const CAT = {
+  morale: { n: '士气牌', c: '#2f6f9f' },
+  env:    { n: '环境牌', c: '#4e8a4f' },
+  guile:  { n: '计谋牌', c: '#b23a2e' },
+};
+// v1.2：4 张计谋牌各配一个「模型」，落场时用于提示站位、被夺取时按模型+牌位回滚（规则 11.5）
+const MODEL = {
+  scout:  '哥特骑兵',
+  shift:  '换防旗手',
+  mutiny: '哗变军士',
+  defect: '倒戈辅军',
+};
+
+// ─────────── 圆环几何 ───────────
+const CX = 575, CY = 575;
+const R_CELL = 430, R_SEAT = 498, R_ZONE = 300, R_LBADGE = 388;
+const D2R = Math.PI / 180;
+const seatAng = i => 90 + 45 * i;                       // 度；席号递增 = 屏幕顺时针
+const pos = (r, a) => [CX + r * Math.cos(a * D2R), CY + r * Math.sin(a * D2R)];
+const cellAng = (li, k) => seatAng(li) + 45 * ((k + 0.5) / 9);
+// 让元素保持「正立」：切向角 a±90 中取落在 (-90,90] 的那个
+function upright(a) {
+  const s = Math.sin(a * D2R);
+  return s < 0 ? a + 90 : a - 90;
+}
+function arcPath(r, a0, a1) {
+  const [x0, y0] = pos(r, a0), [x1, y1] = pos(r, a1);
+  return `M ${x0.toFixed(1)} ${y0.toFixed(1)} A ${r} ${r} 0 0 1 ${x1.toFixed(1)} ${y1.toFixed(1)}`;
+}
+const at = (x, y, rot) => `left:${x.toFixed(1)}px;top:${y.toFixed(1)}px;transform:translate(-50%,-50%) rotate(${rot.toFixed(1)}deg)`;
+
+// ─────────── 缩放 ───────────
+const ring = document.getElementById('ring');
+const wrap = document.getElementById('ringWrap');
+function fitScale() {
+  const w = document.getElementById('viewport').clientWidth - 20;
+  return Math.max(0.40, Math.min(1.15, w / 1150));
+}
+function applyScale() {
+  const s = zoom == null ? fitScale() : zoom;
+  ring.style.setProperty('--s', s);
+  wrap.style.width = (1150 * s) + 'px';
+  wrap.style.height = (1150 * s) + 'px';
+  document.getElementById('zLabel').textContent = Math.round(s * 100) + '%';
+}
+window.addEventListener('resize', () => { if (zoom == null) applyScale(); });
+document.getElementById('zIn').onclick = () => { zoom = Math.min(1.4, (zoom == null ? fitScale() : zoom) + 0.15); applyScale(); };
+document.getElementById('zOut').onclick = () => { zoom = Math.max(0.4, (zoom == null ? fitScale() : zoom) - 0.15); applyScale(); };
+document.getElementById('zFit').onclick = () => { zoom = null; applyScale(); };
+
+// ─────────── 初始化 ───────────
+function init(seed = Math.floor(Math.random() * 1e9)) {
+  g = E.createGame(seed);
+  sel = { line: null, card: null };
+  plans = {};
+  pending = null;
+  tacPlan = null;
+  render();
+  addLog('新局开始：你为席 1 卡劳修斯，对手为另外 7 席。');
+  addLog('每回合：两条战线各暗扣 1 张（选战线 → 选战场 → 扣牌），全桌同时揭示。');
+  // 开局布置领袖（规则 2.1 每人 1 枚；规则书未规定初始位置，故开局由玩家自选起始区）
+  reveal = null;
+  if (interactive) showSetup();
+  else { E.applyInitialLeaders(g, (gs, s) => E.suggestInitialLeader(gs, s)); render(); }
+}
+
+// 自己两条战线的手牌花色统计（0..5）
+function mySuitCounts() {
+  const counts = Array(N_ZONES).fill(0);
+  for (const li of playerLines(ME)) {
+    for (const c of g.hands[ME][li] || []) if (!c.tactic) counts[c.suit] += 1;
+  }
+  return counts;
+}
+
+// 开局：玩家看着自己的手牌选择领袖起始区，其余 7 席按各自手牌主色安置（同时布置，不触发 8.5 夺牌）
+function showSetup() {
+  const suggest = E.suggestInitialLeader(g, ME);
+  const counts = mySuitCounts();
+  const max = Math.max(...counts);
+
+  // ① 手牌明细：两条战线逐张展示
+  const handsHtml = playerLines(ME).map(li => {
+    const hand = g.hands[ME][li] || [];
+    const opp = FACTIONS[lineSeats(li).find(s => s !== ME)].name;
+    const cards = hand.map(c => c.tactic
+      ? `<div class="hcard sm" style="border-style:dashed"><span>${TACTIC_BY_ID[c.tactic].name.slice(0, 2)}</span><span style="font-size:9px">战术</span></div>`
+      : `<div class="hcard sm" style="color:${suitColor(c.suit)}"><span>${SUIT_SYMBOL[c.suit]}</span><span>${c.rank}</span></div>`
+    ).join('') || '<span style="font-size:11px;color:#a09880">（无牌）</span>';
+    return `<div class="hand-group">
+      <div class="hand-label">战线 ${LINE_CN[li]} 手牌（${hand.length}/7）· 对手 ${opp}</div>
+      <div class="hand">${cards}</div></div>`;
+  }).join('');
+
+  // ② 六色统计：标出手牌主色（AI 推荐即依据此项）
+  const statHtml = counts
+    .map((n, z) => `<span class="sstat ${n === max && n > 0 ? 'top' : ''}${n === 0 ? ' zero' : ''}" style="color:${SUITS[z].color}">${SUIT_SYMBOL[z]}${n}</span>`)
+    .join('<span class="ssep">·</span>');
+
+  // ③ 六区选择：按格展示，附该色手牌张数
+  const zoneHtml = SUITS.map((s, z) => `
+    <button class="zpick ${z === suggest ? 'sel' : ''}" data-setup="${z}">
+      <span class="zp-sym" style="color:${s.color}">${SUIT_SYMBOL[z]}</span>
+      <span class="zp-name">${suitName(z)}</span>
+      <span class="zp-n ${counts[z] === max && max > 0 ? 'hot' : ''}">手牌 ${counts[z]} 张${z === suggest ? ' · AI 推荐' : ''}</span>
+    </button>`).join('');
+
+  const h = `<h3>开局布置 · 安置你的领袖</h3>
+    <div class="tcard" style="border-color:var(--gold-d)">
+      <div class="tname">领袖模型 · 每人 1 枚</div>
+      <div class="tdesc">置于中央任一势力区，在该区为你提供 <b>2 点</b>影响力（规则 8.4）。
+        此后若要移动，只能靠打出某颜色的牌：行动②下，若领袖不在该色区则可移入该色区；若已在该色区，则可移往任意其他区（规则 8.2）。</div>
+    </div>
+    <div class="kv"><span>安置次序</span><b>按战场标记顺时针轮流，8 人同时安置</b></div>
+    <div class="plan-box">
+      <h3>你的起手 14 张（双线各 7）</h3>
+      ${handsHtml}
+      <div class="hand-label" style="margin-top:6px">花色分布</div>
+      <div class="srow">${statHtml}</div>
+    </div>
+    <div style="margin-top:10px;font-size:12px">选择领袖起始区（6 色区任选）：</div>
+    <div class="zgrid">${zoneHtml}</div>
+    <div class="note">主色区（${SUIT_SYMBOL[suggest]} ${suitName(suggest)}，${counts[suggest]} 张）通常最稳：你在该区白拿 2 点影响力，
+      且打出该色牌时还能用行动②把领袖挪去别区。反过来，若把领袖放在你一张牌都没有的颜色区，就得靠打出该色牌才能把它挪出来。</div>`;
+  openModal(h, { lock: true, wide: true });
+  document.querySelectorAll('[data-setup]').forEach(el => {
+    el.onclick = () => finishSetup(+el.dataset.setup);
+  });
+}
+function finishSetup(zone) {
+  E.applyInitialLeaders(g, (gs, s) => s === ME ? zone : E.suggestInitialLeader(gs, s));
+  modalLock = false; closeModal(); render();
+  addLog(`开局布置：你的领袖进驻「${suitName(zone)}」，其余 7 席依各自手牌主色安置。`);
+  showHint('布置完成。每回合：两条战线各暗扣 1 张 → 点「摊开结算」→ <b>逐条战线再选择中心行动</b>（加影响力 / 移动领袖，此时双方牌已亮出）。');
+}
+function addLog(msg) {
+  g.log.push(msg);
+  document.getElementById('log').innerHTML = g.log.slice(-60).reverse().map(m => `<div>${m}</div>`).join('');
+}
+function showHint(msg, isErr) {
+  const el = document.getElementById('hint');
+  el.innerHTML = msg;
+  el.className = 'msg' + (isErr ? ' err' : '');
+}
+
+// ─────────── 渲染 ───────────
+// 规则 8.7（v1.1）：两区及以上总影响力并列最高 → 本回合无主导花色
+function domTie() {
+  const vals = g.zones.map(z => E.zoneScoreAll(g, z));
+  const max = Math.max(...vals);
+  return max > 0 && vals.filter(v => v === max).length > 1;
+}
+function render() {
+  document.getElementById('hRound').textContent = g.round;
+  document.getElementById('hMarker').textContent = '战线' + LINE_CN[g.markerLine];
+  document.getElementById('hDir').textContent = g.revealDir > 0 ? '顺时针 ↻' : '逆时针 ↺';
+  const domEl = document.getElementById('hDom');
+  domEl.textContent = g.dominantSuit == null
+    ? (domTie() ? '无（并列）' : '—')
+    : `${suitName(g.dominantSuit)}（${SUIT_SYMBOL[g.dominantSuit]}）`;
+  domEl.style.color = g.dominantSuit == null ? 'var(--ink-soft)' : suitColor(g.dominantSuit);
+  document.getElementById('hScore').textContent = g.scores[ME];
+  // v1.5：旗子数（累计夺旗 + 当前持有中央区）——终局阈值为 12
+  document.getElementById('hFlags').textContent = E.flagTotal(g, ME);
+
+  renderSvg();
+  renderLineBadges();
+  renderSeats();
+  renderCells();
+  renderZones();
+  renderDisc();
+  renderHands();
+  renderPlan();
+  renderScores();
+  renderTacs();
+  renderGuileBoard();
+  renderZoneGrid();
+  renderCodex();
+
+  const btn = document.getElementById('btnReveal');
+  const n = Object.keys(plans).length;
+  btn.disabled = g.over || n < 2;
+  btn.textContent = g.over ? '对局结束' : `摊开结算（已暗扣 ${n}/2）`;
+}
+
+function renderSvg() {
+  const out = [];
+  for (let i = 0; i < 8; i++) {
+    const d = arcPath(R_CELL, seatAng(i), seatAng(i + 1));
+    const mark = i === g.markerLine;
+    out.push(`<path d="${d}" fill="none" stroke="${mark ? '#f3ded8' : '#efe4c6'}" stroke-width="44"/>`);
+    if (mark) out.push(`<path d="${d}" fill="none" stroke="#9c2b1e" stroke-width="44" stroke-dasharray="9 11" opacity=".3"/>`);
+  }
+  out.push(`<circle cx="${CX}" cy="${CY}" r="${R_CELL + 22}" fill="none" stroke="#c9a227" stroke-width="1.5" opacity=".75"/>`);
+  out.push(`<circle cx="${CX}" cy="${CY}" r="${R_CELL - 22}" fill="none" stroke="#c9a227" stroke-width="1.5" opacity=".75"/>`);
+  for (let i = 0; i < 8; i++) {
+    const a = seatAng(i) * D2R;
+    const [x1, y1] = [CX + (R_CELL - 22) * Math.cos(a), CY + (R_CELL - 22) * Math.sin(a)];
+    const [x2, y2] = [CX + (R_CELL + 22) * Math.cos(a), CY + (R_CELL + 22) * Math.sin(a)];
+    out.push(`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#9c7a1e" stroke-width="2.5"/>`);
+  }
+  out.push(`<circle cx="${CX}" cy="${CY}" r="368" fill="none" stroke="#d3bf90" stroke-width="1.5" stroke-dasharray="5 7"/>`);
+  out.push(`<circle cx="${CX}" cy="${CY}" r="238" fill="none" stroke="#d3bf90" stroke-width="1.5" stroke-dasharray="5 7"/>`);
+  document.getElementById('ringSvg').innerHTML = out.join('');
+}
+
+function renderLineBadges() {
+  let h = '';
+  for (let i = 0; i < 8; i++) {
+    const a = seatAng(i) + 22.5;
+    const [x, y] = pos(R_LBADGE, a);
+    h += `<div class="lbadge ${i === g.markerLine ? 'mark' : ''}" style="${at(x, y, 0)}" title="战线 ${LINE_CN[i]}：席 ${i + 1} vs 席 ${((i + 1) % 8) + 1}">${LINE_CN[i]}</div>`;
+  }
+  document.getElementById('layerLines').innerHTML = h;
+}
+
+function renderSeats() {
+  let h = '';
+  for (let s = 0; s < N_SEATS; s++) {
+    const f = FACTIONS[s];
+    const a = seatAng(s);
+    const [x, y] = pos(R_SEAT, a);
+    const isMyLine = playerLines(ME).some(li => lineSeats(li).includes(s));
+    const z = g.leaders[s];
+    h += `<div class="seat ${s === ME ? 'me' : ''}" style="${at(x, y, 0)}" title="${f.name} · ${f.title} · ${f.realm}">
+      <span class="seat-badge" style="background:${f.color}">${s + 1}</span>
+      <span class="seat-txt">
+        <div class="seat-name" ${s === ME ? 'style="color:var(--me)"' : ''}>${f.name}</div>
+        <div class="seat-sub">领袖：${suitName(z)}${isMyLine ? ' · 与你接壤' : ''}</div>
+      </span>
+      <span class="seat-score">${g.scores[s]}</span>
+    </div>`;
+  }
+  document.getElementById('layerSeats').innerHTML = h;
+}
+
+function cardChip(cd) {
+  if (cd.tactic) {
+    const t = TACTIC_BY_ID[cd.tactic];
+    const c = CAT[t.cat] ? CAT[t.cat].c : '#888';
+    return `<span class="chip" style="background:${c}" title="${t.name}">${t.name.slice(0, 1)}</span>`;
+  }
+  return `<span class="chip" style="background:${suitColor(cd.suit)}" title="${suitName(cd.suit)}${cd.rank}">${cd.rank}</span>`;
+}
+
+function renderCells() {
+  let h = '';
+  for (let li = 0; li < 8; li++) {
+    const [sA, sB] = lineSeats(li);
+    const isMy = (sA === ME || sB === ME);
+    for (let k = 0; k < 9; k++) {
+      const c = g.lines[li].cells[k];
+      const a = cellAng(li, k);
+      const [x, y] = pos(R_CELL, a);
+      const can = isMy && sel.line === li && sel.card != null && !plans[li] && E.canPlayTroop(g, ME, li, k, sel.card).ok;
+      const cls = ['cell'];
+      if (isMy) cls.push('mine');
+      if (can) cls.push('can');
+      if (c.decided) cls.push('decided');
+      if (c.sealed) cls.push('sealed');           // v1.7：夺旗后封存
+      if (li === g.markerLine) cls.push('mark');
+      const flag = c.owner != null ? `<div class="cell-flag" style="background:${FACTIONS[c.owner].color}"></div>` : '<div class="cell-flag" style="background:#e0d5b8"></div>';
+      // v1.2：虚空站位 / 模型标记——某落场计谋牌影响过此格
+      // v1.4：虚空站位「不占格位」——此格仍可照常佈军；一旦被填满，该计谋牌失效时原牌不回归。
+      const gm = [];
+      for (const e of (g.guileBoard || [])) for (const m of (e.marks || [])) {
+        if (m.line === li && m.fromCell === k) gm.push(`${TACTIC_BY_ID[e.tacticId].name}·模型${MODEL[e.tacticId] || '—'}`);
+      }
+      const markHtml = gm.length ? `<div style="position:absolute;top:-4px;left:-4px;font-size:11px;color:#b8860b;text-shadow:0 0 2px #fff;cursor:help" title="虚空站位 / 模型：${gm.join('；')}｜虚空站位不占格位：该格仍可佈军；若被填满，该计谋牌失效时原牌不回归。">✦</div>` : '';
+      const row = s => `<div class="crow"><i class="dot" style="background:${FACTIONS[s].color}"></i>${(c.sides[s] || []).map(cardChip).join('')}</div>`;
+      h += `<div class="${cls.join(' ')}" style="${at(x, y, upright(a))}" data-line="${li}" data-cell="${k}">${flag}${markHtml}${row(sA)}${row(sB)}</div>`;
+    }
+  }
+  const box = document.getElementById('layerCells');
+  box.innerHTML = h;
+  box.querySelectorAll('.cell').forEach(el => {
+    const li = +el.dataset.line, k = +el.dataset.cell;
+    el.onmouseenter = ev => showTip(ev, cellTip(li, k));
+    el.onmousemove = ev => moveTip(ev);
+    el.onmouseleave = hideTip;
+    el.onclick = () => onCellClick(li, k);
+  });
+}
+
+function renderZones() {
+  let h = '';
+  for (let zi = 0; zi < N_ZONES; zi++) {
+    const z = g.zones[zi];
+    const a = -90 + 60 * zi;                      // 从正上方开始
+    const [x, y] = pos(R_ZONE, a);
+    const mine = E.playerZoneScore(g, z, ME);
+    const pct = Math.min(100, mine / CENTER_THRESHOLD * 100);
+    // 规则 8.4：本区逐一列出 8 席的影响力（标记 ×1 + 领袖 2），并给出该区群体影响力总和
+    const allRows = [];
+    for (let s = 0; s < N_SEATS; s++) {
+      const v = E.playerZoneScore(g, z, s);
+      const base = z.influence[s] || 0;
+      const ld = g.leaders[s] === zi ? ' + 领袖2' : '';
+      allRows.push(`<span class="za ${v === 0 ? 'zero' : ''}${g.leaders[s] === zi ? ' lead' : ''}" style="color:${FACTIONS[s].color}" title="${s + 1} ${FACTIONS[s].name}：${v}（标记${base}${ld}）">${v}</span>`);
+    }
+    const zTotal = E.zoneScoreAll(g, z);
+    const leads = [];
+    for (let s = 0; s < N_SEATS; s++) if (g.leaders[s] === zi) leads.push(`<span style="color:${FACTIONS[s].color}">◆</span>`);
+    // 规则 8.5「无论战术牌在哪」：展示该区绑定牌此刻的位置
+    const bound = g.zoneTactic[zi];
+    const loc = bound ? E.locateTactic(g, bound) : { type: 'void' };
+    const bt = bound ? TACTIC_BY_ID[bound] : null;
+    const locTxt = loc.type === 'zone' ? (loc.zone === zi ? '本区待夺' : `在「${suitName(loc.zone)}」区`)
+      : loc.type === 'hand' ? (loc.seat === ME ? '在你手中' : `${FACTIONS[loc.seat].name} 手中`)
+        : loc.type === 'guile' ? '已落场（场上）'
+          : loc.type === 'cell' || loc.type === 'env' ? '已打在战场上' : '—';
+    const tacHtml = bt
+      ? `<div class="z-tac" style="border-color:${CAT[bt.cat].c};color:${CAT[bt.cat].c}" title="该区绑定的战术牌｜规则 8.5：无论它在哪，达成本区第一者即可取走">${bt.name}<span class="z-loc" style="color:var(--ink-soft)"> · ${locTxt}</span></div>`
+      : `<div class="z-tac empty">— 奖励牌空缺 —</div>`;
+    const holder = g.zoneHolder[zi];      // 规则 8.9：该区「第一」归属（持 1 分）
+    const holdHtml = holder == null
+      ? '<span class="z-hold none">第一：无主</span>'
+      : `<span class="z-hold" style="color:${FACTIONS[holder].color}">第一：${FACTIONS[holder].name}${holder === ME ? '（你）' : ''} +1</span>`;
+    h += `<div class="zone" style="${at(x, y, 0)};border-color:${z.color}" data-zone="${zi}">
+      <div class="z-head">
+        <span class="z-name" style="color:${z.color}">${z.name}</span>
+        <span class="z-score" style="color:${z.color}">${SUIT_SYMBOL[z.suit]} 我 ${mine}/${CENTER_THRESHOLD}</span>
+      </div>
+      <div class="z-latin">${SUITS[zi].latin}</div>
+      ${tacHtml}
+      ${holdHtml}
+      <div class="z-bar"><i style="width:${pct}%;background:${z.color}"></i></div>
+      <div class="z-all">${allRows.join('')}<span class="z-tot" title="本区群体影响力（全席总和）">Σ${zTotal}</span></div>
+    </div>`;
+  }
+  const box = document.getElementById('layerZones');
+  box.innerHTML = h;
+  box.querySelectorAll('.zone').forEach(el => {
+    el.onclick = () => openZone(+el.dataset.zone);
+  });
+}
+
+function renderDisc() {
+  const dir = g.revealDir > 0 ? '↻' : '↺';
+  const dl = g.revealDir > 0 ? '顺时针' : '逆时针';
+  const dom = g.dominantSuit == null
+    ? `无主导花色${domTie() ? '（并列）' : ''}`
+    : `<b style="color:${suitColor(g.dominantSuit)}">${suitName(g.dominantSuit)}</b>`;
+  document.getElementById('disc').innerHTML = `
+    <div class="dir">${dir}</div>
+    <div class="dlab">${dl}摊开</div>
+    <div class="d1">回合 <b style="font-size:16px">${g.round}</b></div>
+    <div class="d2">标记钉在 <b style="color:var(--danger)">战线${LINE_CN[g.markerLine]}</b></div>
+    <div class="d2">主导花色：${dom}</div>
+    <div class="d3">本回合由标记线起沿${dl}依次结算；平手时后结算方判负。</div>`;
+}
+
+function renderHands() {
+  const box = document.getElementById('myHands');
+  box.innerHTML = playerLines(ME).map(li => {
+    const hand = g.hands[ME][li] || [];
+    const done = !!plans[li];
+    const cards = hand.map((c, i) =>
+      `<div class="hcard ${sel.line === li && sel.card === i ? 'sel' : ''}" data-line="${li}" data-card="${i}" style="color:${suitColor(c.suit)}">
+         <span>${SUIT_SYMBOL[c.suit]}</span><span>${c.rank}</span>
+       </div>`).join('')
+      || '<span style="font-size:11px;color:#a09880">手牌为 0 → 触发领袖放置（规则 8.3）</span>';
+    return `<div class="hand-group" data-gline="${li}">
+      <div class="hand-label">战线 ${LINE_CN[li]} 手牌（${hand.length}/7）· 对手 ${FACTIONS[lineSeats(li).find(s => s !== ME)].name}${li === g.markerLine ? ' · 标记所在' : ''}${done ? ' · 已暗扣' : ''}</div>
+      <div class="hand">${cards}</div>
+      ${hand.length === 0 && !done ? `<button class="mini-btn" data-act="empty" data-line="${li}">手牌为 0 · 放置领袖</button>` : ''}
+    </div>`;
+  }).join('');
+
+  box.querySelectorAll('.hcard').forEach(el => {
+    el.onclick = () => {
+      const li = +el.dataset.line;
+      if (tacPlan) { showHint('正在为战术牌选目标：请点环上的格子，或先按计划面板里的「取消」。', true); return; }
+      if (plans[li]) { showHint(`战线 ${LINE_CN[li]} 本回合已暗扣，若要更改请先「撤销」。`, true); return; }
+      sel = { line: li, card: +el.dataset.card };
+      pending = null;
+      showHint(`已选战线 ${LINE_CN[li]} 的第 ${sel.card + 1} 张手牌 → 现在点击环上该条弧的目标战场格。`);
+      render();
+    };
+  });
+  box.querySelectorAll('[data-act="empty"]').forEach(el => {
+    el.onclick = () => { pending = { line: +el.dataset.line, emptyPick: +el.dataset.line }; showHint('手牌为 0 → 规则 8.3：可将领袖放置到任意 6 色区。'); render(); };
+  });
+  // 悬停手牌组 → 高亮环上对应弧
+  box.querySelectorAll('.hand-group').forEach(el => {
+    const li = +el.dataset.gline;
+    el.onmouseenter = () => document.querySelectorAll(`.cell[data-line="${li}"]`).forEach(c => c.classList.add('hl'));
+    el.onmouseleave = () => document.querySelectorAll(`.cell[data-line="${li}"]`).forEach(c => c.classList.remove('hl'));
+  });
+}
+
+function renderPlan() {
+  const box = document.getElementById('plan');
+  let html = '<div class="plan-box"><h3>本回合暗扣计划（两条战线各 1 张，全桌同时揭示）</h3>';
+  for (const li of playerLines(ME)) {
+    const p = plans[li];
+    if (!p) { html += `<div class="plan-row"><span class="tag">战线 ${LINE_CN[li]}</span><span class="todo">待暗扣</span></div>`; continue; }
+    if (p.kind === 'empty') {
+      html += `<div class="plan-row"><span class="tag">战线 ${LINE_CN[li]}</span>
+        <span class="done">手牌为 0 · 领袖置于「${suitName(p.leaderZone)}」</span>
+        <button class="mini-btn" data-act="undo" data-line="${li}">撤销</button></div>`; continue;
+    }
+    if (p.kind === 'tactic') {
+      html += `<div class="plan-row"><span class="tag">战线 ${LINE_CN[li]}</span>
+        <span class="done">用战术牌「${TACTIC_BY_ID[p.tacticId].name}」替代暗扣 · 不补牌</span>
+        <button class="mini-btn" data-act="undo" data-line="${li}">撤销</button></div>`; continue;
+    }
+    const card = p.__card;
+    const cTxt = card ? `<span style="color:${suitColor(card.suit)}">${SUIT_SYMBOL[card.suit]}${card.rank}</span>` : '牌';
+    html += `<div class="plan-row"><span class="tag">战线 ${LINE_CN[li]}</span>
+      <span class="done">第 ${p.cell + 1} 格 暗扣 ${cTxt} · 摊开后再选中心行动（8.2）</span>
+      <button class="mini-btn" data-act="undo" data-line="${li}">撤销</button></div>`;
+  }
+  html += `<div class="plan-row" style="opacity:.75;font-size:10px">中心行动现在改在「摊开」时进行 —— 你会先看到对手亮出的牌，再决定加影响力还是移动领袖（规则 6.2）。</div>`;
+  if (pending && pending.emptyPick != null) {
+    html += `<div class="plan-row"><span class="tag">领袖放置</span><span>可放任意 6 色区：</span></div><div class="plan-zones">`;
+    for (let z = 0; z < N_ZONES; z++) html += `<button class="mini-btn ${g.leaders[ME] === z ? 'sel' : ''}" data-act="pick-empty" data-zone="${z}">${suitName(z)}</button>`;
+    html += `</div>`;
+  }
+  if (tacPlan) {
+    html += `<div class="plan-row"><span class="tag">战术牌</span><span class="todo">${tacPrompt()}</span>
+      <button class="mini-btn" data-act="cancel-tac">取消</button></div>`;
+  }
+  html += '</div>';
+  box.innerHTML = html;
+  box.querySelectorAll('[data-act]').forEach(el => {
+    const act = el.dataset.act, li = +el.dataset.line;
+    el.onclick = () => {
+      if (act === 'undo') { delete plans[li]; pending = null; sel = { line: null, card: null }; render(); }
+      else if (act === 'cancel-tac') cancelTacPlan();
+      else if (act === 'pick-empty') {
+        plans[pending.emptyPick] = { kind: 'empty', line: pending.emptyPick, leaderZone: +el.dataset.zone };
+        pending = null; render();
+      }
+    };
+  });
+}
+
+function renderScores() {
+  document.getElementById('scores').innerHTML = FACTIONS
+    .map(f => `<div class="score-item ${f.seat === ME ? 'me' : ''}"><span>${f.seat + 1} ${f.name.slice(0, 3)}</span><span class="sc">${g.scores[f.seat]}</span><span title="旗子数（累计夺旗＋中央区）" style="margin-left:6px;font-size:11px;color:var(--ink-soft)">旗 ${E.flagTotal(g, f.seat)}</span></div>`).join('');
+}
+function renderTacs() {
+  const box = document.getElementById('myTacs');
+  box.innerHTML = g.playerTactics[ME].length
+    ? g.playerTactics[ME].map(id => {
+      // v1.2：取消「每区限一次」；改为提示「无消耗立即打出」额度
+      const free = E.hasFreePlay ? E.hasFreePlay(g, ME, id) : false;
+      return `<span class="tac" style="cursor:pointer${free ? ';border-color:#c8102e' : ''}" data-tac="${id}"
+        title="${free ? '可获得「无消耗立即打出」：零行动消耗立即打出' : '点击查看 / 打出'}">${TACTIC_BY_ID[id].name}${free ? '·可免费打出' : ''}</span>`;
+    }).join('')
+    : '<span style="font-size:10px;color:#a09880">暂无</span>';
+  box.querySelectorAll('[data-tac]').forEach(el => el.onclick = () => openTactic(el.dataset.tac));
+}
+function renderGuileBoard() {
+  const box = document.getElementById('guileBoard');
+  const list = g.guileBoard || [];
+  box.innerHTML = list.length
+    ? list.map((e, i) => {
+      const t = TACTIC_BY_ID[e.tacticId];
+      const zn = e.home != null ? suitName(e.home) : '—';
+      return `<span class="tac" style="cursor:pointer;border-color:${CAT[t.cat].c}" data-gb="${i}"
+        title="落场计谋牌｜持有 ${FACTIONS[e.seat].name}｜绑定中央区「${zn}」｜模型：${MODEL[e.tacticId] || '—'}">${t.name}<span style="opacity:.55"> · ${FACTIONS[e.seat].name}@${zn}</span></span>`;
+    }).join('')
+    : '<span style="font-size:10px;color:#a09880">暂无</span>';
+  box.querySelectorAll('[data-gb]').forEach(el => el.onclick = () => openGuileBoard(+el.dataset.gb));
+}
+function openGuileBoard(i) {
+  const e = (g.guileBoard || [])[i];
+  if (!e) return;
+  const zn = e.home != null ? suitName(e.home) : '—';
+  const marks = (e.marks || []).map(m => {
+    const pos = `战线${LINE_CN[m.line]} 第${m.fromCell + 1}格`;
+    if (m.kind === 'cover') return `<div class="kv"><span>模型压住</span><b>${pos} 侧暂扣的牌（模型：${MODEL[e.tacticId] || '—'}）</b></div>`;
+    const to = m.toCell == null ? '己方弃置区' : `战线${LINE_CN[m.line]} 第${m.toCell + 1}格`;
+    return `<div class="kv"><span>虚空站位 / 模型</span><b>原位于 ${pos} → 现移到 ${to}</b></div>`;
+  }).join('') || '<div class="kv"><span>影响</span><b>—</b></div>';
+  openModal(`<h3>落场计谋牌</h3>
+    ${tacticCardHtml(e.tacticId)}
+    <div class="kv"><span>持有者</span><b>席 ${e.seat + 1} ${FACTIONS[e.seat].name}${e.seat === ME ? '（你）' : ''}</b></div>
+    <div class="kv"><span>模型</span><b>${MODEL[e.tacticId] || '—'}</b></div>
+    <div class="kv"><span>绑定中央区</span><b>${zn}</b></div>
+    ${marks}
+    <div class="note">规则 11.5：回合末中心结算时，若「${zn}」区的<strong>唯一第一</strong>（影响力 ≥6 且无并列）被对手<strong>超越</strong>，本牌被对手直接夺取，效果按模型与牌位<strong>回滚</strong>（已夺旗格不受影响）。被追平则不结算、牌留在场上。</div>`);
+}
+function renderZoneGrid() {
+  const box = document.getElementById('zoneGrid');
+  box.innerHTML = g.zones.map(z => {
+    const t = z.tactics ? TACTIC_BY_ID[z.tactics] : null;
+    const mine = E.playerZoneScore(g, z, ME);
+    const holder = g.zoneHolder[z.idx];
+    return `<div class="zmini" style="border-color:${z.color}" data-zone="${z.idx}">
+      <div class="zn" style="color:${z.color}">${SUIT_SYMBOL[z.suit]} ${z.name}</div>
+      <div class="zt ${t ? '' : 'none'}">${t ? t.name : '空缺'}</div>
+      <div class="zt">我 ${mine}/${CENTER_THRESHOLD} · 第一 ${holder == null ? '无主' : FACTIONS[holder].name} · Σ${E.zoneScoreAll(g, z)}</div>
+    </div>`;
+  }).join('');
+  box.querySelectorAll('.zmini').forEach(el => el.onclick = () => openZone(+el.dataset.zone));
+}
+function renderCodex() {
+  const box = document.getElementById('codex');
+  box.innerHTML = TACTICS.map(t => `<span class="tac" style="cursor:pointer;border-color:${CAT[t.cat].c}" data-tac="${t.id}">${t.name}</span>`).join('');
+  box.querySelectorAll('[data-tac]').forEach(el => el.onclick = () => openTactic(el.dataset.tac));
+}
+
+// ─────────── 悬停提示 ───────────
+const tipEl = document.getElementById('tip');
+function showTip(ev, html) { tipEl.innerHTML = html; tipEl.style.display = 'block'; moveTip(ev); }
+function moveTip(ev) {
+  const w = tipEl.offsetWidth, h = tipEl.offsetHeight;
+  let x = ev.clientX + 14, y = ev.clientY + 14;
+  if (x + w > innerWidth - 8) x = ev.clientX - w - 14;
+  if (y + h > innerHeight - 8) y = ev.clientY - h - 14;
+  tipEl.style.left = x + 'px'; tipEl.style.top = y + 'px';
+}
+function hideTip() { tipEl.style.display = 'none'; }
+
+function cardsText(cards) {
+  return cards.map(c => c.tactic ? `[${TACTIC_BY_ID[c.tactic].name}]` : `${SUIT_SYMBOL[c.suit]}${c.rank}`).join(' ') || '—';
+}
+// 单张牌的彩色 HTML（用于春汛弃牌弹窗 / 战报）
+function cardHtml(c) {
+  if (!c) return '—';
+  if (c.tactic) {
+    const t = TACTIC_BY_ID[c.tactic];
+    return `<span style="color:${CAT[t.cat] ? CAT[t.cat].c : '#888'}">[${t.name}]</span>`;
+  }
+  return `<span style="color:${suitColor(c.suit)}">${SUIT_SYMBOL[c.suit]}${c.rank}</span>`;
+}
+function cellTip(li, k) {
+  const [sA, sB] = lineSeats(li);
+  const c = g.lines[li].cells[k];
+  const fh = firstHand(li, g.revealDir);
+  const envTxt = Object.values(c.env || {}).map(id => TACTIC_BY_ID[id].name).join('、');
+  const mine = (c.sides[ME] || []);
+  return `<b>战线${LINE_CN[li]} · 第 ${k + 1} 战场</b>（席 ${sA + 1} vs 席 ${sB + 1}）<br>
+    旗幟归属：${c.owner != null ? FACTIONS[c.owner].name : '无'}<br>
+    <span style="color:${FACTIONS[sA].color}">■</span> ${FACTIONS[sA].name}：${cardsText(c.sides[sA] || [])}<br>
+    <span style="color:${FACTIONS[sB].color}">■</span> ${FACTIONS[sB].name}：${cardsText(c.sides[sB] || [])}<br>
+    先手：${FACTIONS[fh].name}${fh === ME ? '（你）' : ''}${c.decided ? ' · 本轮已决' : ''}
+    ${envTxt ? `<br>环境：${envTxt}` : ''}
+    ${mine.length >= 3 ? `<br>你的阵型：${FORM_NAME[bestFormation(mine, g.dominantSuit).level]}` : (mine.length ? `<br>你的阵型：未成阵（${mine.length}/${E.cellCapacity(c)}）` : '')}
+    <br><span style="opacity:.7">点击查看完整战场信息</span>`;
+}
+
+// ─────────── 交互 ───────────
+function onCellClick(li, k) {
+  const [sA, sB] = lineSeats(li);
+  const isMy = (sA === ME || sB === ME);
+  if (tacPlan) { tacCellClick(li, k); return; }   // 正在为战术牌选目标
+  if (isMy && sel.line === li && sel.card != null && !plans[li]) {
+    const chk = E.canPlayTroop(g, ME, li, k, sel.card);
+    if (!chk.ok) { showHint(chk.why, true); return; }
+    const card = g.hands[ME][li][sel.card];
+    plans[li] = { kind: 'troop', line: li, cell: k, handIdx: sel.card, __card: { ...card }, __suit: card.suit };
+    pending = { line: li, suit: card.suit };
+    sel = { line: null, card: null };
+    showHint(`战线 ${LINE_CN[li]} 第 ${k + 1} 格已暗扣。摊开时你会先看到对手的牌，届时再选中心行动。`);
+    render();
+    return;
+  }
+  openCell(li, k);
+}
+
+// ─────────── 弹窗：中央区 / 战术牌 / 战场 ───────────
+const modal = document.getElementById('modal'), mbox = document.getElementById('mbox');
+let modalLock = false;
+function openModal(html, opts) {
+  const o = opts || {};
+  modalLock = !!o.lock;
+  mbox.innerHTML = html + (modalLock ? '' : '<button class="close" id="mClose">关闭</button>');
+  mbox.classList.toggle('wide', !!o.wide);
+  mbox.style.maxWidth = o.maxW || '';
+  modal.classList.remove('hidden');
+  modal.querySelector('.mbox').scrollTop = 0;
+  const b = document.getElementById('mClose');
+  if (b) b.onclick = closeModal;
+}
+function closeModal() { if (modalLock) return; modal.classList.add('hidden'); }
+modal.onclick = ev => { if (ev.target === modal) closeModal(); };
+window.addEventListener('keydown', ev => { if (ev.key === 'Escape') closeModal(); });
+
+// ─────────── 内嵌规则书（精简但完备 · 与 rules.html 客户版一致）───────────
+const RULES_HTML = `
+<div class="rules">
+  <h3>三世纪：罗马的黄昏 · 规则速览</h3>
+  <p class="rlead">8 席围环，每人镇守左右 2 条战线；<b>同时暗扣 → 逐线摊开结算 → 争夺中央 6 势力区</b>。整局结束比总分，最高者胜。本页为精简完备版，完整客户版见 <b>规则书 PDF</b>。</p>
+
+  <h4>1 · 目标与计分</h4>
+  <ul>
+    <li>不设即胜；终局后比<b>总分</b>，最高者胜；同分比<b>旗子总数</b>，仍同比<b>当前持有的中央区数</b>，再同则平局。</li>
+    <li><b>夺旗</b>（压过对手一面旗）：夺旗者 <b>+1</b>、原占据者 <b>−1</b>（严格零和，全局总分恒为 0）。每面旗始终有归属，开局即已分好。</li>
+    <li><b>中央区第一</b>（影响力 ≥6 且唯一第一）：首次 <b>+1</b>；易主则新区主 +1 / 旧区主 −1；已持有不重复计分。</li>
+    <li><b>终局</b>：任一玩家的<b>旗子数</b>（累计夺旗 ＋ 当前持有中央区，每区算 1 面）达 <b>12</b>；或<b>棋盘封满</b>（所有格位都已封存、无处可再佈军）；或所有战线牌堆第二次洗回后再次用尽；或全体同意。夺旗后该格<b>封存</b>（牌留原位、不可再用），故每面旗至多易主一次、棋盘会逐渐填满。</li>
+  </ul>
+
+  <h4>2 · 配件</h4>
+  <ul>
+    <li>部队牌：6 色 × 数字 1–10 = 60 张/线；8 条战线各自独立牌堆（共 480 张，卡背区分、互不流通）。</li>
+    <li>每条战线 9 面旗、各一个弃牌堆；<b>每人每条战线各持 7 张手牌</b>（共 14 张，两线不通用）。</li>
+    <li>中心区域板：6 个势力区（对应 6 花色），开局各放 1 张随机战术牌。</li>
+    <li>领袖模型每人 1；影响力标记无限；方向指示器 1 枚；起始战场标记 1 枚。</li>
+  </ul>
+
+  <h4>3 · 一个回合</h4>
+  <ol>
+    <li><b>同时暗扣</b>：各人在自己 2 条战线各扣 1 张（选线 → 选格 → 扣牌），全桌同时完成。</li>
+    <li><b>按标记顺序摊开</b>：从起始标记所在战线起，沿方向指示器方向逐线亮牌结算。</li>
+    <li><b>中心结算</b>：影响力 → 主导花色 → 夺战术牌（8.5）→ 中央区计分（8.9）。</li>
+    <li><b>标记逆时针迁移 1 条</b>；方向指示器翻面（两人先手次序随每回合轮换）。</li>
+    <li><b>检查终局</b>；未达成则回到第 1 步。</li>
+  </ol>
+
+  <h4>4 · 暗扣与补牌</h4>
+  <ul>
+    <li>暗扣 = 选战线（你 2 条任选）→ 选一个未决出的格 → 从<u>该线</u>手牌扣 1 张（正面朝下）。</li>
+    <li>结算后打牌方从该线牌堆补 1 张；牌堆空则把弃牌堆洗回。手牌上限 7 张/线。</li>
+    <li>该线手牌为 0 → 触发<b>领袖放置</b>（放到任意 6 色区），不消耗行动，另一线照常暗扣。</li>
+    <li><b>战术牌可替代暗扣</b>，打出后不补牌（见 §8）。</li>
+  </ul>
+
+  <h4>5 · 阵型比较（三级优先度）</h4>
+  <ol>
+    <li><b>牌型等级</b>：同花顺 &gt; 方阵(三条) &gt; 同花 &gt; 顺子 &gt; 杂军。</li>
+    <li><b>主导花色张数</b>：同为某牌型时，三张中含本回合主导花色越多者胜。</li>
+    <li><b>点数和</b>：前两级皆平时比三张点数之和。</li>
+  </ol>
+  <p class="rnote">完全相同 → <b>后结算方判负</b>（先手每回合轮换，长期公平）。</p>
+
+  <h4>6 · 夺旗</h4>
+  <ul>
+    <li>某格放满 3 张且已能确定强于对手 → 宣告夺旗：夺旗者 +1、原主 −1；该格<b>封存</b>（牌留原位、不可再佈军、战术牌不可再影响）、旗帜转归夺旗者。</li>
+    <li>已夺旗的格本轮<b>锁定</b>，不受后续主导花色变化影响（「兵贵神速」）。</li>
+    <li>对手仍可能补强时不可宣告：系统会检查对手剩余可用牌（手牌 + 牌堆 + 弃牌堆中的部队/士气牌）能否凑出<b>不弱于你</b>的阵型；已不可能则立即判你夺旗。牌型与点数和全同 → 后结算方判负。</li>
+    <li>评估范围仅限<b>常规手段</b>（部队牌 + 士气牌）；<b>环境牌与计谋牌不计入</b>——故判定是「常规手段下不可推翻」。战报会标注每次夺旗的依据（主导花色光环锁死 / 对手可用牌不足 / 对手已无法凑出更强阵型）。</li>
+    <li><b>主导花色光环</b>：比较次序为「等级 → 主导花色张数 → 点数和」。若你已达<b>最高等级</b>且三张<b>全为主导花色</b>（主导张数 3），而对手格上有<b>一张异色牌</b>，则他主导张数永远 ≤2、永远追不上你 → <b>不可推翻</b>，立即判你夺旗。</li>
+  </ul>
+
+  <h4>7 · 中央区域与影响力</h4>
+  <ul>
+    <li><b>中心行动</b>（某张牌结算时二选一）：① 在该牌颜色区放 1 标记；② 移动领袖——领袖已在该色区则可移到任意其他区，否则只能移入该色区。</li>
+    <li><b>影响力</b> = 该区标记数 ×1 + 领袖若在此 ×2。</li>
+    <li><b>夺战术牌（8.5）</b>：某区影响力 ≥6 且唯一第一 → 夺得该区<b>绑定的那张</b>战术牌，<b>无论它在哪</b>（待夺位 / 他手中 / 已打在战场上）都归其手牌。</li>
+    <li><b>中央区计分（8.9）</b>：同条件即取得该区 <b>1 分</b>（首次 +1 / 易主 ±1 / 已持有不重复）；可反复易主。</li>
+    <li><b>主导花色</b> = 回合末总影响力最高的颜色；<b>两区及以上并列最高 → 本回合无主导花色</b>（比较时跳过第 2 级）。</li>
+  </ul>
+
+  <h4>8 · 战术牌（10 张 · 三类）</h4>
+  <ul>
+    <li><b>士气（4）</b>：打入阵型，同部队牌参与比较。领袖×2 = 万能牌（结算时定色定点）；御林铁骑 = 任一花色的 8；戍边军团 = 任一花色且 ≤3。同一条战线己方只能有 1 张领袖。</li>
+    <li><b>环境（2）</b>：贴在某未夺旗幟己方一侧，持续改变该格比较方式——<b>西普里安瘟疫</b>（忽略牌型，只比点数和）、<b>多瑙河春汛</b>（改为四张成阵）。夺旗后失效。</li>
+    <li><b>计谋（4）</b>：哥特游骑 / 莱茵换防 / 军团哗变 / 附庸倒戈，见 §9。</li>
+    <li><b>数量限制（每战线独立）</b>：你已在该线打出的战术牌不得多于对手 +1；多出则须等对手先打一张。</li>
+    <li>战术牌<b>不占手牌位</b>；<b>无消耗立即打出</b>——经 8.5 / 11.5 在<strong>回合末中心结算、归属确定后</strong>，可零消耗立刻打出（仍属本回合末，不占用下回合暗扣行动）；<b>若当回合未立即打出，免费额度作废，牌仍留手中，之后按 11.3 正常打出。</b></li>
+  </ul>
+
+  <h4>9 · 计谋牌：落场 · 夺取 · 回滚（v1.2）</h4>
+  <ul>
+    <li><b>哥特游骑</b>（模型：哥特骑兵）：抽本线 3 张置于手牌末尾，其中 2 张被「模型压住」（隔离保存，被夺取时拿回）；本回合不补牌。</li>
+    <li><b>莱茵换防</b>（换防旗手）：把己方某未夺旗旁一张牌移到己方另一<b>空位</b>，或弃掉；原牌位留「虚空站位」。</li>
+    <li><b>军团哗变</b>（哗变军士）：把对手某未夺旗旁一张牌移出并弃掉。</li>
+    <li><b>附庸倒戈</b>（倒戈辅军）：取对手某未夺旗旁一张<b>部队牌</b>（不含战术牌）放到己方空位。</li>
+    <li><b>落场</b>：打出后绑定其来源中央区留在场上（不回收到来源区），受影响牌位留「模型 + 虚空站位」标记。</li>
+    <li><b>虚空站位不占格位（v1.4）</b>：原牌位只是「虚空」——该格<b>照常可以继续佈军</b>（对手 / 你都可以往里打）。</li>
+    <li><b>夺取</b>：回合末该区<b>唯一第一</b>（≥6 且无并列）<b>不是其持有者</b> → 被新第一夺取，牌进入其手中。</li>
+    <li><b>回滚 / 不回归（v1.4）</b>：被夺取时按「模型 + 牌位」把效果恢复原样；<b>已夺旗的格不受影响</b>。若原格位<b>已被占满</b>（虚空站位被占）→ 该牌<b>不回归</b>：哗变 / 换防弃掉的牌就此进本线弃牌堆，换防移动 / 倒戈的牌留在被移去的位置。</li>
+    <li><b>追平不结算</b>：该区无唯一第一（并列 / 未达门槛）→ 牌留在场上、效果保留，<b>不退回中央</b>。</li>
+    <li><b>春汛离场</b>：<b>多瑙河春汛</b>被 8.5 夺走时该格容量由 4 落回 3；若某侧有 4 张，<b>由该侧牌主自行选择弃掉 1 张</b>（部队牌入弃牌堆 / 战术牌回来源区）。</li>
+    <li><b>「空位」</b>= 该格己方一侧一张牌都没有。<b>落空</b>：目标在结算时已被同回合动作改变 → 不计效果、战术牌保留不消耗。</li>
+  </ul>
+
+  <h4>10 · 本作专有</h4>
+  <ul>
+    <li>8 条战线闭环，每人恰好镇守左右 2 条（无空档、无单线玩家）；两线得分合并计入同一总分，无特权补偿。</li>
+    <li>开局：每人自选领袖起始区（<b>不触发</b>夺牌判定）；起始标记钉在战线 ①，每回合逆时针迁移。</li>
+    <li>战术牌离场回流：放回其来源中央区循环争夺（<b>计谋牌例外</b>：落场绑定，仅被夺取时回滚）。</li>
+  </ul>
+</div>`;
+const btnRules = document.getElementById('btnRules');
+if (btnRules) btnRules.onclick = () => openModal(RULES_HTML, { maxW: '780px' });
+
+function tacticCardHtml(id) {
+  const t = TACTIC_BY_ID[id];
+  const cat = CAT[t.cat];
+  return `<div class="tcard" style="border-color:${cat.c}">
+    <span class="tcat" style="background:${cat.c}">${cat.n}</span>
+    <div class="tname">${t.name}</div>
+    <div class="tdesc">${t.desc}</div>
+  </div>`;
+}
+function openZone(zi) {
+  const z = g.zones[zi];
+  const rows = FACTIONS.map(f => {
+    const v = E.playerZoneScore(g, z, f.seat);
+    const base = z.influence[f.seat] || 0;
+    const ld = g.leaders[f.seat] === zi ? ' + 领袖2' : '';
+    return `<div class="kv"><span style="color:${f.color}">${f.seat === ME ? '▶ ' : ''}${f.seat + 1} ${f.name}</span><b>${v}（标记${base}${ld}）</b></div>`;
+  }).join('');
+  const mine = E.playerZoneScore(g, z, ME);
+  const hold = [];
+  for (let s = 0; s < N_SEATS; s++) if (g.leaders[s] === zi) hold.push(FACTIONS[s].name);
+  openModal(`<h3 style="color:${z.color}">${z.name} · ${SUITS[zi].latin} ${SUIT_SYMBOL[z.suit]}</h3>
+    ${g.zoneTactic[zi] ? tacticCardHtml(g.zoneTactic[zi]) : `<div class="tcard" style="border-color:#b8a882"><div class="tname">该区无绑定奖励牌</div><div class="tdesc">按规则 11.4，战术牌离场后会回流到其来源区，继续供争夺。</div></div>`}
+    <div class="kv"><span>你的影响力</span><b style="color:${z.color}">${mine} / ${CENTER_THRESHOLD}</b></div>
+    <div class="kv"><span>本区影响力总和</span><b>${E.zoneScoreAll(g, z)}</b></div>
+    <div class="kv"><span>驻此区的领袖</span><b>${hold.length ? hold.join('、') : '无'}</b></div>
+    <div class="kv"><span>本区「第一」归属（规则 8.9）</span><b>${g.zoneHolder[zi] == null ? '无主（首次夺取者 +1）' : FACTIONS[g.zoneHolder[zi]].name + '（+1）'}</b></div>
+    <div class="kv"><span>本区绑定牌当前所在（规则 8.5）</span><b>${(() => {
+      const bound = g.zoneTactic[zi];
+      if (!bound) return '—';
+      const loc = E.locateTactic(g, bound);
+      if (loc.type === 'zone') return loc.zone === zi ? `本区待夺：「${TACTIC_BY_ID[bound].name}」` : `在「${suitName(loc.zone)}」区待夺`;
+      if (loc.type === 'hand') return `${FACTIONS[loc.seat].name} 手中`;
+      if (loc.type === 'guile') return '已落场 · 绑定本区（持久 · 被超越时夺取并回滚，规则 11.5）';
+      if (loc.type === 'cell' || loc.type === 'env') return '已作为战术牌打在战场上（落场 · 可被夺取）';
+      return '未知（异常）';
+    })()}</b></div>
+    <div class="kv"><span>本区牌的使用限制</span><b>v1.2：不限次数，可反复夺得 / 打出</b></div>
+    <div style="margin-top:8px">${rows}</div>
+    <div class="note">规则 8.5：某区影响力达 ${CENTER_THRESHOLD} 且为全场<strong>唯一第一</strong>者，在<strong>回合末中心结算</strong>（所有玩家本回合操作均已结束后）夺得该区奖励牌；<br>规则 8.9：同为第一者取得该区 <b>1 分</b>；该区易主时新区主 +1、旧区主 −1（严格零和）；<br>规则 8.7：各区总影响力最高者成为主导花色，<b>并列则本回合无主导花色</b>（当前：${g.dominantSuit == null ? (domTie() ? '无主导（并列）' : '尚未产生') : suitName(g.dominantSuit)}）。</div>`);
+}
+function openTactic(id) {
+  const t = TACTIC_BY_ID[id];
+  const home = g.tacticHome[id];
+  const holder = g.playerTactics.findIndex(list => list.includes(id));
+  openModal(`<h3>战术牌详情</h3>
+    ${tacticCardHtml(id)}
+    <div class="kv"><span>类别</span><b style="color:${CAT[t.cat].c}">${CAT[t.cat].n}</b></div>
+    <div class="kv"><span>当前所在</span><b>${(() => {
+      const loc = E.locateTactic(g, id);
+      if (loc.type === 'zone') return `中央「${SUITS[loc.zone].name}」区待夺`;
+      if (loc.type === 'hand') return `席 ${loc.seat + 1} ${FACTIONS[loc.seat].name} 手中`;
+      if (loc.type === 'guile') return '已落场（绑定其来源中央区 · 被超越时夺取）';
+      if (loc.type === 'cell' || loc.type === 'env') return '已打在战场上';
+      return '未知';
+    })()}</b></div>
+    <div class="kv"><span>来源区（11.4 回流）</span><b>${home != null ? SUITS[home].name : '—'}</b></div>
+    <div class="note">士气牌参与阵型比较；环境牌改变该战场比较方式；计谋牌打出后<strong>落场</strong>（绑定来源中央区，被对手超越时夺取并回滚其效果，见 11.5）。</div>
+    ${holder === ME ? `<div style="margin-top:10px;font-size:12px">你持有此牌，可在本回合用它<b>替代某条战线的暗扣</b>打出（规则 11.3，打出后不补牌）：</div>
+      <div class="plan-zones" style="margin-top:6px"><button class="mini-btn" data-playtac="${id}">▶ 打出这张战术牌</button></div>` : ''}`);
+  const b = mbox.querySelector('[data-playtac]');
+  if (b) b.onclick = () => startTactic(id);
+}
+
+// ─────────── 打出战术牌（规则 11.3：替代该战线暗扣，打出后不补牌）───────────
+// 交互：点自己持有的战术牌 → 选战线 → 按牌类点选目标格（计谋牌的目标在结算时校验）。
+function usableLines(id) {
+  const t = TACTIC_BY_ID[id];
+  const out = [];
+  for (const li of playerLines(ME)) {
+    if (plans[li]) continue;
+    if (t.cat === 'guile') {
+      if (E.canPlayTactic(g, ME, li, id, undefined).ok) out.push(li);
+    } else {
+      const cells = g.lines[li].cells;
+      for (let k = 0; k < cells.length; k++) {
+        if (E.canPlayTactic(g, ME, li, id, k).ok) { out.push(li); break; }
+      }
+    }
+  }
+  return out;
+}
+function startTactic(id) {
+  const t = TACTIC_BY_ID[id];
+  if (!t) return;
+  if (g.over) { showHint('对局已结束。', true); return; }
+  const valid = usableLines(id);
+  if (!valid.length) {
+    showHint(`「${t.name}」现在打不出：两条战线本回合都已行动，或已达战术牌数量上限（规则 11.3.2）。`, true);
+    return;
+  }
+  if (valid.length === 1) { enterTacticLine(id, valid[0]); return; }
+  openModal(`<h3>打出「${t.name}」</h3>
+    ${tacticCardHtml(id)}
+    <div style="margin-top:8px;font-size:12px">在哪个战线打出？（替代该战线的暗扣，且不补牌）</div>
+    <div class="plan-zones" style="margin-top:6px">
+      ${valid.map(li => `<button class="mini-btn" data-tline="${li}">战线 ${LINE_CN[li]}（对手 ${FACTIONS[lineSeats(li).find(s => s !== ME)].name}）</button>`).join('')}
+    </div>`);
+  mbox.querySelectorAll('[data-tline]').forEach(el => {
+    el.onclick = () => enterTacticLine(id, +el.dataset.tline);
+  });
+}
+function enterTacticLine(id, li) {
+  const t = TACTIC_BY_ID[id];
+  closeModal();
+  sel = { line: null, card: null };
+  if (id === 'scout') { commitTactic(li, { kind: 'tactic', line: li, tacticId: id, returnIdxs: null }); return; }
+  tacPlan = { id, line: li, stage: t.cat === 'guile' && id === 'shift' ? 'from' : 'cell' };
+  showHint(tacPrompt());
+  render();
+}
+function tacPrompt() {
+  const { id, line, stage } = tacPlan;
+  if (stage === 'from') return '先点你自己有牌的一格（来源），再点你方一个空位放下；若直接点该来源格本身 = 弃掉这张牌。';
+  if (stage === 'to') return '已选来源格。再点你方一个空位放下；或再点来源格本身 = 弃掉该牌。';
+  if (id === 'mutiny') return '点选对手一格：弃掉该格对手的一张牌。';
+  if (id === 'defect') return '点选对手一格：取其一张部队牌，自动放到你该战线的空位。';
+  return `点选战线 ${LINE_CN[line]} 上要放置「${TACTIC_BY_ID[id].name}」的战场格。`;
+}
+function firstEmptyCell(li) {
+  const cells = g.lines[li].cells;
+  for (let k = 0; k < cells.length; k++) if (!cells[k].decided && !(cells[k].sides[ME] || []).length) return k;
+  return -1;
+}
+function tacCellClick(li, k) {
+  const { id, line, stage } = tacPlan;
+  if (li !== line) { showHint(`这张战术牌要打在战线 ${LINE_CN[line]} 上，请点该条弧的格子（或按「取消」）。`, true); return; }
+  const t = TACTIC_BY_ID[id];
+  const [sA, sB] = lineSeats(line);
+  const opp = sA === ME ? sB : sA;
+  const cell = g.lines[line].cells[k];
+  if (stage === 'cell') {
+    if (t.cat === 'guile') {
+      if (cell.sealed) { showHint('该格已封存，计谋牌无法再影响（规则 9.4）。', true); return; }
+      if (cell.decided) { showHint('该格本回合已决出，计谋牌无法影响（规则 11.2）。', true); return; }
+      const cards = cell.sides[opp] || [];
+      if (id === 'mutiny' || id === 'defect') {
+        // 规则：可任选该格对手的「一张」牌 → 有多张时让玩家自己挑，而不是默认第一张
+        const pickable = cards.map((c, i) => ({ c, i })).filter(x => id === 'mutiny' ? true : !x.c.tactic);
+        if (!pickable.length) {
+          showHint(id === 'defect' ? '该格对手没有可夺取的部队牌（战术牌不可被附庸倒戈拿走）。' : '该格对手没有牌，换一格试试。', true);
+          return;
+        }
+        const finish = ci => {
+          if (id === 'mutiny') {
+            commitTactic(line, { kind: 'tactic', line, tacticId: id, targetCell: k, cardIdx: ci });
+            return;
+          }
+          const to = firstEmptyCell(line);
+          if (to < 0) { showHint('你方该战线没有空位可以安置。', true); return; }
+          commitTactic(line, { kind: 'tactic', line, tacticId: id, targetCell: k, cardIdx: ci, toCell: to });
+        };
+        if (pickable.length === 1) { finish(pickable[0].i); return; }
+        openModal(`<h3>选择要${id === 'mutiny' ? '弃掉' : '夺取'}的那张牌</h3>
+          <div class="kv"><span>战线 ${LINE_CN[line]} 第 ${k + 1} 格</span><b>${FACTIONS[opp].name} 共 ${pickable.length} 张</b></div>
+          <div class="plan-zones" style="margin-top:8px">
+            ${pickable.map(x => `<button class="mini-btn" data-pick="${x.i}">${SUIT_SYMBOL[x.c.suit]}${x.c.rank}（该格第 ${x.i + 1} 张）</button>`).join('')}
+          </div>
+          <div class="note">规则 11.2：${id === 'mutiny' ? '军团哗变可弃掉对手任意一张牌' : '附庸倒戈只能取对手的部队牌'}。</div>`);
+        mbox.querySelectorAll('[data-pick]').forEach(el => {
+          el.onclick = () => { closeModal(); finish(+el.dataset.pick); };
+        });
+        return;
+      }
+    }
+    const chk = E.canPlayTactic(g, ME, line, id, k);
+    if (!chk.ok) { showHint(chk.why, true); return; }
+    commitTactic(line, { kind: 'tactic', line, tacticId: id, cell: k });
+    return;
+  }
+  // 莱茵换防：来源格 →（空位 | 弃掉）
+  if (stage === 'from') {
+    const cards = cell.sides[ME] || [];
+    if (cell.decided || !cards.length) { showHint('请点你自己有牌、且本回合未决出的一格作为来源。', true); return; }
+    tacPlan = { id, line, stage: 'to', fromCell: k, cardIdx: 0 };
+    showHint(tacPrompt());
+    render();
+    return;
+  }
+  if (k === tacPlan.fromCell) {
+    commitTactic(line, { kind: 'tactic', line, tacticId: id, fromCell: k, cardIdx: tacPlan.cardIdx });
+    return;
+  }
+  if ((cell.sides[ME] || []).length > 0) { showHint('规则 11.2：只能移到己方一个「空位」（该格你方一侧不得有牌）。', true); return; }
+  commitTactic(line, { kind: 'tactic', line, tacticId: id, fromCell: tacPlan.fromCell, cardIdx: tacPlan.cardIdx, toCell: k });
+}
+function commitTactic(li, action) {
+  const chk = E.canPlayTactic(g, ME, li, action.tacticId, action.cell);
+  if (!chk.ok) { showHint(chk.why, true); tacPlan = null; render(); return; }
+  if (freeMode) {
+    // v1.7：无消耗立即打出 —— 直接生效，不占用行动计划
+    const r = E.useFreePlay(g, ME, action);
+    tacPlan = null; sel = { line: null, card: null }; freeMode = false;
+    if (r && r.ok) addLog(`无消耗立即打出「${TACTIC_BY_ID[action.tacticId].name}」（战线 ${LINE_CN[li]} · 零消耗）`);
+    else showHint(r && r.why ? r.why : '免费打出失败。', true);
+    render();
+    if (freeStepFn) freeStepFn();     // 续跑免费打出队列
+    return;
+  }
+  plans[li] = action;
+  tacPlan = null; sel = { line: null, card: null };
+  showHint(`战线 ${LINE_CN[li]} 已用战术牌「${TACTIC_BY_ID[action.tacticId].name}」替代暗扣（本回合该线不再补牌）。`);
+  render();
+}
+function cancelTacPlan() { tacPlan = null; sel = { line: null, card: null }; showHint('已取消战术牌选择。'); render(); }
+function openCell(li, k) {
+  const [sA, sB] = lineSeats(li);
+  const c = g.lines[li].cells[k];
+  const fh = firstHand(li, g.revealDir);
+  const side = s => {
+    const cards = c.sides[s] || [];
+    const v = cards.length >= 3 ? bestFormation(cards, g.dominantSuit) : null;
+    const formTxt = v ? `· ${FORM_NAME[v.level]} · 和${v.pts}` : (cards.length ? `· 未成阵（${cards.length}/${E.cellCapacity(c)}）` : '');
+    return `<div class="kv"><span style="color:${FACTIONS[s].color}">${s + 1} ${FACTIONS[s].name}${s === fh ? '（先手）' : '（后手）'}</span>
+      <b>${cardsText(cards)} ${formTxt}</b></div>`;
+  };
+  const envTxt = Object.values(c.env || {}).map(id => TACTIC_BY_ID[id].name).join('、');
+  openModal(`<h3>战线${LINE_CN[li]} · 第 ${k + 1} 战场</h3>
+    <div class="kv"><span>对阵</span><b>${FACTIONS[sA].name} vs ${FACTIONS[sB].name}</b></div>
+    <div class="kv"><span>旗幟归属</span><b style="color:${c.owner != null ? FACTIONS[c.owner].color : '#888'}">${c.owner != null ? FACTIONS[c.owner].name : '无'}</b></div>
+    <div class="kv"><span>本轮状态</span><b>${c.sealed ? '已封存（夺旗后不可再用）' : (c.decided ? '已决出' : '未决')}</b></div>
+    ${side(sA)}${side(sB)}
+    ${envTxt ? `<div class="kv"><span>环境牌</span><b>${envTxt}</b></div>` : ''}
+    <div class="note">规则 5.1 牌型：同花顺 &gt; 方阵 &gt; 同花 &gt; 顺子 &gt; 杂军；<br>
+      规则 5.2：等级相同先比主导花色张数，再比点数和；<br>
+      规则 9.1：完全相同则「后结算方」判负（本回合方向 ${g.revealDir > 0 ? '顺时针' : '逆时针'}）。</div>`);
+}
+
+// ─────────── 回合推进：① 暗扣 → ② 逐线摊开（亮牌后选中心行动）→ ③④⑤ ───────────
+// 规则 6.2：每个战线摊开时先亮出双方暗扣的牌，再由打牌方各自执行一次中心行动，最后比牌夺旗。
+// 因此「加影响力 / 移动领袖」必须在看到对手的牌之后才决定 —— UI 逐条战线停下询问玩家。
+let reveal = null;   // { order, i, errors, events }
+
+function myActsFromPlans() {
+  return playerLines(ME).map(li => {
+    const p = plans[li];
+    if (!p) return { kind: 'skip', line: li };
+    if (p.kind === 'troop') return { kind: 'troop', line: li, cell: p.cell, handIdx: p.handIdx };
+    return p;
+  });
+}
+const roundChooser = gs => seat => seat === ME ? myActsFromPlans() : chooseActions(gs, seat);
+
+function doReveal() {
+  if (!interactive) {                       // 自动模式：一条龙，不弹面板
+    const r = E.runRound(g, (gs, seat) => seat === ME ? myActsFromPlans() : chooseActions(gs, seat),
+      null, { freePicker: (gg, s, id) => chooseFreePlay(gg, s, id) });
+    logRound(r); afterRound(); return;
+  }
+  const plan = myActsFromPlans();
+  const r = E.collectRound(g, (gs, seat) => seat === ME ? plan : chooseActions(gs, seat));
+  reveal = { order: revealOrder(g.markerLine, g.revealDir), i: 0, errors: r.errors, events: [] };
+  stepReveal();
+}
+
+function stepReveal() {
+  while (reveal && reveal.i < 8) {
+    const li = reveal.order[reveal.i];
+    const pend = (g._round && g._round.pending ? g._round.pending : [])
+      .filter(p => p.lineIdx === li && p.kind === 'troop');
+    const mine = pend.filter(p => p.seat === ME);
+    if (mine.length) { askCenterAction(li, pend); return; }   // 暂停等玩家决定
+    reveal.events.push(...E.revealLine(g, li, null));
+    reveal.i++;
+  }
+  finishReveal();
+}
+
+// 某条战线已亮牌，询问玩家该战线的中心行动（规则 8.2 二选一）
+function askCenterAction(li, pend) {
+  const p = pend.find(x => x.seat === ME);
+  const [sA, sB] = lineSeats(li);
+  const opp = sA === ME ? sB : sA;
+  const oppP = pend.find(x => x.seat === opp);
+  const opt = E.centerOptions(g, ME, p.card.suit);
+  const myCard = `<span style="color:${suitColor(p.card.suit)}">${SUIT_SYMBOL[p.card.suit]}${p.card.rank}</span>`;
+  const oppCard = oppP
+    ? `<span style="color:${suitColor(oppP.card.suit)}">${SUIT_SYMBOL[oppP.card.suit]}${oppP.card.rank}</span>`
+    : '<span style="color:#a09880">本回合未在此线出牌</span>';
+  const leaderNow = `<b style="color:${SUITS[g.leaders[ME]].color}">${suitName(g.leaders[ME])}</b>`;
+  let h = `<h3>战线 ${LINE_CN[li]} 摊开 · 选择你的中心行动</h3>
+    <div class="kv"><span>你打出的牌</span><b>${myCard}（第 ${p.cellIdx != null ? p.cellIdx + 1 : '-'} 格）</b></div>
+    <div class="kv"><span>${FACTIONS[opp].name}打出的牌</span><b>${oppCard}</b></div>
+    <div class="kv"><span>你的领袖当前在</span><b>${leaderNow}</b></div>
+    <div class="kv"><span>你在「${suitName(opt.placeZone)}」的影响力</span><b>${E.playerZoneScore(g, g.zones[opt.placeZone], ME)} / ${CENTER_THRESHOLD}</b></div>
+    <div class="tcard" style="border-color:var(--gold-d)">
+      <div class="tname">规则 8.2 · 二选一（以打出的牌色「${suitName(p.card.suit)}」为准）</div>
+      <div class="tdesc">① 放影响力标记：在该牌颜色区放 1 个自己的标记（无限供应）。<br>
+        ② 移动领袖：${g.leaders[ME] === p.card.suit
+          ? `领袖已在该色区，可移到<b>任意其他颜色区</b>。`
+          : `领袖不在该色区，可将它<b>移入「${suitName(p.card.suit)}」</b>。`}</div>
+    </div>`;
+  const multi = opt.leaderZones.length > 1;
+  h += `<div class="plan-zones">
+      <button class="mini-btn" data-ca="place">① 在「${suitName(opt.placeZone)}」放影响力标记</button>`;
+  if (!multi) h += `<button class="mini-btn" data-ca="leader" data-zone="${opt.leaderZones[0]}">② 移动领袖 → ${suitName(opt.leaderZones[0])}</button>`;
+  h += `</div>`;
+  if (multi) {
+    h += `<div style="margin-top:8px;font-size:12px">② 移动领袖，选择目标区：</div><div class="plan-zones">`;
+    for (const z of opt.leaderZones) h += `<button class="mini-btn" data-ca="leader" data-zone="${z}">${SUIT_SYMBOL[z]} ${suitName(z)}</button>`;
+    h += `</div>`;
+  }
+  h += `<div class="note">本回合摊开进度：第 ${reveal.i + 1} / 8 条战线。选完后才判定本线夺旗。</div>`;
+  openModal(h, { lock: true });
+  mbox.querySelectorAll('[data-ca]').forEach(el => {
+    el.onclick = () => {
+      const choice = el.dataset.ca === 'place' ? { type: 'place' } : { type: 'leader', zone: +el.dataset.zone };
+      modalLock = false; closeModal();
+      reveal.events.push(...E.revealLine(g, li, x => (x.seat === ME && x.lineIdx === li) ? choice : x.center));
+      reveal.i++; stepReveal();
+    };
+  });
+}
+
+function finishReveal() {
+  const errors = reveal.errors, events = reveal.events;
+  reveal = null;
+  // v1.5：春汛离场「超容弃牌」不由引擎自动裁剪，先取回待决，让牌主（人类）自己选；
+  //       AI 席在 askFloodDiscards 内用默认策略即时结算。
+  const r = E.endRound(g, { deferFlood: true });
+  logRound({ errors, events, tacWins: r.tacWins, zoneWins: r.zoneWins });
+  askFloodDiscards(() => runFreePlays(() => afterRound()));
+}
+
+// v1.7：「无消耗立即打出」结算。AI 席即时用策略结算；ME 逐个弹窗询问（立即免费打出 / 留着）。
+let freeMode = false;        // true 时 commitTactic 走 useFreePlay（不占行动计划）
+let freeStepFn = null;       // 免费打出队列的续跑函数
+function runFreePlays(done) {
+  const evs = E.resolveFreePlays(g, (gg, s, id) => (s === ME ? null : chooseFreePlay(gg, s, id)));
+  for (const f of evs) addLog(`无消耗立即打出：${FACTIONS[f.seat].name} 打出「${TACTIC_BY_ID[f.tacticId].name}」（获得当下 · 零消耗）`);
+  const mine = (g.pendingFreePlay[ME] || []).slice();
+  if (!mine.length) { done(); return; }
+  const queue = mine.slice();
+  const step = () => {
+    const id = queue.shift();
+    if (id == null) { freeStepFn = null; freeMode = false; render(); done(); return; }
+    if (!(g.pendingFreePlay[ME] || []).includes(id)) { step(); return; }        // 已被消耗
+    if (!usableLines(id).length) { addLog(`「${TACTIC_BY_ID[id].name}」当前无合适位置，保留。`); step(); return; }
+    openModal(`<h3>无消耗立即打出 · ${TACTIC_BY_ID[id].name}</h3>
+      ${tacticCardHtml(id)}
+      <div class="note">你刚获得战术牌「${TACTIC_BY_ID[id].name}」。按规则 11.3，<b>现在可零行动消耗立即打出</b>——不占用下回合的暗扣行动；若选择留着，之后打出仍需消耗一次暗扣行动。</div>
+      <div class="plan-zones" style="margin-top:8px">
+        <button class="mini-btn" data-free="go">立即免费打出</button>
+        <button class="mini-btn" data-free="keep">留着</button>
+      </div>`, { lock: true });
+    mbox.querySelectorAll('[data-free]').forEach(el => {
+      el.onclick = () => {
+        const v = el.dataset.free;
+        modalLock = false; closeModal();
+        if (v === 'keep') { addLog(`「${TACTIC_BY_ID[id].name}」保留，之后按普通行动打出。`); step(); return; }
+        freeMode = true;
+        startTactic(id);      // 复用目标选择流程；commitTactic 检测 freeMode 后走 useFreePlay
+      };
+    });
+  };
+  freeStepFn = step;
+  step();
+}
+
+// v1.5：春汛离场后，某格容量 4→3，超出的牌由该侧牌主「自行选择弃掉一张」（规则 11.5）。
+//   人类席 → 弹窗逐张挑选；AI 席 → 引擎默认策略（保留最强 3 张）即时结算。
+function askFloodDiscards(done) {
+  const queue = (g.pendingFloodDiscard || []).slice();
+  if (!queue.length) { done(); return; }
+  g.pendingFloodDiscard = [];                 // 取出队列，由本函数掌控逐个结算
+  let i = 0;
+  const step = () => {
+    while (i < queue.length) {
+      const task = queue[i++];
+      if (task.seat === ME) { openFloodPicker(task, step); return; }
+      const ev = E.resolveOneFloodDiscard(g, task);      // AI 默认策略
+      if (ev) addLog(`「多瑙河春汛」离场：战线${LINE_CN[task.line]}第 ${task.cell + 1} 格容量回落为 3，`
+        + `${FACTIONS[task.seat].name} 弃掉 ${cardHtml(ev.card)}（保留最强 3 张）`);
+    }
+    done();
+  };
+  step();
+}
+
+// 人类玩家：弹窗从 4 张里选 1 张弃掉
+function openFloodPicker(task, done) {
+  const cards = E.floodDiscardCandidates(g, task);
+  let h = `<h3>多瑙河春汛离场 · 请选择弃掉哪一张</h3>
+    <div class="kv"><span>战线</span><b>${LINE_CN[task.line]}</b></div>
+    <div class="kv"><span>战场格</span><b>第 ${task.cell + 1} 格</b></div>
+    <div class="note">春汛被夺走，该格容量由 <b>4</b> 回落为 <b>3</b>。你在此格佈了 ${cards.length} 张，
+      请<strong>自行选择弃掉 1 张</strong>——部队牌进本线弃牌堆，战术牌回来源区（牌不会凭空消失）。</div>
+    <div class="plan-zones">`;
+  cards.forEach((c, idx) => { h += `<button class="mini-btn" data-fd="${idx}">${cardHtml(c)}</button>`; });
+  h += `</div>`;
+  openModal(h, { lock: true });
+  mbox.querySelectorAll('[data-fd]').forEach(el => {
+    el.onclick = () => {
+      const idx = +el.dataset.fd;
+      modalLock = false; closeModal();
+      const ev = E.resolveOneFloodDiscard(g, task, () => cards[idx]);
+      if (ev) addLog(`「多瑙河春汛」离场：你弃掉 ${cardHtml(ev.card)}（保留其余 ${cards.length - 1} 张）`);
+      render();
+      done();
+    };
+  });
+}
+function logRound(r) {
+  for (const e of r.errors || []) addLog('⚠ ' + e);
+  for (const e of r.events || []) addLog(`战线${LINE_CN[e.line]} 第${e.cell + 1}格 → ${FACTIONS[e.winner].name} 夺旗`
+    + `${e.reason ? `（${e.reason}${e.lock ? ' · 常规手段下不可推翻' : ''}）` : ''}${e.tie ? '（平手·后结算方负）' : ''}`);
+  for (const t of r.tacWins || []) addLog(`中心区「${g.zones[t.zone].name}」→ ${FACTIONS[t.winner].name} 夺得战术牌「${TACTIC_BY_ID[t.tactic].name}」`);
+  // v1.5：非交互模式（runRound）自动结算的春汛弃牌
+  for (const f of r.floodDiscards || []) addLog(`「多瑙河春汛」离场：战线${LINE_CN[f.line]}第 ${f.cell + 1} 格，`
+    + `${FACTIONS[f.seat].name} 弃掉 ${cardHtml(f.card)}（保留最强 3 张）`);
+  // v1.7：无消耗立即打出（自动模式）
+  for (const f of r.freePlays || []) addLog(`无消耗立即打出：${FACTIONS[f.seat].name} 打出「${TACTIC_BY_ID[f.tacticId].name}」（获得当下 · 零消耗）`);
+  // 规则 8.9：中央区第一计分
+  for (const z of r.zoneWins || []) {
+    addLog(z.prev == null
+      ? `中央区「${g.zones[z.zone].name}」第一 → ${FACTIONS[z.winner].name} 取得该区（+1）`
+      : `中央区「${g.zones[z.zone].name}」易主 → ${FACTIONS[z.winner].name} +1 / ${FACTIONS[z.prev].name} −1`);
+  }
+}
+function afterRound() {
+  plans = {}; pending = null; sel = { line: null, card: null }; tacPlan = null;
+  render();
+  if (g.over) showOver();
+  else showHint(`第 ${g.round} 回合：已摊开结算完毕。标记已移至战线 ${LINE_CN[g.markerLine]}，方向翻为${g.revealDir > 0 ? '顺时针' : '逆时针'}。`);
+}
+function showOver() {
+  const rank = E.finalRanking(g);
+  const box = document.createElement('div');
+  box.className = 'over';
+  const why = g.endReason === 'flags' ? `有人夺得 ${WIN_FLAGS} 面旗子`
+    : g.endReason === 'deck' ? '牌堆耗尽' : '达到回合上限';
+  box.innerHTML = `<div class="over-box">
+    <h2 style="color:var(--gold-d);font-size:18px;margin-bottom:8px">游戏结束 · ${why}</h2>
+    <p style="margin-bottom:4px">第 ${g.round} 回合 · ${g.winner != null ? FACTIONS[g.winner].name + ' 获胜' : '平局'}</p>
+    <div style="font-size:12px;margin:10px 0">${rank.slice(0, 4).map((x, i) => `${i + 1}. ${FACTIONS[x.seat].name} ${x.score}分（旗子 ${x.captures} 面${x.zones ? ` ＋ 中央区 ${x.zones}` : ''}）`).join('<br>')}</div>
+    <button onclick="location.reload()">再来一局</button>
+  </div>`;
+  document.body.appendChild(box);
+}
+
+document.getElementById('btnNew').onclick = () => { const ov = document.querySelector('.over'); if (ov) ov.remove(); init(); };
+document.getElementById('btnReveal').onclick = () => doReveal();
+document.getElementById('btnAuto').onclick = () => {
+  const acts = chooseActions(g, ME);
+  for (const a of acts) {
+    if (a.kind === 'troop') {
+      const card = g.hands[ME][a.line][a.handIdx];
+      plans[a.line] = { kind: 'troop', line: a.line, cell: a.cell, handIdx: a.handIdx, center: a.center, __card: { ...card }, __suit: card.suit };
+    } else plans[a.line] = a;
+  }
+  pending = null;
+  render();
+  showHint('已按 AI 策略补齐两条战线的暗扣，点「摊开结算」——届时逐条战线亮牌后再选择中心行动。');
+};
+
+init();
+applyScale();
+
+// 端到端自测 / 演示：在网址后加 ?auto=N 即以 AI 策略自动连打 N 回合
+// 例： http://127.0.0.1:8848/?auto=60
+const autoParam = new URLSearchParams(location.search).get('auto');
+// ?zone=N：打开中央区奖励牌详情（深链 / 自测用）
+const zoneParam = new URLSearchParams(location.search).get('zone');
+if (zoneParam != null && zoneParam !== '') openZone(Math.max(0, Math.min(5, Number(zoneParam) | 0)));
+if (autoParam) {
+  const N = Math.max(1, Math.min(300, Number(autoParam) || 20));
+  let n = 0;
+  (function step() {
+    if (g.over || n++ >= N) {
+      document.title = `AUTO-DONE rounds=${g.round} over=${g.over} winner=${g.winner} scores=[${g.scores.join(',')}] sum=${g.scores.reduce((a, b) => a + b, 0)}`;
+      return;
+    }
+    document.getElementById('btnAuto').click();
+    document.getElementById('btnReveal').click();
+    setTimeout(step, 0);
+  })();
+}
+
+// ?demo=1：分步 UI 流程自测 —— 自动完成「开局布置领袖 → 暗扣 → 逐线亮牌选中心行动」，连跑 3 回合
+if (PARAMS.get('demo') != null) {
+  let guard = 0;
+  (function dstep() {
+    if (guard++ > 5000) { document.title = 'DEMO-TIMEOUT'; return; }
+    const modalVisible = !document.getElementById('modal').classList.contains('hidden');
+    const setupBtn = modalVisible ? document.querySelector('[data-setup]') : null;
+    if (setupBtn) { setupBtn.click(); setTimeout(dstep, 0); return; }
+    const caBtn = modalVisible ? document.querySelector('[data-ca]') : null;
+    if (caBtn) { caBtn.click(); setTimeout(dstep, 0); return; }
+    // v1.5：春汛离场「选择弃牌」弹窗 → 自动选第一张
+    const fdBtn = modalVisible ? document.querySelector('[data-fd]') : null;
+    if (fdBtn) { fdBtn.click(); setTimeout(dstep, 0); return; }
+    // v1.7：无消耗立即打出 → 直接免费打出；战术牌选战线弹窗 → 选第一条
+    const freeBtn = modalVisible ? document.querySelector('[data-free="go"]') : null;
+    if (freeBtn) { freeBtn.click(); setTimeout(dstep, 0); return; }
+    const tlineBtn = modalVisible ? document.querySelector('[data-tline]') : null;
+    if (tlineBtn) { tlineBtn.click(); setTimeout(dstep, 0); return; }
+    if (!g.over && g.round <= 3) {
+      document.getElementById('btnAuto').click();
+      document.getElementById('btnReveal').click();
+      setTimeout(dstep, 0);
+      return;
+    }
+    document.title = `DEMO-DONE round=${g.round} leaders=[${Object.values(g.leaders).join(',')}] scores=[${g.scores.join(',')}] sum=${g.scores.reduce((a, b) => a + b, 0)}`;
+  })();
+}
+
+// ?tacdemo=1：UI 战术牌打出流程自测 —— 给玩家发一张战术牌，走完「选战线 → 选格 → 入计划」。
+// 覆盖 10 张牌各自的参数形态（士气 / 环境直接选格；计谋按牌类构造参数）。
+if (PARAMS.get('tacdemo') != null) {
+  const results = [];
+  let guard = 0;
+  (function tstep() {
+    if (results.length >= TACTICS.length) { document.title = 'TACDEMO ' + results.join(' | '); return; }
+    if (guard++ > 200) { document.title = 'TACDEMO-TIMEOUT ' + results.join(' | '); return; }
+    const mv = !document.getElementById('modal').classList.contains('hidden');
+    const setupBtn = mv ? document.querySelector('[data-setup]') : null;
+    if (setupBtn) { setupBtn.click(); setTimeout(tstep, 0); return; }
+
+    const id = TACTICS[results.length].id;         // 逐张试 10 张牌
+    const li0 = playerLines(ME)[0];
+    const cells = g.lines[li0].cells;
+    const modalNow = () => !document.getElementById('modal').classList.contains('hidden');
+    // 每轮重置为干净局面：本线第1格有我方牌、第2格对手牌、其余空位
+    plans = {}; tacPlan = null; sel = { line: null, card: null }; pending = null;
+    cells.forEach(c => { c.sides = {}; c.env = {}; c.decided = false; });
+    const [sa, sb] = lineSeats(li0);
+    const opp0 = sa === ME ? sb : sa;
+    cells[0].sides[ME] = [{ suit: 0, rank: 5 }];
+    cells[2].sides[opp0] = [{ suit: 1, rank: 7 }, { suit: 2, rank: 8 }];
+    if (!g.playerTactics[ME].includes(id)) g.playerTactics[ME].push(id);
+    startTactic(id);
+    if (modalNow()) {                              // 两条战线都可选 → 自动选本测试线
+      const b = document.querySelector(`[data-tline="${li0}"]`) || document.querySelector('[data-tline]');
+      if (b) b.click();
+    }
+    const t = TACTIC_BY_ID[id];
+    if (!tacPlan && !plans[li0]) { results.push(`${id}:NO-ENTER`); setTimeout(tstep, 0); return; }
+    if (tacPlan && tacPlan.line !== li0) tacPlan.line = li0;   // 兜底：只在本测试线上操作
+    if (t.cat === 'guile') {
+      if (id === 'scout') { /* 已在 enterTacticLine 内直接提交 */ }
+      else if (id === 'shift') { tacCellClick(li0, 0); tacCellClick(li0, 5); }
+      else {
+        tacCellClick(li0, 2);                      // mutiny / defect：对手格
+        // 对手该格有多张牌时会弹出「选择哪张」面板 → 自动选第一张
+        if (!document.getElementById('modal').classList.contains('hidden')) {
+          const p = document.querySelector('[data-pick]');
+          if (p) p.click();
+        }
+      }
+    } else {
+      let chosen = -1;
+      for (let k = 0; k < cells.length; k++) if (E.canPlayTactic(g, ME, li0, id, k).ok) { chosen = k; break; }
+      tacCellClick(li0, chosen);
+    }
+    const p = plans[li0];
+    results.push(`${id}:${p && p.kind === 'tactic' ? 'OK' : 'FAIL(' + JSON.stringify(p) + ')'}`);
+    setTimeout(tstep, 0);
+  })();
+}
+
+// ?flooddemo=1：v1.5「春汛离场 → 玩家选择弃一张」UI 自测。
+// 人为构造「某侧 4 张 + 超容待决」，走一遍人类弹窗：应弹出候选、点选后该侧回到 3 张、牌入弃牌堆。
+if (PARAMS.get('flooddemo') != null) {
+  const li = playerLines(ME)[0];
+  const cells = g.lines[li].cells;
+  cells.forEach(c => { c.sides = {}; c.env = {}; c.decided = false; });
+  cells[0].sides[ME] = [{ suit: 0, rank: 1 }, { suit: 0, rank: 2 }, { suit: 0, rank: 3 }, { suit: 0, rank: 4 }];
+  g.pendingFloodDiscard = [{ line: li, cell: 0, seat: ME, excess: 1 }];
+  askFloodDiscards(() => {
+    const n = (g.lines[li].cells[0].sides[ME] || []).length;
+    document.title = `FLOODDONE cards=${n} discards=${g.lines[li].discard.length} pending=${g.pendingFloodDiscard.length}`;
+  });
+  const btns = [...document.querySelectorAll('[data-fd]')];
+  if (btns.length) { (btns[2] || btns[0]).click(); }        // 选第 3 张
+  else { document.title = 'FLOOD-NOMODAL'; }
+}
+
+// ?freedemo=1：v1.7「无消耗立即打出」UI 自测 —— 人为给 ME 一张 scout + 额度，
+// 走一遍「立即免费打出（零消耗）」弹窗 → 选战线 → 生成即打出。
+if (PARAMS.get('freedemo') != null) {
+  const li = playerLines(ME)[0];
+  g.lines[li].cells.forEach(c => { c.sides = {}; c.env = {}; c.decided = false; });
+  if (!g.playerTactics[ME].includes('scout')) g.playerTactics[ME].push('scout');
+  if (!g.pendingFreePlay[ME].includes('scout')) g.pendingFreePlay[ME].push('scout');
+  g._round = { pending: [], noRefill: new Set() };   // applyAction 依赖 _round 上下文
+  let done = false, guard = 0;
+  runFreePlays(() => {
+    done = true;
+    document.title = `FREEDONE freeLeft=${(g.pendingFreePlay[ME] || []).length} held=${g.playerTactics[ME].length} played=${g.tacticsPlayed[ME].reduce((a, b) => a + b, 0)}`;
+  });
+  (function fstep() {
+    if (guard++ > 300) { document.title = 'FREEDEMO-TIMEOUT done=' + done; return; }
+    const mv = !document.getElementById('modal').classList.contains('hidden');
+    if (mv) {
+      const go = document.querySelector('[data-free="go"]');
+      if (go) { go.click(); setTimeout(fstep, 0); return; }
+      const tline = document.querySelector('[data-tline]');
+      if (tline) { tline.click(); setTimeout(fstep, 0); return; }
+    }
+    if (done) return;
+    setTimeout(fstep, 0);
+  })();
+}
+</script>
+</body>
+</html>
